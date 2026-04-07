@@ -16,11 +16,16 @@ def create_admin():
         print("SUPERUSER_PASSWORD not set. Skipping admin creation.")
         return
 
-    if not User.objects.filter(username=username).exists():
+    user_exists = User.objects.filter(username=username).first()
+    if not user_exists:
         print(f"Creating superuser: {username}")
-        User.objects.create_superuser(username=username, email=email, password=password)
+        User.objects.create_superuser(username=username, email=email, password=password, role='admin')
     else:
-        print(f"Superuser {username} already exists.")
+        print(f"Updating superuser: {username}")
+        user_exists.set_password(password)
+        user_exists.role = 'admin'
+        user_exists.save()
+
 
 if __name__ == "__main__":
     create_admin()
