@@ -7,7 +7,7 @@
   <title>{% block title %}School Management System{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
@@ -24,8 +24,8 @@
 
     <!-- Logo -->
     <div class="sidebar-logo">
-      <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
-      <div class="logo-text">Edu<span>MS</span></div>
+      <img src="/static/images/logo.png" alt="EduMS" style="height: 40px; width: auto;" onerror="this.onerror=null; this.innerHTML='Edu<span>MS</span>';">
+      <div class="logo-text" style="margin-left: 10px;">Edu<span>MS</span></div>
     </div>
 
     <!-- Navigation -->
@@ -255,7 +255,7 @@
         <i class="fas fa-bars"></i>
       </button>
 
-      <span class="topbar-school-name">Welcome to <span>School</span> Management System</span>
+      <span class="topbar-school-name">Welcome to <span class="text-primary fw-bold">EduMS</span> Intelligence Portal</span>
 
       <!-- Search -->
       <div class="topbar-search">
@@ -345,8 +345,8 @@
     </main>
 
     <!-- Footer -->
-    <footer style="padding:0.85rem 1.5rem; border-top:1px solid #e4eaf0; background:#fff; font-size:0.75rem; color:#aab4be; text-align:center;">
-      © 2026 EduSystem School Management. All rights reserved.
+    <footer style="padding:0.85rem 1.5rem; border-top:1px solid var(--border-color); background:#fff; font-size:0.75rem; color:var(--text-muted); text-align:center;">
+      © 2026 EduMS Education Management System. All rights reserved.
     </footer>
 
   </div><!-- end .sms-main-wrapper -->
