@@ -10,3 +10,7 @@ python manage.py collectstatic --no-input
 
 # Apply any outstanding database migrations
 python manage.py migrate
+
+# Create initial admin user if not exists
+python create_admin.py
+
