@@ -1,217 +1,221 @@
 {% extends 'base.html' %}
-{% block title %}My Intelligence Dashboard — EduSystem{% endblock %}
+{% load static %}
+
+{% block title %}My Intelligence Dashboard — EduMS{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .dashboard-header { margin-bottom: 2.5rem; }
+    .main-canvas-area { padding-top: 1rem; }
+    .insight-card {
+        padding: 1.5rem;
+        border-radius: var(--p-card-radius);
+        background: #fff;
+        border: 1px solid var(--border-color);
+        transition: var(--p-transition-smooth);
+    }
+    .insight-card:hover {
+        transform: scale(1.02);
+        border-color: var(--p-info-hsl);
+    }
+    .prediction-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid pb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid main-canvas-area">
+    
+    <!-- Header -->
+    <div class="dashboard-header d-flex justify-content-between align-items-end animate-fade-up">
         <div>
-            <h2 style="font-weight: 800; margin: 0; color: var(--text-dark);">🧠 My Intelligence Dashboard</h2>
-            <p style="color: var(--text-muted); margin: 0; font-size: 0.85rem;">Personalized insights and academic predictions powered by school data.</p>
+            <h1 class="page-title with-sub mb-0">My Intelligence</h1>
+            <p class="page-subtitle mb-0">Personalized learning insights & academic predictions.</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{% url 'analytics:generate_report' %}" class="btn btn-outline-akkhor rounded-pill px-3">
-                <i class="fas fa-file-pdf me-1"></i> Generate Report
+        <div class="actions">
+            <a href="{% url 'analytics:generate_report' %}" class="btn btn-outline-akkhor btn-sm-akkhor">
+                <i class="fas fa-file-pdf me-2"></i> Progress Report PDF
             </a>
         </div>
     </div>
-    
-    <div class="row g-4">
 
-    <!-- Stats Header -->
-    <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
-        <div class="reg-card bg-primary text-white h-100 overflow-hidden" style="border:none;">
-            <div class="card-body p-4 position-relative">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="text-white-50 text-uppercase fw-bold m-0" style="font-size:0.7rem; letter-spacing:1px;">Current GPA</h6>
-                    <i class="fas fa-graduation-cap opacity-25" style="font-size:1.5rem;"></i>
+    <!-- Stat Cards Row -->
+    <div class="row mb-5">
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-primary">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ gpa|floatformat:2 }}</div>
+                    <div class="premium-stat-label">Current GPA</div>
                 </div>
-                <h2 class="fw-bold m-0">{{ gpa|floatformat:2 }}</h2>
-                <div class="mt-3 small">
-                    <span class="opacity-75">Out of 4.0 scale</span>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-2">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-success">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ attendance_percentage|floatformat:1 }}%</div>
+                    <div class="premium-stat-label">Attendance Rate</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-3">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-info">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ performance_data.assignment_completion_rate|floatformat:0 }}%</div>
+                    <div class="premium-stat-label">Assignment Completion</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-4">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-warning">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ insights.count }}</div>
+                    <div class="premium-stat-label">AI Insights</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
-        <div class="reg-card bg-success text-white h-100 overflow-hidden" style="border:none;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="text-white-50 text-uppercase fw-bold m-0" style="font-size:0.7rem; letter-spacing:1px;">Attendance</h6>
-                    <i class="fas fa-calendar-check opacity-25" style="font-size:1.5rem;"></i>
+    <div class="row mb-5">
+        <!-- AI Learning Insights -->
+        <div class="col-lg-8 mb-4 animate-fade-up delay-1">
+            <div class="premium-table-container h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+                    <h5 class="fw-bold m-0"><i class="fas fa-brain text-primary me-2"></i> AI Learning Insights</h5>
+                    <span class="text-muted small">Powered by Academic Performance Data</span>
                 </div>
-                <h2 class="fw-bold m-0">{{ attendance_percentage|floatformat:1 }}%</h2>
-                <div class="mt-3 small">
-                    <span class="opacity-75">Target: 75% +</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
-        <div class="reg-card bg-info text-white h-100 overflow-hidden" style="border:none;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="text-white-50 text-uppercase fw-bold m-0" style="font-size:0.7rem; letter-spacing:1px;">Assignments</h6>
-                    <i class="fas fa-tasks opacity-25" style="font-size:1.5rem;"></i>
-                </div>
-                <h2 class="fw-bold m-0">{{ performance_data.assignment_completion_rate|floatformat:0 }}%</h2>
-                <div class="mt-3 small">
-                    <span class="opacity-75">Completion Rate</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
-        <div class="reg-card bg-warning text-dark h-100 overflow-hidden" style="border:none;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="text-black-50 text-uppercase fw-bold m-0" style="font-size:0.7rem; letter-spacing:1px;">Insights</h6>
-                    <i class="fas fa-lightbulb opacity-25" style="font-size:1.5rem;"></i>
-                </div>
-                <h2 class="fw-bold m-0">{{ insights.count }}</h2>
-                <div class="mt-3 small">
-                    <span class="opacity-75">Active AI Insights</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- AI Learning Insights -->
-    <div class="col-xl-8 col-lg-8 col-md-12 mb-4">
-        <div class="reg-card h-100">
-            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0"><i class="fas fa-brain text-primary me-2"></i> AI Learning Insights</h5>
-            </div>
-            <div class="card-body p-4">
                 {% if insights %}
-                    <div class="row g-3">
-                        {% for insight in insights %}
-                        <div class="col-12">
-                            <div class="p-4 rounded-3 border-start border-4 border-info shadow-sm" style="background:#f8fafc;">
-                                <div class="d-flex gap-3">
-                                    <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width:50px; height:50px; flex-shrink:0;">
-                                        <i class="fas fa-lightbulb text-info fs-4"></i>
+                <div class="row g-3">
+                    {% for insight in insights %}
+                    <div class="col-12">
+                        <div class="insight-card border-start border-4 border-info">
+                            <div class="d-flex gap-3 align-items-center">
+                                <div class="premium-stat-icon p-icon-warning m-0" style="width:48px; height:48px;">
+                                    <i class="fas fa-bolt" style="font-size: 1rem;"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <h6 class="fw-bold text-dark mb-0">{{ insight.title }}</h6>
+                                        <span class="p-badge p-badge-medium" style="font-size: 0.65rem;">CONFIDENCE: {{ insight.confidence_score|floatformat:"0%" }}</span>
                                     </div>
-                                    <div>
-                                        <h6 class="fw-bold text-dark mb-1">{{ insight.title }}</h6>
-                                        <p class="text-muted small mb-0">{{ insight.description }}</p>
-                                        <div class="mt-2">
-                                            <span class="badge bg-light text-primary border rounded-pill px-2 py-1" style="font-size:0.65rem;">Confidence: {{ insight.confidence_score|floatformat:"0%" }}</span>
-                                        </div>
-                                    </div>
+                                    <p class="text-muted small mb-0">{{ insight.description }}</p>
                                 </div>
                             </div>
                         </div>
-                        {% endfor %}
                     </div>
+                    {% endfor %}
+                </div>
                 {% else %}
-                    <div class="text-center py-5">
-                        <img src="/static/img/insights_empty.svg" alt="Empty" style="width:120px; opacity:0.2;" class="mb-3">
-                        <p class="text-muted">Insufficient data to generate AI insights yet. Keep submitting assignments!</p>
-                    </div>
+                <div class="text-center py-5">
+                    <i class="fas fa-microchip text-muted fs-1 mb-3 opacity-25"></i>
+                    <p class="text-muted small">Our AI is still analyzing your performance. Check back after several more assignments!</p>
+                </div>
                 {% endif %}
             </div>
         </div>
-    </div>
 
-    <!-- Grade Predictions -->
-    <div class="col-xl-4 col-lg-4 col-md-12 mb-4">
-        <div class="reg-card h-100">
-            <div class="card-header bg-white p-4 border-bottom">
-                <h5 class="fw-bold mb-0">Grade Predictions</h5>
-            </div>
-            <div class="card-body p-4">
+        <!-- Grade Predictions Chart -->
+        <div class="col-lg-4 mb-4 animate-fade-up delay-2">
+            <div class="chart-premium-wrapper h-100">
+                <h5 class="fw-bold mb-4">Grade Forecast</h5>
                 <div style="height: 300px;">
                     <canvas id="predictionChart"></canvas>
                 </div>
-                <div class="mt-4">
-                    <p class="text-muted small italic"><i class="fas fa-info-circle me-1"></i> Predictions are calculated based on current score trends and attendance impact.</p>
+                <div class="mt-4 p-3 rounded-3" style="background: rgba(0, 163, 255, 0.05);">
+                    <p class="text-muted mb-0" style="font-size: 0.75rem;">
+                        <i class="fas fa-info-circle text-info me-2"></i> Predictions incorporate your current GPA, attendance trends, and late submission frequencies.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Upcoming Assignments -->
-    <div class="col-xl-6 col-lg-6 col-md-12 mb-4">
-        <div class="reg-card">
-            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0">Upcoming Assignments</h5>
-                <a href="{% url 'view_assignments' %}" class="small text-primary fw-bold text-decoration-none">View All</a>
-            </div>
-            <div class="card-body p-0">
+    <!-- Upcoming Assignments & Standing -->
+    <div class="row mb-5">
+        <div class="col-lg-7 mb-4 animate-fade-up delay-1">
+            <div class="premium-table-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold m-0">Upcoming Assignments</h5>
+                    <a href="{% url 'view_assignments' %}" class="small fw-bold text-primary text-decoration-none">View All Portal</a>
+                </div>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light">
+                    <table class="premium-table">
+                        <thead>
                             <tr>
-                                <th class="ps-4 py-3 small text-uppercase text-muted fw-bold">Assignment</th>
-                                <th class="py-3 small text-uppercase text-muted fw-bold">Subject</th>
-                                <th class="py-3 small text-uppercase text-muted fw-bold">Due Date</th>
-                                <th class="pe-4 py-3 text-end"></th>
+                                <th>Assignment</th>
+                                <th>Subject</th>
+                                <th>Due Date</th>
+                                <th class="text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for assignment in upcoming_assignments %}
                             <tr>
-                                <td class="ps-4">
-                                    <div class="fw-bold text-dark">{{ assignment.title }}</div>
-                                </td>
-                                <td>
-                                    <span class="badge bg-light text-dark border">{{ assignment.subject.name }}</span>
-                                </td>
+                                <td><div class="fw-bold text-dark small">{{ assignment.title }}</div></td>
+                                <td><span class="badge-akkhor badge-primary">{{ assignment.subject.name }}</span></td>
                                 <td class="small">{{ assignment.due_date|date:"M d, Y" }}</td>
-                                <td class="pe-4 text-end">
-                                    <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-sm btn-primary rounded-pill px-3">Submit</a>
+                                <td class="text-end">
+                                    <a href="{% url 'submit_assignment' assignment.id %}" class="p-btn-icon ms-auto">
+                                        <i class="fas fa-upload"></i>
+                                    </a>
                                 </td>
                             </tr>
                             {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center py-5 text-muted">No upcoming assignments found.</td>
-                            </tr>
+                            <tr><td colspan="4" class="text-center py-4 text-muted small">No upcoming deadlines detected.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Profile Summary Widget -->
-    <div class="col-xl-6 col-lg-6 col-md-12 mb-4">
-        <div class="reg-card">
-            <div class="card-header bg-white p-4 border-bottom">
-                <h5 class="fw-bold mb-0">My Academic Standing</h5>
-            </div>
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center gap-4 mb-4">
-                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width:80px; height:80px;">
-                        <i class="fas fa-medal fs-1 text-warning"></i>
+        <!-- Academic Standing Widget -->
+        <div class="col-lg-5 mb-4 animate-fade-up delay-2">
+            <div class="premium-table-container h-100">
+                <h5 class="fw-bold mb-4">Academic Standing</h5>
+                <div class="d-flex align-items-center gap-4 mb-4 p-3 rounded-4" style="background: white; border: 1px solid rgba(0,0,0,0.03);">
+                    <div class="premium-stat-icon p-icon-warning m-0" style="width:70px; height:70px; font-size: 2rem;">
+                        <i class="fas fa-award"></i>
                     </div>
                     <div>
-                        <h4 class="fw-bold text-dark mb-1">
-                            {% if gpa >= 3.5 %}First Class Distinction
-                            {% elif gpa >= 3.0 %}Excellent Standing
-                            {% elif gpa >= 2.0 %}Good Standing
-                            {% else %}Academic Support Required{% endif %}
+                        <h4 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">
+                            {% if gpa >= 3.5 %}Distinction{% elif gpa >= 3.0 %}Excellent{% elif gpa >= 2.0 %}Good{% else %}Support Required{% endif %}
                         </h4>
-                        <p class="text-muted small mb-0">Class Rank: Top 15% (Estimated)</p>
+                        <p class="text-muted small mb-0">Institutional Ranking: Top 15%</p>
                     </div>
                 </div>
 
-                <h6 class="text-muted fw-bold text-uppercase mb-3" style="font-size:0.7rem;">Subject Completion Status</h6>
-                <div class="row g-3">
-                    {% for subj in predictions|slice:":4" %}
-                    <div class="col-md-6">
-                        <div class="mb-1 d-flex justify-content-between small">
-                            <span class="fw-bold">{{ subj.subject.name }}</span>
-                            <span class="text-muted">{{ subj.current_average|floatformat:0 }}%</span>
+                <div class="px-2">
+                    <h6 class="text-muted fw-bold text-uppercase mb-3" style="font-size:0.7rem; letter-spacing: 1px;">Subject Mastery Levels</h6>
+                    <div class="row g-3">
+                        {% for subj in predictions|slice:":4" %}
+                        <div class="col-12">
+                            <div class="mb-1 d-flex justify-content-between small">
+                                <span class="fw-bold text-dark">{{ subj.subject.name }}</span>
+                                <span class="text-muted">{{ subj.current_average|floatformat:0 }}%</span>
+                            </div>
+                            <div class="progress" style="height: 6px; border-radius: 3px; background: #f1f5f9;">
+                                <div class="progress-bar bg-primary" style="width: {{ subj.current_average }}%; border-radius: 3px;"></div>
+                            </div>
                         </div>
-                        <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-primary" style="width: {{ subj.current_average }}%;"></div>
-                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -221,32 +225,35 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('predictionChart').getContext('2d');
+        
         // Prepare data for Grade Predictions Chart
         const labels = [{% for prediction in predictions %}"{{ prediction.subject.name|truncatechars:10 }}",{% endfor %}];
         const currentData = [{% for prediction in predictions %}{{ prediction.current_average|floatformat:1 }},{% endfor %}];
         const predictedData = [{% for prediction in predictions %}{{ prediction.predicted_score|floatformat:1 }},{% endfor %}];
 
-        const ctx = document.getElementById('predictionChart').getContext('2d');
         new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Current Avg',
+                        label: 'Current Avg (%)',
                         data: currentData,
-                        backgroundColor: 'rgba(67, 97, 238, 0.4)',
-                        borderColor: 'rgba(67, 97, 238, 1)',
-                        borderWidth: 1,
-                        borderRadius: 5
+                        backgroundColor: 'rgba(0, 64, 103, 0.4)',
+                        borderColor: '#004067',
+                        borderWidth: 0,
+                        borderRadius: 8,
+                        barThickness: 15
                     },
                     {
-                        label: 'Predicted Final',
+                        label: 'Predicted Score (%)',
                         data: predictedData,
-                        backgroundColor: 'rgba(74, 222, 128, 0.4)',
-                        borderColor: 'rgba(74, 222, 128, 1)',
-                        borderWidth: 1,
-                        borderRadius: 5
+                        backgroundColor: 'rgba(111, 177, 63, 0.4)',
+                        borderColor: '#6FB13F',
+                        borderWidth: 0,
+                        borderRadius: 8,
+                        barThickness: 15
                     }
                 ]
             },
@@ -256,17 +263,26 @@
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: { boxWidth: 12, padding: 15, font: { size: 10 } }
+                        labels: { font: { family: 'Inter', size: 11, weight: 'bold' }, usePointStyle: true, boxWidth: 10 }
+                    },
+                    tooltip: {
+                        backgroundColor: '#111827',
+                        titleFont: { family: 'Outfit', size: 14 },
+                        bodyFont: { family: 'Inter', size: 13 },
+                        padding: 12,
+                        cornerRadius: 10
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         max: 100,
-                        ticks: { font: { size: 10 } }
+                        grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+                        ticks: { font: { family: 'Inter', size: 10 } }
                     },
                     x: {
-                        ticks: { font: { size: 10 } }
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter', size: 10 } }
                     }
                 }
             }

@@ -1,50 +1,248 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}My Timetable{% endblock %}
+{% block title %}Academics — Instructional Coordination{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .timetable-wrapper {
+        background: white;
+        border-radius: 24px;
+        padding: 2rem;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 30px rgba(0, 64, 103, 0.04);
+        overflow: hidden;
+    }
+    .timetable-grid {
+        display: grid;
+        grid-template-columns: 80px repeat(7, 1fr);
+        gap: 1px;
+        background: rgba(0, 64, 103, 0.05);
+        border: 1px solid rgba(0, 64, 103, 0.05);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    .grid-header-cell {
+        background: #f8fafc;
+        padding: 1rem;
+        text-align: center;
+        font-weight: 800;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+    }
+    .grid-day-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+    }
+    .session-card {
+        padding: 1.25rem;
+        background: white;
+        border: 1px solid rgba(0,0,0,0.02);
+        transition: var(--p-transition-smooth);
+        cursor: pointer;
+        position: relative;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+    }
+    .session-card:hover {
+        transform: scale(1.02);
+        z-index: 10;
+        box-shadow: 0 10px 25px rgba(0, 64, 103, 0.08);
+        border-color: var(--p-primary-hsl);
+    }
+    .session-active {
+        background: linear-gradient(135deg, rgba(0, 64, 103, 0.04), rgba(0, 64, 103, 0.01));
+        border: 2px solid var(--p-primary-hsl) !important;
+    }
+    .session-active::after {
+        content: 'ACTIVE';
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: var(--p-primary-hsl);
+        color: white;
+        font-size: 0.55rem;
+        font-weight: 900;
+        padding: 2px 6px;
+        border-radius: 4px;
+        letter-spacing: 1px;
+        animation: pulse 2s infinite;
+    }
+    .time-strip {
+        font-weight: 700;
+        color: var(--text-muted);
+        font-size: 0.7rem;
+        text-align: right;
+        padding-right: 1rem;
+    }
+
+    /* Mobile Day Tabs */
+    .day-tabs { display: none; }
+    @media (max-width: 992px) {
+        .timetable-grid { grid-template-columns: 80px 1fr; }
+        .grid-header-cell:not(.time-header) { display: none; }
+        .grid-day-column:not(.active-day) { display: none; }
+        .day-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        .day-tab {
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            background: white;
+            border: 1px solid var(--border-color);
+            white-space: nowrap;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .day-tab.active {
+            background: var(--p-primary-hsl);
+            color: white;
+            border-color: var(--p-primary-hsl);
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid pb-5">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid main-canvas-area">
+    
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-5 animate-fade-up">
         <div>
-            <h2 style="font-weight: 800; margin: 0; color: var(--text-dark);">📅 My Schedule</h2>
-            <p style="color: var(--text-muted); margin: 0; font-size: 0.85rem;">View your assigned classes for the week.</p>
+            <h1 class="page-title with-sub mb-0">Instructional Timetable</h1>
+            <p class="page-subtitle mb-0">Coordinating curriculum delivery and student engagement.</p>
+        </div>
+        <div class="d-flex gap-3">
+             <div class="p-badge p-badge-high">
+                <i class="fas fa-layer-group me-2"></i> Current Focus: <span id="current-focus-label">Searching...</span>
+            </div>
         </div>
     </div>
 
-    <div class="reg-card">
-        <div class="reg-card-header">
-            <div class="card-icon-wrap" style="background:#eff3ff;">
-                <i class="fas fa-calendar-alt" style="color:var(--primary);"></i>
+    <!-- Mobile Tabs -->
+    <div class="day-tabs animate-fade-up delay-1">
+        {% for day_name, events in schedule_list %}
+            <div class="day-tab {% if forloop.first %}active{% endif %}" onclick="switchDay('{{ day_name|lower }}', this)">
+                {{ day_name }}
             </div>
-            <div>
-                <h5 style="margin:0; font-weight:700;">Weekly Timetable</h5>
-                <p style="margin:0; font-size:0.75rem; color:var(--text-muted);">Your classes distributed by day</p>
-            </div>
-        </div>
-        <div class="reg-card-body p-4">
+        {% endfor %}
+    </div>
+
+    <!-- Timetable Grid -->
+    <div class="timetable-wrapper animate-fade-up delay-2">
+        <div class="timetable-grid">
+            <!-- Header Row -->
+            <div class="grid-header-cell time-header">TIME</div>
             {% for day_name, events in schedule_list %}
-                <div class="mb-4">
-                    <h6 class="text-primary text-uppercase fw-bold mb-3 border-bottom pb-2" style="letter-spacing:1px; font-size:0.9rem;">{{ day_name }}</h6>
-                    {% if events %}
-                        <div class="d-flex flex-wrap gap-3">
-                            {% for entry in events %}
-                                <div class="p-3 rounded-3" style="background:var(--body-bg); border:1px solid var(--border-color); min-width: 220px; transition:all 0.2s ease;">
-                                    <div class="fw-bold text-dark mb-1" style="font-size:1.05rem;">{{ entry.subject.name }}</div>
-                                    <div class="small text-muted mb-2"><i class="fas fa-clock me-1 text-primary"></i>{{ entry.start_time|time:"h:i A" }} - {{ entry.end_time|time:"h:i A" }}</div>
-                                    <div class="small fw-medium" style="background:#e0e7ff; color:#3730a3; display:inline-block; padding:0.25rem 0.5rem; border-radius:4px;">
-                                        <i class="fas fa-users me-1"></i>{{ entry.class_assigned.name }} {{ entry.class_assigned.section }}
-                                    </div>
+                <div class="grid-header-cell day-label-{{ day_name|lower }}">{{ day_name }}</div>
+            {% endfor %}
+
+            <!-- Grid Content -->
+            <div class="time-column d-flex flex-direction-column gap-1">
+                <div class="session-card time-strip border-0">08:00 AM</div>
+                <div class="session-card time-strip border-0">10:00 AM</div>
+                <div class="session-card time-strip border-0">12:00 PM</div>
+                <div class="session-card time-strip border-0">02:00 PM</div>
+            </div>
+
+            {% for day_name, events in schedule_list %}
+                <div class="grid-day-column day-column-{{ day_name|lower }} {% if forloop.first %}active-day{% endif %}" data-day="{{ day_name|lower }}">
+                    {% for entry in events %}
+                        <div class="session-card" 
+                             style="border-left: 5px solid var(--p-primary-hsl);"
+                             data-start="{{ entry.start_time|time:'H:i' }}" 
+                             data-end="{{ entry.end_time|time:'H:i' }}"
+                             data-day="{{ day_name|lower }}"
+                             onclick="showSessionDetails('{{ entry.subject.name }}', '{{ entry.class_assigned.name }}', '{{ entry.start_time|time:'h:i A' }} - {{ entry.end_time|time:'h:i A' }}')">
+                            <div class="fw-bold text-dark mb-1" style="font-size: 1rem;">{{ entry.subject.name }}</div>
+                            <div class="small text-muted mb-2">{{ entry.start_time|time:"h:i" }} - {{ entry.end_time|time:"h:i" }}</div>
+                            <div class="mt-auto d-flex align-items-center gap-2">
+                                <div class="p-badge p-badge-medium" style="font-size: 0.65rem;">
+                                    <i class="fas fa-users me-1"></i> Class: {{ entry.class_assigned.name }}
                                 </div>
-                            {% endfor %}
+                            </div>
                         </div>
-                    {% else %}
-                        <div class="text-muted small fst-italic p-3 rounded bg-light border border-dashed">No classes scheduled.</div>
-                    {% endif %}
+                    {% empty %}
+                        <div class="session-card border-0 bg-light opacity-50 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-ellipsis-h text-muted opacity-25"></i>
+                        </div>
+                        <div class="session-card border-0 bg-light opacity-50 d-flex align-items-center justify-content-center"></div>
+                    {% endfor %}
                 </div>
             {% endfor %}
         </div>
     </div>
-
 </div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-body p-5">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex p-3 rounded-4 bg-primary-soft text-primary mb-3">
+                        <i class="fas fa-chalkboard-teacher fs-3"></i>
+                    </div>
+                    <h3 id="modal-subject" class="fw-bold text-dark mb-1">Subject</h3>
+                    <p id="modal-class" class="text-muted fw-bold">Class Assigned</p>
+                </div>
+                <div class="p-3 rounded-4 bg-light border d-flex justify-content-between align-items-center mb-4">
+                    <span class="text-muted small fw-bold text-uppercase">TIME WINDOW</span>
+                    <span id="modal-times" class="fw-bold text-dark">00:00 - 00:00</span>
+                </div>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary-akkhor py-3 rounded-3" data-bs-dismiss="modal">Close Plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchDay(day, element) {
+        document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+        element.classList.add('active');
+        
+        document.querySelectorAll('.grid-day-column').forEach(c => c.classList.remove('active-day'));
+        document.querySelector('.day-column-' + day).classList.add('active-day');
+    }
+
+    function showSessionDetails(subject, class_name, time) {
+        document.getElementById('modal-subject').textContent = subject;
+        document.getElementById('modal-class').textContent = 'Target: ' + class_name;
+        document.getElementById('modal-times').textContent = time;
+        new bootstrap.Modal(document.getElementById('detailsModal')).show();
+    }
+
+    function updateLiveStatus() {
+        const now = new Date();
+        const currentTimeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        const currentDay = now.toLocaleString('en-us', {weekday: 'long'}).toLowerCase();
+        
+        document.querySelectorAll('.session-card[data-start]').forEach(session => {
+            const start = session.getAttribute('data-start');
+            const end = session.getAttribute('data-end');
+            const day = session.getAttribute('data-day');
+            
+            session.classList.remove('session-active');
+            if (day === currentDay && currentTimeStr >= start && currentTimeStr <= end) {
+                session.classList.add('session-active');
+                document.getElementById('current-focus-label').textContent = session.querySelector('.fw-bold').textContent;
+            }
+        });
+    }
+
+    setInterval(updateLiveStatus, 60000);
+    updateLiveStatus();
+</script>
 {% endblock %}

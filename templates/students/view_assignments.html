@@ -1,99 +1,116 @@
 {% extends 'base.html' %}
-{% load widget_tweaks %}
+{% load static %}
 
-{% block title %}View Assignments - {{ student.user.get_full_name }}{% endblock %}
+{% block title %}Academics — My Assignments{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .assignments-header { margin-bottom: 2.5rem; }
+    .status-filter {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .status-tab {
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: var(--p-transition-smooth);
+        border: 1px solid var(--border-color);
+        background: white;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+    .status-tab.active {
+        background: var(--p-primary-hsl);
+        color: white;
+        border-color: var(--p-primary-hsl);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="sms-breadcrumb mb-4">
-  <span>Home</span><span class="sep">›</span><span class="current">My Assignments</span>
-</div>
-
-<div class="container-fluid fade-in pb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid main-canvas-area">
+    
+    <!-- Header -->
+    <div class="assignments-header d-flex justify-content-between align-items-end animate-fade-up">
         <div>
-            <h2 style="font-weight: 800; margin: 0; color: var(--text-dark);">My Assignments</h2>
-            <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">View and submit assignments</p>
+            <h1 class="page-title with-sub mb-0">Assignments Portal</h1>
+            <p class="page-subtitle mb-0">Track your coursework, deadlines, and submission history.</p>
         </div>
-        <button type="button" class="btn btn-outline-akkhor btn-sm rounded-pill px-3" onclick="location.reload()">
-            <i class="fas fa-sync-alt me-1"></i> Refresh
-        </button>
     </div>
 
-    <!-- Assignments List -->
-    <div class="row g-4">
-        {% for assignment in assignments %}
-        <div class="col-lg-4 col-md-6">
-            <div class="reg-card h-100 d-flex flex-column m-0 position-relative overflow-hidden
-                {% if assignment.status == 'overdue' %}border-danger border-2
-                {% elif assignment.status == 'submitted' %}border-success border-2
-                {% else %}border-warning border-2{% endif %}" style="transition:all 0.2s ease;">
-                
-                <div class="reg-card-header d-flex align-items-center gap-3">
-                    <div class="card-icon-wrap" style="background:#eff3ff;">
-                        <i class="fas fa-clipboard-list" style="color:var(--primary);"></i>
-                    </div>
-                    <div>
-                        <h5 style="margin:0; font-weight:700; color:var(--text-dark);">{{ assignment.title }}</h5>
-                        <p style="margin:0; font-size:0.75rem; color:var(--primary); font-weight:700; text-transform:uppercase;">{{ assignment.subject.name }}</p>
-                    </div>
-                </div>
-                
-                <div class="reg-card-body flex-grow-1">
-                    <p class="text-muted small mb-4" style="line-height:1.5;">{{ assignment.description|truncatechars:90 }}</p>
-                    
-                    <div class="d-flex flex-column gap-2 mb-3">
-                        <div class="d-flex align-items-center text-muted small">
-                            <i class="fas fa-user-circle fs-5 me-2 text-primary opacity-50"></i> 
-                            <span style="font-weight:600;">{{ assignment.teacher.user.get_full_name }}</span>
-                        </div>
-                        <div class="d-flex align-items-center text-muted small">
-                            <i class="fas fa-calendar-alt fs-5 me-2 text-primary opacity-50"></i> 
-                            <span>Due: <strong class="text-dark">{{ assignment.due_date|date:"M d, Y" }}</strong> at {{ assignment.due_date|time:"g:i A" }}</span>
-                        </div>
-                    </div>
+    <!-- Status Tabs (Visual Only for now) -->
+    <div class="status-filter animate-fade-up delay-1">
+        <div class="status-tab active">All Tasks</div>
+        <div class="status-tab">Pending</div>
+        <div class="status-tab">Submitted</div>
+        <div class="status-tab text-danger">Overdue</div>
+    </div>
 
-                    {% if assignment.file %}
-                    <a href="{{ assignment.file.url }}" target="_blank" class="btn btn-sm text-primary bg-light rounded-pill px-3 py-1 mt-2 mb-2 d-inline-flex align-items-center" style="font-weight: 600;">
-                        <i class="fas fa-file-download me-2"></i> Download Material
-                    </a>
-                    {% endif %}
-                </div>
-                
-                <div class="bg-white border-top p-4 d-flex justify-content-between align-items-center mt-auto">
-                    {% if assignment.status == 'submitted' %}
-                        <span class="badge badge-akkhor text-success" style="background: rgba(40,167,69,0.1);">
-                            <i class="fas fa-check-circle me-1"></i> Submitted
-                        </span>
-                        {% if assignment.submission.grade %}
-                        <span class="badge bg-primary rounded-pill px-3 py-2 fw-bold text-white shadow-sm">
-                            Grade: {{ assignment.submission.grade }}/{{ assignment.max_score }}
-                        </span>
-                        {% endif %}
-                    {% elif assignment.status == 'overdue' %}
-                        <span class="badge badge-akkhor text-danger" style="background: rgba(220,53,69,0.1);">
-                            <i class="fas fa-exclamation-triangle me-1"></i> Overdue
-                        </span>
-                    {% else %}
-                        <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-primary-akkhor btn-sm w-100 rounded-pill shadow-sm">
-                            <i class="fas fa-cloud-upload-alt me-2"></i> Submit
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% empty %}
+    <div class="row animate-fade-up delay-2">
         <div class="col-12">
-            <div class="reg-card">
-                <div class="reg-card-body text-center py-5">
-                    <div class="avatar-ring mb-3" style="width:80px; height:80px; font-size:2rem; background:#f3f6fb; color:var(--text-muted); margin:0 auto; display:flex; align-items:center; justify-content:center; border-radius:50%;">
-                        <i class="fas fa-clipboard-check"></i>
-                    </div>
-                    <h5 style="color:var(--text-dark); font-weight:700;">All caught up!</h5>
-                    <p style="color:var(--text-muted);">No active assignments found for your enrolled classes.</p>
+            <div class="premium-table-container">
+                <div class="table-responsive">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Assessment Details</th>
+                                <th>Educational Field</th>
+                                <th>Assigned By</th>
+                                <th>Deadline</th>
+                                <th class="text-end">Fulfillment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in assignments %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark mb-1">{{ assignment.title }}</div>
+                                    <div class="text-muted small" style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        {{ assignment.description|truncatechars:100 }}
+                                    </div>
+                                </td>
+                                <td><span class="p-badge p-badge-medium" style="background: rgba(0, 64, 103, 0.05); border: 1px solid rgba(0, 64, 103, 0.1); color: var(--p-primary-hsl);">{{ assignment.subject.name }}</span></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                            <i class="fas fa-user-tie text-muted small"></i>
+                                        </div>
+                                        <div class="small fw-bold text-dark">{{ assignment.teacher.user.get_full_name }}</div>
+                                    </div>
+                                </td>
+                                <td class="small {% if assignment.status == 'overdue' %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                    {{ assignment.due_date|date:"F d, Y" }}
+                                </td>
+                                <td class="text-end">
+                                    {% if assignment.status == 'submitted' %}
+                                        <div class="d-flex align-items-center justify-content-end gap-2">
+                                            <span class="p-badge p-badge-medium" style="font-size: 0.65rem;">SUBMITTED</span>
+                                            <span class="text-success small"><i class="fas fa-check-double"></i></span>
+                                        </div>
+                                    {% elif assignment.status == 'overdue' %}
+                                        <div class="d-flex align-items-center justify-content-end gap-2">
+                                            <span class="p-badge p-badge-critical" style="font-size: 0.65rem;">OVERDUE</span>
+                                            <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-sm btn-link text-primary p-0 fw-bold small">Upload late</a>
+                                        </div>
+                                    {% else %}
+                                        <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-primary-akkhor btn-sm-akkhor px-4" style="font-size: 0.75rem;">
+                                            Submit Now
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center py-5 text-muted">No assignments listed in the academic system currently.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        {% endfor %}
     </div>
 </div>
 {% endblock %}

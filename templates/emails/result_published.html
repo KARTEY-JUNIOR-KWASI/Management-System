@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; }
+        .header { text-align: center; color: #1e293b; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
+        .content { margin-top: 20px; color: #334155; line-height: 1.6; }
+        .footer { margin-top: 30px; text-align: center; color: #94a3b8; font-size: 12px; }
+        .badge { background: #3b82f6; color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>🎓 Academic Alert</h2>
+            <p>Edu Ms Institutional Intelligence</p>
+        </div>
+        <div class="content">
+            <p>Dear Parent/Guardian of <strong>{{ student_name }}</strong>,</p>
+            <p>This is an automated notification from <strong>{{ school_name }}</strong> regarding a new academic result published for your ward.</p>
+            
+            <div style="background: #f8fafc; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <p><strong>Subject:</strong> {{ subject }}</p>
+                <p><strong>Assessment:</strong> {{ exam_type }}</p>
+                <p><strong>Performance:</strong> <span class="badge">{{ percentage }}</span> ({{ score }})</p>
+            </div>
+
+            <p>You can view the full report card and performance history by logging into the school portal.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 {{ school_name }}. All rights reserved.</p>
+            <p>This is a system-generated alert. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>

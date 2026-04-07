@@ -1,107 +1,173 @@
 {% extends 'base.html' %}
-{% load widget_tweaks %}
+{% load static %}
 
-{% block title %}My Attendance{% endblock %}
+{% block title %}Academics — Attendance Records{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .attendance-header { margin-bottom: 2.5rem; }
+    .attendance-metric-card {
+        padding: 2.5rem;
+        background: white;
+        border-radius: var(--p-card-radius);
+        text-align: center;
+        border: 1px solid var(--border-color);
+        height: 100%;
+    }
+    .circular-progress-wrap {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto 2rem;
+        position: relative;
+    }
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="sms-breadcrumb">
-  <span>Home</span><span class="sep">›</span><span class="current">My Attendance</span>
-</div>
+<div class="container-fluid main-canvas-area">
+    
+    <!-- Header -->
+    <div class="attendance-header d-flex justify-content-between align-items-end animate-fade-up">
+        <div>
+            <h1 class="page-title with-sub mb-0">Attendance Intelligence</h1>
+            <p class="page-subtitle mb-0">Detailed analysis of classroom presence and consistency metrics.</p>
+        </div>
+    </div>
 
-<div class="stat-cards-row fade-in">
-    <div class="stat-card-akkhor stat-blue">
-        <div class="stat-card-icon"><i class="fas fa-calendar-alt"></i></div>
-        <div class="stat-card-body">
-            <div class="stat-card-number">{{ attendance_percentage|floatformat:1 }}%</div>
-            <div class="stat-card-label">Overall Rate</div>
-        </div>
-    </div>
-    <div class="stat-card-akkhor stat-green">
-        <div class="stat-card-icon"><i class="fas fa-check-circle"></i></div>
-        <div class="stat-card-body">
-            <div class="stat-card-number">{{ present_days }}</div>
-            <div class="stat-card-label">Present Days</div>
-        </div>
-    </div>
-    <div class="stat-card-akkhor stat-red">
-        <div class="stat-card-icon"><i class="fas fa-times-circle"></i></div>
-        <div class="stat-card-body">
-            <div class="stat-card-number">{{ absent_days }}</div>
-            <div class="stat-card-label">Absent Days</div>
-        </div>
-    </div>
-    <div class="stat-card-akkhor stat-amber">
-        <div class="stat-card-icon"><i class="fas fa-clock"></i></div>
-        <div class="stat-card-body">
-            <div class="stat-card-number">{{ late_days }}</div>
-            <div class="stat-card-label">Late Days</div>
-        </div>
-    </div>
-</div>
-
-<div class="fade-in mt-4 pb-5">
-    {% if attendance_records %}
-    <div class="reg-card">
-        <div class="reg-card-header">
-            <div class="card-icon-wrap" style="background:#eff3ff;">
-                <i class="fas fa-history" style="color:var(--primary);"></i>
-            </div>
-            <div>
-                <h5 style="margin:0; font-weight:700;">Recent Attendance Records</h5>
-                <p style="margin:0; font-size:0.75rem; color:var(--text-muted);">History of your attendance</p>
-            </div>
-        </div>
-        <div class="reg-card-body p-0">
-            <div class="table-responsive border-top rounded-bottom-3 overflow-hidden">
-                <table class="table-akkhor m-0">
-                    <thead>
-                        <tr>
-                            <th class="px-4">Date</th>
-                            <th>Class Section</th>
-                            <th>Status</th>
-                            <th class="px-4">Marked By</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for record in attendance_records %}
-                        <tr>
-                            <td class="px-4 fw-medium text-dark">{{ record.date|date:"F j, Y" }}</td>
-                            <td><span style="font-weight:600;">{{ record.class_attended.name }} {{ record.class_attended.section }}</span></td>
-                            <td>
-                                {% if record.status == 'present' %}
-                                    <span class="badge badge-akkhor text-success" style="background: rgba(40,167,69,0.1);">Present</span>
-                                {% elif record.status == 'absent' %}
-                                    <span class="badge badge-akkhor text-danger" style="background: rgba(220,53,69,0.1);">Absent</span>
-                                {% elif record.status == 'late' %}
-                                    <span class="badge badge-akkhor text-warning" style="background: rgba(255,193,7,0.1);">Late</span>
-                                {% else %}
-                                    <span class="badge badge-akkhor text-secondary" style="background: rgba(108,117,125,0.1);">{{ record.status|title }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="px-4 text-muted small">
-                                {% if record.marked_by %}
-                                    {{ record.marked_by.get_full_name }}
-                                {% else %}
-                                    <span class="text-muted fst-italic">N/A</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    {% else %}
-        <div class="reg-card">
-            <div class="reg-card-body text-center py-5">
-                <div class="avatar-ring mb-3" style="width:80px; height:80px; font-size:2rem; background:#f3f6fb; color:var(--text-muted); margin:0 auto; display:flex; align-items:center; justify-content:center; border-radius:50%;">
-                    <i class="fas fa-calendar-times"></i>
+    <!-- Attendance Overview Row -->
+    <div class="row mb-5 animate-fade-up delay-1">
+        <!-- Main Circular Metric -->
+        <div class="col-lg-4 mb-4">
+            <div class="attendance-metric-card">
+                <div class="circular-progress-wrap">
+                    <!-- Scalable SVG Circle -->
+                    <svg viewBox="0 0 36 36" style="transform: rotate(-90deg); width: 100%; height: 100%;">
+                        <path stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f1f5f9" stroke-width="3" />
+                        <path stroke-dasharray="{{ attendance_percentage|floatformat:0 }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#004067" stroke-width="3" stroke-linecap="round" />
+                    </svg>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                        <h2 class="fw-bold m-0 text-dark">{{ attendance_percentage|floatformat:0 }}%</h2>
+                        <span class="text-muted small fw-bold">PRESENT</span>
+                    </div>
                 </div>
-                <h5 class="text-dark fw-bold">No attendance records found</h5>
-                <p class="text-muted mb-0">Your attendance records will appear here once marked by a teacher.</p>
+                <div class="d-flex justify-content-around mt-2">
+                    <div>
+                        <div class="fw-bold text-dark">{{ present_days }}</div>
+                        <div class="text-muted" style="font-size: 0.65rem;">PRESENT</div>
+                    </div>
+                    <div style="width: 1px; background: #eee;"></div>
+                    <div>
+                        <div class="fw-bold text-dark">{{ absent_days }}</div>
+                        <div class="text-muted" style="font-size: 0.65rem;">ABSENT</div>
+                    </div>
+                    <div style="width: 1px; background: #eee;"></div>
+                    <div>
+                        <div class="fw-bold text-dark">{{ late_days }}</div>
+                        <div class="text-muted" style="font-size: 0.65rem;">LATE</div>
+                    </div>
+                </div>
             </div>
         </div>
-    {% endif %}
+
+        <!-- Monthly Breakdown -->
+        <div class="col-lg-8 mb-4">
+            <div class="premium-table-container h-100">
+                <h5 class="fw-bold mb-4">Engagement by Month</h5>
+                <div class="table-responsive">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Billing Period / Month</th>
+                                <th>Total Days</th>
+                                <th>Present</th>
+                                <th>Consistency</th>
+                                <th class="text-end">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for month_data in monthly_attendance %}
+                            <tr>
+                                <td class="fw-bold text-dark small">{{ month_data.month|date:"F Y" }}</td>
+                                <td class="small">{{ month_data.total }} Days</td>
+                                <td class="small">{{ month_data.present }}</td>
+                                <td>
+                                    {% widthratio month_data.present month_data.total 100 as pct %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height: 6px; border-radius: 3px; background: #f1f5f9;">
+                                            <div class="progress-bar {% if pct|add:0 >= 90 %}bg-success{% elif pct|add:0 >= 75 %}bg-primary{% else %}bg-warning{% endif %}" style="width: {{ pct }}%; border-radius: 3px;"></div>
+                                        </div>
+                                        <span class="small fw-bold">{{ pct }}%</span>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    {% if pct|add:0 >= 90 %}
+                                        <span class="p-badge p-badge-medium" style="font-size: 0.6rem;">EXEMPLARY</span>
+                                    {% elif pct|add:0 >= 75 %}
+                                        <span class="p-badge p-badge-high" style="font-size: 0.6rem;">STABLE</span>
+                                    {% else %}
+                                        <span class="p-badge p-badge-critical" style="font-size: 0.6rem;">LOW</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Records Table -->
+    <div class="row animate-fade-up delay-2">
+        <div class="col-12">
+            <div class="premium-table-container">
+                <h5 class="fw-bold mb-4">Detailed Daily Logs</h5>
+                <div class="table-responsive">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Class Designation</th>
+                                <th>Verification Status</th>
+                                <th class="text-end">Record</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in attendance_records %}
+                            <tr>
+                                <td><div class="fw-bold text-dark small">{{ record.date|date:"l, F d" }}</div></td>
+                                <td class="small text-muted">{{ record.class_attended.name }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center small text-muted">
+                                        <i class="fas fa-check-circle text-success me-2"></i> Verified Institutional Record
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    {% if record.status == 'present' %}
+                                        <span class="p-badge p-badge-medium" style="font-size: 0.65rem;">PRESENT</span>
+                                    {% elif record.status == 'late' %}
+                                        <span class="p-badge p-badge-high" style="font-size: 0.65rem;">TARDY</span>
+                                    {% else %}
+                                        <span class="p-badge p-badge-critical" style="font-size: 0.65rem;">ABSENT</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-4 text-muted small">No logs available for the current selection.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -1,0 +1,200 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum, Count, Q
+from decimal import Decimal
+from .models import FeeCategory, FeeStructure, Invoice, InvoiceItem, Payment
+from students.models import Student
+from core.models import Class, AcademicTerm, SchoolConfiguration
+
+from django.http import HttpResponse
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A5
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.units import cm
+from analytics.reporting_utils import draw_institutional_seal
+from accounts.decorators import admin_required
+
+@admin_required
+def finance_hub(request):
+    """Institutional Financial Pulse Dashboard."""
+    config = SchoolConfiguration.get_config()
+    active_term = config.active_term
+    
+    # Financial Analytics
+    if active_term:
+        total_expected = Invoice.objects.filter(term=active_term).aggregate(Sum('total_amount'))['total_amount__sum'] or Decimal('0.00')
+        total_collected = Payment.objects.filter(invoice__term=active_term).aggregate(Sum('amount_paid'))['amount_paid__sum'] or Decimal('0.00')
+        unpaid_invoices = Invoice.objects.filter(term=active_term, status__in=['unpaid', 'partial']).select_related('student__user')[:10]
+    else:
+        total_expected = Decimal('0.00')
+        total_collected = Decimal('0.00')
+        unpaid_invoices = Invoice.objects.none()
+
+    outstanding_debt = total_expected - total_collected
+    
+    collection_rate = (total_collected / total_expected * 100) if total_expected > 0 else 0
+    
+    recent_payments = Payment.objects.select_related('invoice__student__user').order_by('-date_paid')[:10]
+    
+    classes = Class.objects.all()
+    categories = FeeCategory.objects.all()
+    
+    context = {
+        'total_expected': total_expected,
+        'total_collected': total_collected,
+        'outstanding_debt': outstanding_debt,
+        'collection_rate': round(collection_rate, 1),
+        'recent_payments': recent_payments,
+        'unpaid_invoices': unpaid_invoices,
+        'active_term': active_term,
+        'classes': classes,
+        'categories': categories,
+    }
+    return render(request, 'admin_dashboard/finance_hub.html', context)
+
+@admin_required
+def generate_class_invoices(request):
+    """Bulk billing engine: Generate invoices for all students in a specific class."""
+    if request.method == 'POST':
+        class_id = request.POST.get('class_id')
+        term_id = request.POST.get('term_id')
+        
+        target_class = get_object_or_404(Class, id=class_id)
+        target_term = get_object_or_404(AcademicTerm, id=term_id)
+        
+        # Get fee structures for this class
+        structures = FeeStructure.objects.filter(class_name=target_class)
+        if not structures.exists():
+            messages.error(request, f'No fee structure defined for {target_class.name}. Please set prices first.')
+            return redirect('finance:finance_hub')
+            
+        students = Student.objects.filter(class_enrolled=target_class)
+        invoice_count = 0
+        
+        for student in students:
+            # Avoid duplicate invoices for same student/term
+            if Invoice.objects.filter(student=student, term=target_term).exists():
+                continue
+                
+            invoice = Invoice.objects.create(student=student, term=target_term)
+            total = Decimal('0.00')
+            
+            for structural_fee in structures:
+                InvoiceItem.objects.create(
+                    invoice=invoice,
+                    category=structural_fee.category,
+                    amount=structural_fee.amount
+                )
+                total += structural_fee.amount
+            
+            invoice.total_amount = total
+            invoice.balance_due = total
+            invoice.save()
+            invoice_count += 1
+            
+        messages.success(request, f'Generated {invoice_count} invoices for {target_class.name} for {target_term.name}.')
+    return redirect('finance:finance_hub')
+
+@admin_required
+def record_payment(request, invoice_id):
+    """Manual payment recording by administrator."""
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    if request.method == 'POST':
+        amount = Decimal(request.POST.get('amount'))
+        method = request.POST.get('method')
+        ref = request.POST.get('reference', '')
+        
+        if amount <= 0:
+            messages.error(request, 'Payment amount must be greater than zero.')
+        elif amount > invoice.balance_due:
+            messages.error(request, f'Payment exceeds balance. Max allowed: {invoice.balance_due}')
+        else:
+            Payment.objects.create(
+                invoice=invoice,
+                amount_paid=amount,
+                method=method,
+                transaction_id=ref
+            )
+            messages.success(request, f'Recorded payment of {amount} for {invoice.student.user.get_full_name()}.')
+            
+    return redirect('finance:finance_hub')
+
+@admin_required
+def generate_payment_receipt(request, payment_id):
+    """Generate a professional, print-ready PDF receipt for a transaction."""
+    payment = get_object_or_404(Payment, id=payment_id)
+    student = payment.invoice.student
+    config = SchoolConfiguration.get_config()
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Receipt_{payment.transaction_id or payment.id}.pdf"'
+
+    doc = SimpleDocTemplate(response, pagesize=A5, rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=20)
+    styles = getSampleStyleSheet()
+    story = []
+
+    # Custom Styles
+    styles.add(ParagraphStyle(name='Title', parent=styles['Heading1'], alignment=1, fontSize=16, spaceAfter=20, textColor=colors.HexColor('#1E293B')))
+    styles.add(ParagraphStyle(name='SubTitle', parent=styles['Normal'], alignment=1, fontSize=10, textColor=colors.grey))
+    styles.add(ParagraphStyle(name='SectionHeader', parent=styles['Heading2'], fontSize=12, spaceBefore=15, spaceAfter=8, textColor=colors.HexColor('#4361EE')))
+
+    # Header
+    seal = draw_institutional_seal()
+    h_data = [[seal, Paragraph(f"<b>{config.name}</b><br/>{config.motto}<br/>{config.address}", styles['SubTitle'])]]
+    h_table = Table(h_data, colWidths=[2.5*cm, 9*cm])
+    h_table.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'MIDDLE'), ('ALIGN', (0,0), (0,0), 'CENTER')]))
+    story.append(h_table)
+    story.append(Spacer(1, 15))
+
+    # Title
+    story.append(Paragraph("OFFICIAL PAYMENT RECEIPT", styles['Title']))
+    story.append(Paragraph(f"<b>No:</b> {payment.transaction_id or payment.id} | <b>Date:</b> {payment.date_paid.strftime('%B %d, %Y')}", styles['SubTitle']))
+    story.append(Spacer(1, 20))
+
+    # Transaction Details
+    story.append(Paragraph("PAYMENT DETAILS", styles['SectionHeader']))
+    p_data = [
+        ['STUDENT:', f"{student.user.get_full_name()} ({student.student_id})"],
+        ['CLASS:', f"{student.class_enrolled.name} {student.class_enrolled.section}"],
+        ['TERM:', payment.invoice.term.name],
+        ['METHOD:', payment.get_method_display()],
+    ]
+    p_table = Table(p_data, colWidths=[3*cm, 8.5*cm])
+    p_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+    ]))
+    story.append(p_table)
+    story.append(Spacer(1, 20))
+
+    # Amount Table
+    story.append(Paragraph("AMOUNT SUMMARY", styles['SectionHeader']))
+    a_data = [
+        ['DESCRIPTION', 'AMOUNT'],
+        [f"Payment for Invoice {payment.invoice.invoice_number}", f"${payment.amount_paid}"],
+        ['<b>TOTAL PAID</b>', f"<b>${payment.amount_paid}</b>"],
+    ]
+    a_table = Table(a_data, colWidths=[8.5*cm, 3*cm])
+    a_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#4361EE')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+    ]))
+    story.append(a_table)
+
+    # Footer
+    story.append(Spacer(1, 40))
+    f_data = [['__________________________', '__________________________'], ['Cashier Signature', 'Parent/Guardian Signature']]
+    f_table = Table(f_data, colWidths=[5.75*cm, 5.75*cm])
+    f_table.setStyle(TableStyle([('ALIGN', (0, 0), (-1, -1), 'CENTER'), ('FONTSIZE', (0, 1), (-1, -1), 8), ('TEXTCOLOR', (0, 1), (-1, -1), colors.grey)]))
+    story.append(f_table)
+
+    doc.build(story)
+    return response

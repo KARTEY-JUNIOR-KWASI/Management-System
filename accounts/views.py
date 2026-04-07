@@ -28,10 +28,17 @@ def profile(request):
         from teachers.models import Teacher
         teacher_profile = Teacher.objects.filter(user=request.user).first()
         
+    from .models import Badge
+    all_badges = Badge.objects.all()
+    user_badges = request.user.badges.all()
+
     context = {
         'form': form,
         'student_profile': student_profile,
-        'teacher_profile': teacher_profile
+        'teacher_profile': teacher_profile,
+        'all_badges': all_badges,
+        'user_badges': user_badges,
+        'earned_badge_ids': [b.id for b in user_badges]
     }
     return render(request, 'accounts/profile.html', context)
 

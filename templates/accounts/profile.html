@@ -1,176 +1,294 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}My Profile{% endblock %}
+{% block title %}Academics — My Intelligence Profile{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .profile-banner {
+        height: 180px;
+        background: linear-gradient(135deg, var(--p-primary-hsl), var(--p-info-hsl));
+        border-radius: 24px 24px 0 0;
+        margin-bottom: -90px;
+        position: relative;
+    }
+    .profile-id-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 0 15px 35px rgba(0, 64, 103, 0.08);
+        position: relative;
+        z-index: 2;
+    }
+    .avatar-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
+    .profile-avatar {
+        width: 140px;
+        height: 140px;
+        border-radius: 35px;
+        object-fit: cover;
+        border: 8px solid white;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .status-dot {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        background: #10b981;
+        border: 4px solid white;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .badge-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 1.5rem;
+    }
+    .achievement-item {
+        text-align: center;
+        transition: var(--p-transition-smooth);
+        padding: 1.25rem;
+        border-radius: 20px;
+        background: rgba(0, 64, 103, 0.02);
+    }
+    .achievement-item:hover {
+        transform: translateY(-5px);
+        background: white;
+        box-shadow: 0 8px 25px rgba(0, 0, 103, 0.05);
+    }
+    .badge-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 0.75rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .locked-badge {
+        filter: grayscale(1) opacity(0.3);
+    }
+    .locked-badge .badge-icon {
+        background: #e2e8f0 !important;
+        color: #94a3b8 !important;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row layout-spacing">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 style="font-weight: 800; margin: 0; color: var(--text-dark);">👤 Account Profile</h2>
-                <p style="color: var(--text-muted); margin: 0; font-size: 0.85rem;">Manage your personal settings and view your account details.</p>
+<div class="container-fluid main-canvas-area">
+    
+    <!-- Profile Background Layer -->
+    <div class="profile-banner animate-fade-in"></div>
+
+    <div class="row g-4 animate-fade-up">
+        <!-- Identity Section -->
+        <div class="col-lg-4">
+            <div class="profile-id-card text-center">
+                <div class="avatar-wrapper">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" class="profile-avatar" alt="User Image">
+                    {% else %}
+                        <div class="profile-avatar bg-light d-flex align-items-center justify-content-center">
+                            <i class="fas fa-user text-muted" style="font-size: 4rem;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="status-dot"></div>
+                </div>
+                
+                <h3 class="fw-bold text-dark mb-1">{{ user.get_full_name }}</h3>
+                <div class="p-badge p-badge-medium mb-3 text-uppercase" style="letter-spacing: 1px; padding: 0.4rem 1.2rem;">
+                    {{ user.get_role_display }}
+                </div>
+                
+                <p class="text-muted small mb-4">Institutional Credential: <strong>#{{ user.id|add:1000 }}</strong></p>
+
+                <div class="d-flex flex-column gap-2 mt-4">
+                    <button class="btn btn-primary-akkhor rounded-pill py-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="fas fa-edit me-2"></i> Update Identity
+                    </button>
+                    <a href="{% url 'account_change_password' %}" class="btn btn-outline-akkhor rounded-pill py-2">
+                        <i class="fas fa-key me-2"></i> Change Encryption
+                    </a>
+                </div>
+
+                <hr class="my-4 opacity-10">
+                
+                <!-- Quick Metrics based on role -->
+                <div class="row text-center">
+                    {% if user.role == 'student' %}
+                    <div class="col-6">
+                        <div class="small text-muted mb-1">Attendance</div>
+                        <div class="fw-bold text-dark">94.2%</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="small text-muted mb-1">GPA Rank</div>
+                        <div class="fw-bold text-dark">#12</div>
+                    </div>
+                    {% elif user.role == 'teacher' %}
+                    <div class="col-6">
+                        <div class="small text-muted mb-1">Resources</div>
+                        <div class="fw-bold text-dark">{{ teacher_profile.library_uploads.count|default:0 }}</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="small text-muted mb-1">Active Classes</div>
+                        <div class="fw-bold text-dark">{{ teacher_profile.classes.count|default:0 }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Achievements Sidebar (Mini) -->
+            <div class="p-card mt-4">
+                <h6 class="fw-bold text-dark mb-3"><i class="fas fa-trophy text-warning me-2"></i> Milestone Progress</h6>
+                <div class="progress mb-2" style="height: 8px; border-radius: 4px;">
+                    <div class="progress-bar bg-primary" style="width: {% widthratio earned_badge_ids|length all_badges|length 100 %}%;"></div>
+                </div>
+                <div class="small text-muted">{{ earned_badge_ids|length }} of {{ all_badges|length }} achievements unlocked</div>
+            </div>
+        </div>
+
+        <!-- Details Section -->
+        <div class="col-lg-8">
+            <!-- Achievements Gallery -->
+            <div class="premium-table-container p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-4"><i class="fas fa-medal text-primary me-2"></i> Achievement Vault</h5>
+                <div class="badge-grid">
+                    {% for badge in all_badges %}
+                        <div class="achievement-item {% if badge.id not in earned_badge_ids %}locked-badge{% endif %}" 
+                             title="{{ badge.description }}">
+                            <div class="badge-icon" style="background: {{ badge.color_hex }};">
+                                <i class="fas {{ badge.icon_class }}"></i>
+                            </div>
+                            <div class="fw-bold text-dark small">{{ badge.name }}</div>
+                            <div class="text-muted" style="font-size: 0.65rem;">
+                                {% if badge.id in earned_badge_ids %} unlocked {% else %} locked {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Role Details Display -->
+            <div class="premium-table-container p-4">
+                <h5 class="fw-bold text-dark mb-4"><i class="fas fa-id-card text-primary me-2"></i> Biological Data & Role Context</h5>
+                
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="p-2 bg-light rounded-3 px-3 d-flex justify-content-between align-items-center">
+                            <span class="text-muted small fw-bold">Gender</span>
+                            <span class="fw-bold text-dark">{{ user.gender|title|default:"Not Specified" }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-2 bg-light rounded-3 px-3 d-flex justify-content-between align-items-center">
+                            <span class="text-muted small fw-bold">Phone Connection</span>
+                            <span class="fw-bold text-dark">{{ user.phone|default:"---" }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="p-3 bg-light rounded-3 px-3">
+                            <span class="text-muted small fw-bold d-block mb-1">Residence Address</span>
+                            <span class="fw-semibold text-dark">{{ user.address|default:"Institutional Residence / Not Provided" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if user.role == 'student' and student_profile %}
+                    <div class="row g-4 mt-2">
+                         <div class="col-md-6">
+                            <div class="p-2 bg-light rounded-3 px-3 d-flex justify-content-between align-items-center">
+                                <span class="text-muted small fw-bold">Enrollment Path</span>
+                                <span class="fw-bold text-dark">{{ student_profile.class_enrolled.name }}</span>
+                            </div>
+                        </div>
+                         <div class="col-md-6">
+                            <div class="p-2 bg-light rounded-3 px-3 d-flex justify-content-between align-items-center">
+                                <span class="text-muted small fw-bold">Admission Date</span>
+                                <span class="fw-bold text-dark">{{ student_profile.enrollment_date }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% elif user.role == 'teacher' and teacher_profile %}
+                    <div class="row g-4 mt-2">
+                         <div class="col-md-12">
+                            <div class="p-3 bg-light rounded-3 px-3">
+                                <span class="text-muted small fw-bold d-block mb-1">Major Specialization</span>
+                                <span class="fw-bold text-dark">{{ teacher_profile.specialization|default:"Instructional Educator" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Edit Profile Form -->
-    <div class="col-xl-7 col-lg-7 col-md-12 mb-4">
-        <div class="card card-akkhor h-100">
-            <div class="card-header bg-white p-4 border-bottom">
-                <h5 class="fw-bold mb-0">Edit Profile</h5>
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 p-4">
+                <h5 class="modal-title fw-bold text-dark">Refine Identity</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="card-body p-4">
-                <form method="post" enctype="multipart/form-data" class="akkhor-form">
+            <div class="modal-body p-4 pt-0">
+                <form method="post" enctype="multipart/form-data" class="premium-form">
                     {% csrf_token %}
-                    {{ form.non_field_errors }}
-                    
-                    <div class="row text-center mb-4">
-                        <div class="col-12">
-                            <div class="mb-3">
-                                {% if user.profile_picture %}
-                                    <img src="{{ user.profile_picture.url }}" alt="Profile" class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
-                                {% else %}
-                                    <div class="rounded-circle shadow-sm bg-light d-flex justify-content-center align-items-center mx-auto" style="width: 120px; height: 120px;">
-                                        <i class="fas fa-user text-muted" style="font-size: 3rem;"></i>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div>
-                                <label class="btn btn-outline-akkhor btn-sm rounded-pill px-3">
-                                    <i class="fas fa-upload me-1"></i> Change Photo
-                                    <span style="display: none;">{{ form.profile_picture }}</span>
-                                </label>
-                                {{ form.profile_picture.errors }}
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted small fw-bold text-uppercase">First Name</label>
+                            <label class="form-label text-muted small fw-bold">First Name</label>
                             {{ form.first_name }}
-                            {{ form.first_name.errors }}
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted small fw-bold text-uppercase">Last Name</label>
+                            <label class="form-label text-muted small fw-bold">Last Name</label>
                             {{ form.last_name }}
-                            {{ form.last_name.errors }}
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label text-muted small fw-bold">Email Interface</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">Update Portait</label>
+                            {{ form.profile_picture }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">Phone</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="col-12 mb-4">
+                            <label class="form-label text-muted small fw-bold">Physical Coordinates (Address)</label>
+                            {{ form.address }}
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold text-uppercase">Email Address</label>
-                        {{ form.email }}
-                        {{ form.email.errors }}
-                    </div>
-
-                    <div class="text-end mt-4">
-                        <button type="submit" class="btn btn-primary-akkhor px-4 rounded-pill">
-                            <i class="fas fa-save me-1"></i> Save Changes
-                        </button>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary-akkhor rounded-3 px-5">Deploy Updates</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
-    <!-- Role Specific Info -->
-    <div class="col-xl-5 col-lg-5 col-md-12 mb-4">
-        <div class="card card-akkhor h-100">
-            <div class="card-header bg-white p-4 border-bottom">
-                <h5 class="fw-bold mb-0">Role Information</h5>
-            </div>
-            <div class="card-body p-4 bg-light">
-                
-                <div class="mb-4 text-center">
-                    <span class="badge bg-primary text-uppercase px-3 py-2 rounded-pill fs-6">{{ user.get_role_display }}</span>
-                </div>
-
-                {% if user.role == 'student' and student_profile %}
-                    <ul class="list-group list-group-flush bg-transparent">
-                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
-                            <span class="fw-bold text-uppercase col-5">Student ID</span>
-                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.student_id }}</span>
-                        </li>
-                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
-                            <span class="fw-bold text-uppercase col-5">Class</span>
-                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.class_enrolled.name|default:"Unassigned" }} {{ student_profile.class_enrolled.section|default:"" }}</span>
-                        </li>
-                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
-                            <span class="fw-bold text-uppercase col-5">Gender</span>
-                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.gender|title }}</span>
-                        </li>
-                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
-                            <span class="fw-bold text-uppercase col-5">Date of Birth</span>
-                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.date_of_birth|date:"M d, Y"|default:"-" }}</span>
-                        </li>
-                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
-                            <span class="fw-bold text-uppercase col-5">Parents</span>
-                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.parents_names|default:"-" }}</span>
-                        </li>
-                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
-                            <span class="fw-bold text-uppercase col-5">Emg. Contact</span>
-                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.emergency_contact_name|default:"-" }}<br>{{ student_profile.emergency_contact_phone|default:"" }}</span>
-                        </li>
-                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
-                            <span class="fw-bold text-uppercase col-5">Status</span>
-                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.status|title }}</span>
-                        </li>
-                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
-                            <span class="fw-bold text-uppercase col-5">Adm. Date</span>
-                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.enrollment_date|date:"b d, Y" }}</span>
-                        </li>
-                    </ul>
-
-                {% elif user.role == 'teacher' and teacher_profile %}
-                    <ul class="list-group list-group-flush bg-transparent">
-                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
-                            <span class="fw-bold text-uppercase col-5">Teacher ID</span>
-                            <span class="text-dark fw-medium text-end col-7">{{ teacher_profile.teacher_id }}</span>
-                        </li>
-                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
-                            <span class="fw-bold text-uppercase col-5">Qualification</span>
-                            <span class="text-dark fw-medium text-end col-7">{{ teacher_profile.qualification|default:"-" }}</span>
-                        </li>
-                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
-                            <span class="fw-bold text-uppercase col-5">Specialization</span>
-                            <span class="text-dark fw-medium text-end col-7">{{ teacher_profile.specialization|default:"-" }}</span>
-                        </li>
-                        <li class="list-group-item bg-transparent px-0 text-muted small mt-2">
-                            <span class="fw-bold text-uppercase d-block mb-1">Assigned Subjects</span>
-                            <div>
-                                {% for subj in teacher_profile.subjects.all %}
-                                    <span class="badge bg-secondary mb-1">{{ subj.name }}</span>
-                                {% empty %}
-                                    <span class="fst-italic">None assigned</span>
-                                {% endfor %}
-                            </div>
-                        </li>
-                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small border-top mt-2 pt-3">
-                            <span class="fw-bold text-uppercase col-5">Emg. Contact</span>
-                            <span class="text-dark fw-medium text-end col-7">{{ teacher_profile.emergency_contact_name|default:"-" }} ({{ teacher_profile.emergency_contact_relationship|default:"" }})<br>{{ teacher_profile.emergency_contact_phone|default:"" }}</span>
-                        </li>
-                    </ul>
-                {% else %}
-                    <div class="text-center text-muted p-4">
-                        <i class="fas fa-id-card mb-2" style="font-size: 2rem; opacity:0.3;"></i>
-                        <p class="mb-0">Administrative Account</p>
-                    </div>
-                {% endif %}
-            </div>
-            {% if user.role != 'admin' %}
-            <div class="card-footer bg-white border-top text-center p-3">
-                <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Contact an administrator to update role information.</small>
-            </div>
-            {% endif %}
-        </div>
-    </div>
 </div>
 
 <script>
-    // Style the form inputs for Akkhor dynamically
-    document.querySelectorAll('.akkhor-form input[type="text"], .akkhor-form input[type="email"]').forEach(input => {
-        input.classList.add('form-control');
+    // Style the form inputs dynamically
+    document.querySelectorAll('.premium-form input, .premium-form select, .premium-form textarea').forEach(input => {
+        if (input.type !== 'checkbox' && input.type !== 'file') {
+             input.classList.add('form-control');
+             input.style.borderRadius = '10px';
+             input.style.padding = '0.75rem 1rem';
+        }
     });
 </script>
 {% endblock %}

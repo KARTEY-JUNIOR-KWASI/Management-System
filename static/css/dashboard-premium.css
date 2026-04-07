@@ -1,0 +1,238 @@
+/* ============================================================
+   EDUMS PREMIUM DASHBOARD SYSTEM
+   High-end visual tokens, Glassmorphism, and Micro-interactions
+   ============================================================ */
+
+:root {
+    --p-primary-hsl: 204, 100%, 20%;
+    --p-accent-hsl: 42, 100%, 50%;
+    --p-success-hsl: 95, 48%, 47%;
+    --p-danger-hsl: 0, 84%, 60%;
+    --p-info-hsl: 199, 89%, 48%;
+
+    --p-glass-bg: rgba(255, 255, 255, 0.03);
+    --p-glass-border: rgba(255, 255, 255, 0.1);
+    --p-glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    
+    --p-card-radius: 24px;
+    --p-transition-smooth: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Entrance Animations ───────────────────────────────────── */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-up {
+    animation: fadeInUp var(--p-transition-smooth) forwards;
+    opacity: 0;
+}
+
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+
+/* ── Premium Stat Cards ────────────────────────────────────── */
+.premium-stat-card {
+    position: relative;
+    padding: 2rem;
+    border-radius: var(--p-card-radius);
+    background: white;
+    box-shadow: 0 20px 40px -10px rgba(0, 64, 103, 0.08);
+    border: 1px solid rgba(0, 64, 103, 0.05);
+    overflow: hidden;
+    transition: var(--p-transition-smooth);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.premium-stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 30px 60px -12px rgba(0, 64, 103, 0.15);
+}
+
+.premium-stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 150px;
+    height: 150px;
+    background: var(--p-accent-gradient);
+    filter: blur(60px);
+    opacity: 0.05;
+    z-index: 0;
+    transition: var(--p-transition-smooth);
+}
+
+.premium-stat-card:hover::before {
+    opacity: 0.15;
+    transform: scale(1.5);
+}
+
+.premium-stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.p-icon-primary { background: hsla(204, 100%, 20%, 0.1); color: hsl(204, 100%, 20%); }
+.p-icon-success { background: hsla(95, 48%, 47%, 0.1); color: hsl(95, 48%, 47%); }
+.p-icon-warning { background: hsla(42, 100%, 50%, 0.1); color: hsl(42, 100%, 50%); }
+.p-icon-danger  { background: hsla(0, 84%, 60%, 0.1); color: hsl(0, 84%, 60%); }
+
+.premium-stat-value {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -1px;
+    margin-bottom: 0.25rem;
+    position: relative;
+    z-index: 1;
+}
+
+.premium-stat-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Enhanced Entity Table ─────────────────────────────────── */
+.premium-table-container {
+    background: white;
+    border-radius: var(--p-card-radius);
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    border: 1px solid var(--border-color);
+}
+
+.premium-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.premium-table thead th {
+    padding: 1rem;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    border: none;
+}
+
+.premium-table tbody tr {
+    transition: var(--p-transition-smooth);
+}
+
+.premium-table tbody td {
+    padding: 1.25rem 1rem;
+    background: #fff;
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+    vertical-align: middle;
+}
+
+.premium-table tbody td:first-child { 
+    border-left: 1px solid transparent;
+    border-top-left-radius: 12px; 
+    border-bottom-left-radius: 12px; 
+}
+.premium-table tbody td:last-child { 
+    border-right: 1px solid transparent;
+    border-top-right-radius: 12px; 
+    border-bottom-right-radius: 12px; 
+}
+
+.premium-table tbody tr:hover td {
+    background: #fbfdff;
+    border-color: rgba(0, 64, 103, 0.05);
+}
+
+/* ── Status Badges ─────────────────────────────────────────── */
+.p-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.p-badge-critical { background: hsla(0, 84%, 60%, 0.1); color: hsl(0, 84%, 60%); }
+.p-badge-high     { background: hsla(42, 100%, 50%, 0.1); color: hsl(42, 100%, 50%); }
+.p-badge-medium   { background: hsla(199, 89%, 48%, 0.1); color: hsl(199, 89%, 48%); }
+
+.p-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* ── Action Buttons ────────────────────────────────────────── */
+.p-btn-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    background: #fff;
+    color: var(--text-medium);
+    transition: var(--p-transition-smooth);
+}
+
+.p-btn-icon:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    transform: scale(1.1);
+}
+
+.chart-premium-wrapper {
+    position: relative;
+    padding: 1.5rem;
+    background: white;
+    border-radius: var(--p-card-radius);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    border: 1px solid var(--border-color);
+}
+
+/* ── Utility Classes ───────────────────────────────────────── */
+.extra-small { font-size: 0.7rem !important; }
+.opa-7 { opacity: 0.7 !important; }
+.opa-5 { opacity: 0.5 !important; }
+.opa-2 { opacity: 0.2 !important; }
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+.animate-pulse { animation: pulse 2s infinite; }

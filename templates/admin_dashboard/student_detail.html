@@ -106,19 +106,23 @@
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="card mt-4">
+            <!-- Reporting Hub -->
+            <div class="card mt-4 border-primary shadow-sm" style="border-top-width: 4px;">
                 <div class="card-body">
-                    <h5 class="card-title">Quick Actions</h5>
-                    <a href="{% url 'student_list' %}" class="btn btn-outline-secondary w-100 mb-2">
-                        <i class="fas fa-arrow-left"></i> Back to Students
-                    </a>
-                    <a href="{% url 'student_update' student.pk %}" class="btn btn-primary w-100 mb-2">
-                        <i class="fas fa-edit"></i> Edit Student
-                    </a>
-                    <a href="{% url 'student_delete' student.pk %}" class="btn btn-danger w-100">
-                        <i class="fas fa-trash"></i> Delete Student
-                    </a>
+                    <h5 class="card-title text-primary"><i class="fas fa-file-pdf me-2"></i>Reporting Hub</h5>
+                    <p class="small text-muted mb-3">Generate print-ready official institutional documents.</p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'analytics:generate_report_card' student.id %}" class="btn btn-primary" style="border-radius: 10px; font-weight: 600;">
+                            <i class="fas fa-file-invoice me-2"></i> Term Report Card
+                        </a>
+                        <a href="{% url 'analytics:generate_transcript' student.id %}" class="btn btn-outline-dark" style="border-radius: 10px; font-weight: 600;">
+                            <i class="fas fa-history me-2"></i> Full Transcript
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0 py-2">
+                    <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Official PDF documents generate instantly.</small>
                 </div>
             </div>
         </div>

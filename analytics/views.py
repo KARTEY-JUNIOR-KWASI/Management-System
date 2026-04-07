@@ -14,15 +14,19 @@ import json
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 
 from .models import Notification, PerformanceAnalytics, SystemAnalytics, AutomatedReport, LearningInsight
 from students.models import Student
 from teachers.models import Teacher
 from core.models import Subject, Class, Result, Attendance, Assignment, Submission
 from accounts.models import User
+from .reporting_utils import (
+    calculate_letter_grade, get_student_class_rank, get_institutional_metadata, 
+    draw_institutional_seal, draw_performance_chart
+)
 
 
 def _redirect_wrong_role(request, role):
@@ -315,30 +319,18 @@ def _calculate_system_analytics():
     # Students at risk (Use the existing optimized helper)
     at_risk_students = _identify_at_risk_students()
     
-    return {
-        **core_counts,
-        'overall_attendance_rate': overall_attendance_rate,
-        'average_gpa': average_gpa,
-        'assignment_completion_rate': assignment_completion_rate,
-        'total_at_risk': len(at_risk_students),
-        'critical_cases': len([s for s in at_risk_students if s['risk_level'] == 'critical']),
-        'at_risk_list': at_risk_students[:10], # Include top 10 for dashboard
-    }
-
     # Attendance trend
     attendance_trend = _calculate_attendance_trend()
-
+    
     return {
-        'total_students': total_students,
-        'total_teachers': total_teachers,
-        'total_classes': total_classes,
-        'total_subjects': total_subjects,
+        **core_counts,
         'overall_attendance_rate': overall_attendance_rate,
         'attendance_trend': attendance_trend,
         'average_gpa': average_gpa,
         'assignment_completion_rate': assignment_completion_rate,
-        'students_at_risk': students_at_risk,
-        'critical_cases': critical_cases,
+        'total_at_risk': len(at_risk_students),
+        'critical_cases': len([s for s in at_risk_students if s['risk_level'] == 'critical']),
+        'at_risk_list': at_risk_students[:10],
     }
 
 def _calculate_performance_trend():
@@ -883,6 +875,163 @@ def _generate_attendance_report(request, start_date, end_date):
     response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
     filename = f"attendance_report_{start_date}_{end_date}.pdf"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+@login_required
+def generate_report_card(request, student_id):
+    """
+    Gold Standard Report Card Generation.
+    Features: Branding, Grading, and Class Ranking.
+    """
+    student = get_object_or_404(Student, id=student_id)
+    config = get_institutional_metadata()
+    
+    # Check permissions (Security)
+    if request.user.role == 'student' and student.user != request.user:
+        messages.error(request, 'Access denied: unauthorized report request.')
+        return redirect('home')
+
+    # Data Aggregation
+    results = Result.objects.filter(student=student).select_related('subject')
+    performance = []
+    total_percentage = 0
+    
+    for r in results:
+        pct = (float(r.score) / float(r.max_score) * 100) if r.max_score > 0 else 0
+        grade = calculate_letter_grade(pct)
+        performance.append({
+            'subject': r.subject.name,
+            'score': f"{r.score}/{r.max_score}",
+            'percentage': f"{pct:.1f}%",
+            'grade': grade
+        })
+        total_percentage += pct
+        
+    avg_pct = (total_percentage / results.count()) if results.count() > 0 else 0
+    rank, total_peers = get_student_class_rank(student)
+
+    # ──────────────────────────────────────────────────────────
+    # [PDF Generation Engine 2.0]
+    # ──────────────────────────────────────────────────────────
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+    styles = getSampleStyleSheet()
+    
+    # Custom Styles
+    styles.add(ParagraphStyle(name='InstitutionalTitle', fontSize=22, fontName='Helvetica-Bold', alignment=1, spaceAfter=2))
+    styles.add(ParagraphStyle(name='SubTitle', fontSize=10, fontName='Helvetica-Bold', alignment=1, textColor=colors.grey))
+    styles.add(ParagraphStyle(name='StudentInfo', fontSize=9, fontName='Helvetica', leading=12))
+    styles.add(ParagraphStyle(name='SectionHeader', fontSize=12, fontName='Helvetica-Bold', spaceBefore=20, borderPadding=10, backColor=colors.HexColor('#F8FAFC')))
+
+    story = []
+
+    # 1. Institutional Header
+    story.append(Paragraph(config.name.upper(), styles['InstitutionalTitle']))
+    story.append(Paragraph(config.motto.upper() or "EMPOWERING FUTURE LEADERS", styles['SubTitle']))
+    story.append(Spacer(1, 15))
+    story.append(HRFlowable(width="100%", thickness=1, lineCap='round', color=colors.HexColor('#E2E8F0')))
+    story.append(Spacer(1, 15))
+
+    # 2. Student Identity Matrix
+    s_data = [
+        [Paragraph(f"<b>STUDENT:</b> {student.user.get_full_name()}", styles['StudentInfo']), 
+         Paragraph(f"<b>CLASS:</b> {student.class_enrolled.name if student.class_enrolled else 'N/A'}", styles['StudentInfo'])],
+        [Paragraph(f"<b>STUDENT ID:</b> {student.student_id}", styles['StudentInfo']), 
+         Paragraph(f"<b>ACADEMIC YEAR:</b> {config.current_academic_year}", styles['StudentInfo'])],
+        [Paragraph(f"<b>RANK:</b> {rank} of {total_peers}" if rank else "B: N/A", styles['StudentInfo']), 
+         Paragraph(f"<b>AVERAGE:</b> {avg_pct:.1f}%", styles['StudentInfo'])]
+    ]
+    s_table = Table(s_data, colWidths=[240, 240])
+    s_table.setStyle(TableStyle([('ALIGN', (0, 0), (-1, -1), 'LEFT'), ('VALIGN', (0, 0), (-1, -1), 'TOP')]))
+    story.append(s_table)
+    story.append(Spacer(1, 25))
+
+    # 3. Performance Visualization
+    story.append(Paragraph("PERFORMANCE VISUALIZATION", styles['SectionHeader']))
+    story.append(Spacer(1, 10))
+    story.append(draw_performance_chart(performance))
+    story.append(Spacer(1, 20))
+
+    # 4. Academic Achievement Table
+    story.append(Paragraph("ACADEMIC PERFORMANCE SUMMARY", styles['SectionHeader']))
+    story.append(Spacer(1, 10))
+    
+    table_data = [['SUBJECT', 'RAW SCORE', 'PERCENTAGE', 'GRADE']]
+    for p in performance:
+        table_data.append([p['subject'], p['score'], p['percentage'], p['grade']])
+
+    a_table = Table(table_data, colWidths=[180, 100, 100, 100])
+    a_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1E293B')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#CBD5E1')),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F8FAFC')])
+    ]))
+    story.append(a_table)
+
+    # 5. Certification Footer
+    story.append(Spacer(1, 60))
+    # Add Seal
+    seal_drawing = draw_institutional_seal()
+    f_data = [
+        [seal_drawing, '__________________________'],
+        ['HEAD OF INSTITUTION', 'CLASS TEACHER SIGNATURE']
+    ]
+    f_table = Table(f_data, colWidths=[240, 240])
+    f_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'), 
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('FONTSIZE', (0, 1), (-1, -1), 8), 
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.grey)
+    ]))
+    story.append(f_table)
+
+    # Build PDF
+    doc.build(story)
+    buffer.seek(0)
+    
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Report_Card_{student.student_id}.pdf"'
+    return response
+
+@login_required
+def generate_transcript(request, student_id):
+    """Generates a full history academic transcript."""
+    student = get_object_or_404(Student, id=student_id)
+    config = get_institutional_metadata()
+    results = Result.objects.filter(student=student).select_related('subject')
+    
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    story = []
+    
+    story.append(Paragraph(f"{config.name} - OFFICIAL TRANSCRIPT", styles['Title']))
+    story.append(Paragraph(f"Student: {student.user.get_full_name()} | ID: {student.student_id}", styles['Normal']))
+    story.append(Spacer(1, 20))
+    
+    # Simple table for transcript history
+    data = [['Subject', 'Date', 'Type', 'Final Score']]
+    for r in results:
+        data.append([r.subject.name, r.date.strftime('%Y'), r.exam_type.upper(), f"{r.score}/{r.max_score}"])
+        
+    t_table = Table(data, colWidths=[150, 80, 100, 100])
+    t_table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke)
+    ]))
+    story.append(t_table)
+    
+    doc.build(story)
+    buffer.seek(0)
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Transcript_{student.student_id}.pdf"'
     return response
 
 def _generate_performance_report(request, start_date, end_date):

@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Academics — Institutional Diagnostics{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .diagnostic-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        height: 100%;
+        transition: var(--p-transition-smooth);
+    }
+    .diagnostic-card:hover {
+        box-shadow: 0 10px 30px rgba(0, 64, 103, 0.05);
+    }
+    .stat-mini {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 1px;
+    }
+    .stat-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text-dark);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid main-canvas-area">
+    
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-4 animate-fade-up">
+        <div>
+            <h1 class="page-title with-sub mb-0">Academic Intelligence</h1>
+            <p class="page-subtitle mb-0">Strategic diagnostics of institutional performance and grade distributions.</p>
+        </div>
+        <div class="d-flex gap-2">
+             <div class="p-badge p-badge-medium">
+                <i class="fas fa-chart-pie me-2"></i> Real-time Diagnostics
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5 animate-fade-up delay-1">
+        <!-- Grade Distribution -->
+        <div class="col-lg-6">
+            <div class="diagnostic-card">
+                <h6 class="fw-bold mb-4 border-bottom pb-2">Institutional Grade Distribution</h6>
+                <div style="height: 300px;">
+                    <canvas id="gradeDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subject Pass Rates -->
+        <div class="col-lg-6">
+            <div class="diagnostic-card">
+                <h6 class="fw-bold mb-4 border-bottom pb-2">Subject Performance Parity</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr class="x-small text-muted text-uppercase fw-bold">
+                                <th>Subject</th>
+                                <th>Avg Score</th>
+                                <th>Pass Rate</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in subject_stats|slice:":6" %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold small">{{ s.name }}</div>
+                                    <div class="x-small text-muted">{{ s.code }}</div>
+                                </td>
+                                <td><span class="fw-bold">{{ s.avg_score|floatformat:1|default:"0.0" }}</span></td>
+                                <td>
+                                    <div class="progress" style="height: 4px; width: 60px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ s.avg_score }}%"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if s.avg_score >= 70 %}
+                                        <span class="p-badge p-badge-medium small">High</span>
+                                    {% else %}
+                                        <span class="p-badge p-badge-low small">Modulate</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Rankings Table -->
+    <div class="animate-fade-up delay-2">
+        <div class="diagnostic-card">
+            <h6 class="fw-bold mb-4 border-bottom pb-2">Class Performance Intelligence</h6>
+            <div class="row g-3">
+                {% for c in class_stats %}
+                <div class="col-md-4 col-xl-3">
+                    <div class="p-4 rounded-4 border bg-light position-relative overflow-hidden" style="min-height: 120px;">
+                        <div class="stat-mini">CLASS {{ c.grade }}</div>
+                        <div class="stat-value">{{ c.name }} {{ c.section }}</div>
+                        <div class="mt-2">
+                            <a href="{% url 'class_performance' c.id %}" class="btn btn-sm btn-primary-akkhor rounded-3 px-3">
+                                View Rankings <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                        <i class="fas fa-graduation-cap position-absolute opacity-10" style="right: -10px; bottom: -10px; font-size: 5rem;"></i>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('gradeDistributionChart').getContext('2d');
+        const labels = {{ distribution.keys|safe }};
+        const data = {{ distribution.values|safe }};
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        '#004067', // Exemplary
+                        '#0ea5e9', // Proficient
+                        '#94a3b8', // Passing
+                        '#e11d48'  // Below range
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            font: { family: 'Outfit', size: 10 }
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    });
+</script>
+{% endblock %}

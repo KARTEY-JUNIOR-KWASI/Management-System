@@ -1,233 +1,239 @@
 {% extends 'base.html' %}
-{% block title %}Teacher Intelligence Dashboard — EduSystem{% endblock %}
+{% load static %}
+
+{% block title %}Teacher Intelligence Dashboard — EduMS{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .dashboard-header { margin-bottom: 2.5rem; }
+    .main-canvas-area { padding-top: 1rem; }
+    .management-card {
+        padding: 1.5rem;
+        border-radius: var(--radius-lg);
+        text-decoration: none;
+        transition: var(--p-transition-smooth);
+        border: 1px solid var(--border-color);
+        background: #fff;
+        height: 100%;
+        display: block;
+    }
+    .management-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+        border-color: var(--primary);
+    }
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row layout-spacing">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 style="font-weight: 800; margin: 0; color: var(--text-dark);">🧑‍🏫 Teacher Intelligence Dashboard</h2>
-                <p style="color: var(--text-muted); margin: 0; font-size: 0.85rem;">Class performance trends and student risk analysis at your fingertips.</p>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="{% url 'analytics:generate_report' %}" class="btn btn-outline-akkhor rounded-pill px-3">
-                    <i class="fas fa-file-export me-1"></i> Class Reports
-                </a>
-            </div>
+<div class="container-fluid main-canvas-area">
+    
+    <!-- Header -->
+    <div class="dashboard-header d-flex justify-content-between align-items-end animate-fade-up">
+        <div>
+            <h1 class="page-title with-sub mb-0">Teacher Intelligence</h1>
+            <p class="page-subtitle mb-0">Class performance insights & academic management portal.</p>
+        </div>
+        <div class="actions">
+            <a href="{% url 'analytics:generate_report' %}" class="btn btn-outline-akkhor btn-sm-akkhor">
+                <i class="fas fa-file-pdf me-2"></i> Performance Reports
+            </a>
         </div>
     </div>
 
     <!-- Stat Cards Row -->
-    <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
-        <div class="card card-akkhor bg-primary text-white h-100 overflow-hidden" style="border:none;">
-            <div class="card-body p-4 position-relative">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="text-white-50 text-uppercase fw-bold m-0" style="font-size:0.7rem; letter-spacing:1px;">My Students</h6>
-                    <i class="fas fa-users opacity-25" style="font-size:1.5rem;"></i>
+    <div class="row mb-5">
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-primary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ total_students }}</div>
+                    <div class="premium-stat-label">Active Students</div>
                 </div>
-                <h2 class="fw-bold m-0">{{ total_students }}</h2>
-                <div class="mt-3 small">
-                    <span class="opacity-75">In {{ total_classes }} assigned classes</span>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-2">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-success">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ assignment_stats.completion_rate|floatformat:0 }}%</div>
+                    <div class="premium-stat-label">Completion Rate</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-3">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ total_at_risk }}</div>
+                    <div class="premium-stat-label">Priority Alerts</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-4">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-warning">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ teacher.subjects.count }}</div>
+                    <div class="premium-stat-label">Teaching Areas</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
-        <div class="card card-akkhor bg-success text-white h-100 overflow-hidden" style="border:none;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="text-white-50 text-uppercase fw-bold m-0" style="font-size:0.7rem; letter-spacing:1px;">Avg Completion</h6>
-                    <i class="fas fa-tasks opacity-25" style="font-size:1.5rem;"></i>
+    <div class="row mb-5">
+        <!-- Performance Analytics Chart -->
+        <div class="col-lg-8 mb-4 animate-fade-up delay-1">
+            <div class="chart-premium-wrapper">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold m-0"><i class="fas fa-chart-area text-primary me-2"></i> Class Performance Trends</h5>
+                    <div class="small text-muted">Averages by Assigned Class</div>
                 </div>
-                <h2 class="fw-bold m-0">{{ assignment_stats.completion_rate|floatformat:0 }}%</h2>
-                <div class="mt-3 small">
-                    <span class="opacity-75">Assignments completion rate</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
-        <div class="card card-akkhor bg-danger text-white h-100 overflow-hidden" style="border:none;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="text-white-50 text-uppercase fw-bold m-0" style="font-size:0.7rem; letter-spacing:1px;">At-Risk Students</h6>
-                    <i class="fas fa-exclamation-triangle opacity-25" style="font-size:1.5rem;"></i>
-                </div>
-                <h2 class="fw-bold m-0">{{ total_at_risk }}</h2>
-                <div class="mt-3 small">
-                    <span class="opacity-75">Need urgent attention</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
-        <div class="card card-akkhor bg-info text-white h-100 overflow-hidden" style="border:none;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="text-white-50 text-uppercase fw-bold m-0" style="font-size:0.7rem; letter-spacing:1px;">Total Subjects</h6>
-                    <i class="fas fa-book opacity-25" style="font-size:1.5rem;"></i>
-                </div>
-                <h2 class="fw-bold m-0">{{ teacher.subjects.count }}</h2>
-                <div class="mt-3 small">
-                    <span class="opacity-75">Assigned teaching areas</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Class Performance Analytics -->
-    <div class="col-xl-8 col-lg-8 mb-4">
-        <div class="card card-akkhor h-100">
-            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0">Class Performance Trends</h5>
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown">Last 3 Months</button>
-                    <ul class="dropdown-menu"><li><a class="dropdown-item" href="#">Semester 1</a></li></ul>
-                </div>
-            </div>
-            <div class="card-body p-4">
                 <div style="height: 350px;">
                     <canvas id="classPerformanceChart"></canvas>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- At-Risk Alert Sidebar -->
-    <div class="col-xl-4 col-lg-4 mb-4">
-        <div class="card card-akkhor h-100 border-danger border-top border-4">
-            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0 text-danger"><i class="fas fa-fire me-2"></i> Priority Intervention</h5>
-                <span class="badge bg-danger-subtle text-danger rounded-pill">{{ total_at_risk }} Students</span>
-            </div>
-            <div class="card-body p-0">
+        <!-- At-Risk Alert Sidebar -->
+        <div class="col-lg-4 mb-4 animate-fade-up delay-2">
+            <div class="premium-table-container h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+                    <h5 class="fw-bold m-0 text-danger"><i class="fas fa-fire me-2"></i> Critical Intervention</h5>
+                    <span class="p-badge p-badge-critical">{{ total_at_risk }}</span>
+                </div>
+
                 <div class="list-group list-group-flush">
                     {% for risk in at_risk_students %}
-                    <div class="list-group-item p-4 border-0 border-bottom">
-                        <div class="d-flex gap-3 align-items-start">
-                            <div class="topbar-avatar" style="width:40px; height:40px; font-size:0.9rem; flex-shrink:0;">
+                    <div class="list-group-item border-0 px-2 py-3 mb-2 rounded-3 hover-lift-lite" style="background:rgba(239, 68, 68, 0.02);">
+                        <div class="d-flex gap-3 align-items-center">
+                            <div class="topbar-avatar" style="width:42px; height:42px; background:var(--primary); font-size:0.85rem;">
                                 {{ risk.student.user.get_full_name|slice:":2"|upper }}
                             </div>
                             <div class="flex-grow-1">
                                 <div class="d-flex justify-content-between mb-1">
                                     <h6 class="fw-bold m-0 small">{{ risk.student.user.get_full_name }}</h6>
-                                    <span class="badge bg-{% if risk.risk_level == 'critical' %}danger{% else %}warning{% endif %}-subtle text-{% if risk.risk_level == 'critical' %}danger{% else %}warning{% endif %}" style="font-size:0.6rem;">{{ risk.risk_level|upper }}</span>
+                                    <span class="p-badge p-badge-{% if risk.risk_level == 'critical' %}critical{% else %}high{% endif %}" style="padding: 0.2rem 0.6rem; font-size: 0.65rem;">{{ risk.risk_level|upper }}</span>
                                 </div>
-                                <p class="text-muted mb-2" style="font-size:0.75rem;">
-                                    {% for factor in risk.risk_factors %}{{ factor }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                <p class="text-muted mb-0" style="font-size:0.75rem;">
+                                    {{ risk.risk_factors|join:", " }}
                                 </p>
-                                <div class="d-flex gap-2">
-                                    <a href="{% url 'profile' %}" class="btn btn-sm btn-light border py-0 px-2" style="font-size:0.65rem;">Profile</a>
-                                    <a href="{% url 'analytics:notifications_list' %}" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:0.65rem;">Notify Parent</a>
-                                </div>
                             </div>
                         </div>
                     </div>
                     {% empty %}
-                    <div class="p-5 text-center">
+                    <div class="p-5 text-center text-muted">
                         <i class="fas fa-check-circle text-success fs-1 mb-3"></i>
-                        <p class="text-muted m-0">No at-risk students identified in your classes. Great job!</p>
+                        <p class="m-0 small">No students identified for urgent intervention.</p>
                     </div>
                     {% endfor %}
                 </div>
+                
+                {% if at_risk_students %}
+                <div class="mt-4 pt-3 border-top text-center">
+                    <a href="{% url 'analytics:analytics_dashboard' %}" class="small fw-bold text-primary text-decoration-none">Full Diagnostic Report <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+                {% endif %}
             </div>
-            {% if at_risk_students %}
-            <div class="card-footer bg-white border-0 p-3 text-center">
-                <a href="{% url 'analytics:analytics_dashboard' %}" class="text-decoration-none small fw-bold">View Full Risk Analysis <i class="fas fa-arrow-right ms-1"></i></a>
-            </div>
-            {% endif %}
         </div>
     </div>
 
-    <!-- Quick Management Row -->
-    <div class="col-xl-6 col-lg-6 mb-4">
-        <div class="card card-akkhor h-100">
-            <div class="card-header bg-white p-4 border-bottom">
-                <h5 class="fw-bold mb-0">Academic Management</h5>
-            </div>
-            <div class="card-body p-4">
+    <!-- Academic Management & Assignments -->
+    <div class="row mb-5">
+        <!-- Management Shortcuts -->
+        <div class="col-lg-6 mb-4 animate-fade-up delay-1">
+            <div class="premium-table-container h-100">
+                <h5 class="fw-bold mb-4">Academic Management</h5>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <a href="{% url 'mark_attendance' %}" class="card p-3 border rounded-3 text-decoration-none hover-shadow transition h-100" style="background:#f0f9ff;">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="bg-primary text-white rounded-3 p-2"><i class="fas fa-calendar-check fw-bold"></i></div>
-                                <div>
-                                    <h6 class="m-0 text-dark fw-bold" style="font-size:0.85rem;">Mark Attendance</h6>
-                                    <p class="m-0 text-muted small">Daily classroom records</p>
-                                </div>
+                        <a href="{% url 'mark_attendance' %}" class="management-card">
+                            <div class="icon-box" style="background:rgba(0, 163, 255, 0.1); color: #00a3ff;">
+                                <i class="fas fa-calendar-check"></i>
                             </div>
+                            <h6 class="fw-bold text-dark">Class Attendance</h6>
+                            <p class="text-muted small mb-0">Record daily presence levels.</p>
                         </a>
                     </div>
                     <div class="col-md-6">
-                        <a href="{% url 'manage_grades' %}" class="card p-3 border rounded-3 text-decoration-none hover-shadow transition h-100" style="background:#fdf4ff;">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="bg-fuchsia text-white rounded-3 p-2" style="background:#a21caf;"><i class="fas fa-graduation-cap fw-bold"></i></div>
-                                <div>
-                                    <h6 class="m-0 text-dark fw-bold" style="font-size:0.85rem;">Bulk Grading</h6>
-                                    <p class="m-0 text-muted small">Grade exams & quizzes</p>
-                                </div>
+                        <a href="{% url 'manage_grades' %}" class="management-card">
+                            <div class="icon-box" style="background:rgba(168, 85, 247, 0.1); color: #a855f7;">
+                                <i class="fas fa-graduation-cap"></i>
                             </div>
+                            <h6 class="fw-bold text-dark">Bulk Evaluation</h6>
+                            <p class="text-muted small mb-0">Grade exams & assessment tasks.</p>
                         </a>
                     </div>
                     <div class="col-md-6">
-                        <a href="{% url 'create_assignment' %}" class="card p-3 border rounded-3 text-decoration-none hover-shadow transition h-100" style="background:#eff6ff;">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="bg-blue-600 text-white rounded-3 p-2" style="background:#2563eb;"><i class="fas fa-plus-circle fw-bold"></i></div>
-                                <div>
-                                    <h6 class="m-0 text-dark fw-bold" style="font-size:0.85rem;">Post Assignment</h6>
-                                    <p class="m-0 text-muted small">Upload resources & tasks</p>
-                                </div>
+                        <a href="{% url 'create_assignment' %}" class="management-card">
+                            <div class="icon-box" style="background:rgba(34, 197, 94, 0.1); color: #22c55e;">
+                                <i class="fas fa-plus-circle"></i>
                             </div>
+                            <h6 class="fw-bold text-dark">Post Assignment</h6>
+                            <p class="text-muted small mb-0">Upload new student resources.</p>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Assignment Status Overview -->
-    <div class="col-xl-6 col-lg-6 mb-4">
-        <div class="card card-akkhor h-100">
-            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0">Recent Assignments</h5>
-                <a href="{% url 'manage_assignments' %}" class="small fw-bold text-decoration-none">Manage All</a>
-            </div>
-            <div class="card-body p-0">
+        <!-- Recent Assignments -->
+        <div class="col-lg-6 mb-4 animate-fade-up delay-2">
+            <div class="premium-table-container h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold m-0">Recent Assignments</h5>
+                    <a href="{% url 'manage_assignments' %}" class="small fw-bold text-primary text-decoration-none">Manage All</a>
+                </div>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light">
+                    <table class="premium-table">
+                        <thead>
                             <tr>
-                                <th class="ps-4 py-3 small text-uppercase text-muted fw-bold">Title</th>
-                                <th class="py-3 small text-uppercase text-muted fw-bold">Stats</th>
-                                <th class="pe-4 py-3 text-end"></th>
+                                <th>Assignment Details</th>
+                                <th>Completion</th>
+                                <th class="text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for a in recent_assignments %}
                             <tr>
-                                <td class="ps-4">
-                                    <div class="fw-bold text-dark">{{ a.title }}</div>
-                                    <div class="text-muted small">{{ a.class_assigned.name }}</div>
+                                <td>
+                                    <div class="fw-bold text-dark small">{{ a.title }}</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">{{ a.class_assigned.name }} • {{ a.subject.name }}</div>
                                 </td>
                                 <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="progress" style="height: 5px; width: 60px;">
-                                            <div class="progress-bar bg-success" style="width: 75%;"></div>
+                                    <div class="d-flex align-items-center gap-2" style="min-width: 120px;">
+                                        <div class="progress flex-grow-1" style="height: 6px; border-radius: 3px; background: #f1f5f9;">
+                                            <div class="progress-bar bg-success" style="width: 75%; border-radius: 3px;"></div>
                                         </div>
-                                        <span class="small text-muted">75% Done</span>
+                                        <span class="small fw-bold">75%</span>
                                     </div>
                                 </td>
-                                <td class="pe-4 text-end">
-                                    <a href="{% url 'grade_submissions' a.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Grade</a>
+                                <td class="text-end">
+                                    <a href="{% url 'grade_submissions' a.id %}" class="p-btn-icon ms-auto" title="Grade Now">
+                                        <i class="fas fa-pen-nib"></i>
+                                    </a>
                                 </td>
                             </tr>
                             {% empty %}
-                            <tr>
-                                <td colspan="3" class="text-center py-5 text-muted">No assignments posted recently.</td>
-                            </tr>
+                            <tr><td colspan="3" class="text-center py-4 text-muted small">No recent activity.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -242,6 +248,15 @@
     document.addEventListener("DOMContentLoaded", function() {
         const ctx = document.getElementById('classPerformanceChart').getContext('2d');
         
+        // Prepare gradients
+        const gradPrimary = ctx.createLinearGradient(0, 0, 0, 350);
+        gradPrimary.addColorStop(0, 'rgba(0, 64, 103, 0.25)');
+        gradPrimary.addColorStop(1, 'rgba(0, 64, 103, 0.0)');
+
+        const gradSuccess = ctx.createLinearGradient(0, 0, 0, 350);
+        gradSuccess.addColorStop(0, 'rgba(111, 177, 63, 0.2)');
+        gradSuccess.addColorStop(1, 'rgba(111, 177, 63, 0.0)');
+
         // Prepare data from class_performance context
         const labels = [{% for cp in class_performance %}"{{ cp.class.name }}",{% endfor %}];
         const gpaData = [{% for cp in class_performance %}{{ cp.avg_gpa|floatformat:1 }},{% endfor %}];
@@ -255,35 +270,59 @@
                     {
                         label: 'Average GPA (Normalized)',
                         data: gpaData,
-                        borderColor: '#4361ee',
-                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        borderColor: '#004067',
+                        borderWidth: 3,
+                        backgroundColor: gradPrimary,
                         tension: 0.4,
                         fill: true,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#4361ee'
+                        pointRadius: 6,
+                        pointBackgroundColor: '#fff',
+                        pointBorderWidth: 2,
+                        yAxisID: 'y'
                     },
                     {
-                        label: 'Attendance %',
+                        label: 'Attendance Rate (%)',
                         data: attendanceData,
-                        borderColor: '#4ade80',
-                        backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                        borderColor: '#6FB13F',
+                        borderWidth: 3,
+                        backgroundColor: gradSuccess,
                         tension: 0.4,
                         fill: true,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#4ade80'
+                        pointRadius: 6,
+                        pointBackgroundColor: '#fff',
+                        pointBorderWidth: 2,
+                        yAxisID: 'y'
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { position: 'top' },
-                    tooltip: { mode: 'index', intersect: false }
+                    legend: {
+                        position: 'top',
+                        labels: { font: { family: 'Inter', size: 12, weight: 'bold' }, usePointStyle: true, boxWidth: 8 }
+                    },
+                    tooltip: {
+                        backgroundColor: '#111827',
+                        titleFont: { family: 'Outfit', size: 14 },
+                        bodyFont: { family: 'Inter', size: 13 },
+                        padding: 12,
+                        cornerRadius: 10
+                    }
                 },
                 scales: {
-                    y: { beginAtZero: true, max: 100 },
-                    x: { grid: { display: false } }
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+                        ticks: { font: { family: 'Inter', size: 11 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter', size: 11 } }
+                    }
                 }
             }
         });

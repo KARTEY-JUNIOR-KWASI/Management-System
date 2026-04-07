@@ -1,17 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from functools import wraps
 from students.models import Student
 from teachers.models import Teacher
-from core.models import Class, Subject, Attendance, Result, Assignment, Submission
+from core.models import Class, Subject, Attendance, Result, Assignment, Submission, AuditLog, NoticeBoard
 from .forms import StudentForm, TeacherForm, SubjectForm, ClassForm
 from django.core.paginator import Paginator
 
 from accounts.decorators import admin_required
 
-from django.db.models import Count, Q, Avg
+from django.db.models import Count, Q, Avg, F, Sum
+from finance.models import Invoice, Payment
 from analytics.views import _calculate_system_analytics, _calculate_performance_trend, _identify_at_risk_students
 
 @admin_required
@@ -19,6 +21,11 @@ def admin_dashboard(request):
     system_analytics = _calculate_system_analytics()
     performance_trend = _calculate_performance_trend()
     at_risk_students = _identify_at_risk_students()
+    
+    # Financial Pulse for Main Dashboard
+    total_expected = Invoice.objects.aggregate(Sum('total_amount'))['total_amount__sum'] or Decimal('0.00')
+    total_collected = Payment.objects.aggregate(Sum('amount_paid'))['amount_paid__sum'] or Decimal('0.00')
+    collection_percentage = (total_collected / total_expected * 100) if total_expected > 0 else 0
     
     total_students = system_analytics.get('total_students', 0)
     total_teachers = system_analytics.get('total_teachers', 0)
@@ -41,6 +48,11 @@ def admin_dashboard(request):
         'total_at_risk': len(at_risk_students),
         'students': students,
         'system_analytics': system_analytics,
+        'recent_logs': AuditLog.objects.select_related('user').all()[:10],
+        'notices': NoticeBoard.objects.select_related('author').all()[:5],
+        'total_revenue_expected': total_expected,
+        'total_revenue_collected': total_collected,
+        'collection_percentage': round(collection_percentage, 1),
     }
     return render(request, 'admin_dashboard/dashboard.html', context)
 
@@ -75,7 +87,30 @@ def student_list(request):
         'selected_class': class_id,
         'total_students': students_query.count()
     }
-    return render(request, 'admin_dashboard/students.html', context)
+    return render(request, 'admin_dashboard/student_list.html', context)
+
+@admin_required
+def create_notice(request):
+    """Institutional announcement creation engine."""
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        category = request.POST.get('category')
+        content = request.POST.get('content')
+        is_pinned = request.POST.get('is_pinned') == 'on'
+
+        if title and content:
+            NoticeBoard.objects.create(
+                title=title,
+                category=category,
+                content=content,
+                is_pinned=is_pinned,
+                author=request.user
+            )
+            messages.success(request, 'Notice published successfully on the institutional board.')
+        else:
+            messages.error(request, 'Failed to publish notice. Title and content are required.')
+            
+    return redirect('admin_dashboard')
 
 @admin_required
 def student_create(request):
@@ -459,11 +494,103 @@ def manage_timetable(request):
 
 
 @admin_required
+def system_settings(request):
+    """Institutional configuration management."""
+    from core.models import SchoolConfiguration
+    from .forms import SchoolSettingsForm
+    
+    config = SchoolConfiguration.get_config()
+    
+    if request.method == 'POST':
+        form = SchoolSettingsForm(request.POST, request.FILES, instance=config)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Institutional configuration deployed successfully.')
+            return redirect('system_settings')
+    else:
+        form = SchoolSettingsForm(instance=config)
+        
+    return render(request, 'admin_dashboard/settings.html', {
+        'form': form,
+        'config': config
+    })
+
+@admin_required
+def academic_diagnostics(request):
+    """Institutional-level performance diagnostics."""
+    from core.models import Result, Student, Class, Subject
+    from django.db.models import Avg, Count
+    
+    # Grade Distribution
+    results = Result.objects.all()
+    distribution = {
+        'Exemplary (90-100)': results.filter(score__gte=F('max_score') * 0.9).count(),
+        'Proficient (75-89)': results.filter(score__gte=F('max_score') * 0.75, score__lt=F('max_score') * 0.9).count(),
+        'Passing (50-74)': results.filter(score__gte=F('max_score') * 0.5, score__lt=F('max_score') * 0.75).count(),
+        'Below Range (<50)': results.filter(score__lt=F('max_score') * 0.5).count(),
+    }
+    
+    # Subject Performance
+    subject_stats = Subject.objects.annotate(
+        avg_score=Avg('result__score'),
+        pass_count=Count('result', filter=Q(result__score__gte=F('result__max_score') * 0.5))
+    ).order_by('-avg_score')
+
+    # Class Performance
+    class_stats = Class.objects.annotate(
+        avg_score=Avg('assignments__submission__grade')
+    ).order_by('-avg_score')
+
+    return render(request, 'admin_dashboard/academic_diagnostics.html', {
+        'distribution': distribution,
+        'subject_stats': subject_stats,
+        'class_stats': class_stats,
+    })
+
+@admin_required
+def class_performance_analytics(request, class_id):
+    """Deep-dive into class rankings and student positioning."""
+    from core.models import Class
+    from core.academic_utils import get_class_rankings
+    
+    target_class = get_object_or_404(Class, id=class_id)
+    rankings = get_class_rankings(class_id)
+    
+    return render(request, 'admin_dashboard/class_rankings.html', {
+        'target_class': target_class,
+        'rankings': rankings
+    })
+
+@admin_required
 def delete_timetable_entry(request, pk):
     from core.models import Timetable
     entry = get_object_or_404(Timetable, pk=pk)
     class_id = entry.class_assigned.id
-    if request.method == 'POST':
-        entry.delete()
-        messages.success(request, 'Timetable entry deleted successfully.')
+    entry.delete()
+    messages.success(request, "Timetable entry deleted successfully.")
     return redirect(f"{reverse('manage_timetable')}?class_id={class_id}")
+
+@admin_required
+def audit_log_list(request):
+    """Filterable audit trail for system activity."""
+    logs_query = AuditLog.objects.select_related('user').all()
+    
+    # Filtering
+    action = request.GET.get('action')
+    resource = request.GET.get('resource')
+    if action:
+        logs_query = logs_query.filter(action=action)
+    if resource:
+        logs_query = logs_query.filter(resource_type__icontains=resource)
+        
+    paginator = Paginator(logs_query, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'logs': page_obj,
+        'actions': AuditLog.ACTION_CHOICES,
+        'selected_action': action,
+        'selected_resource': resource
+    }
+    return render(request, 'admin_dashboard/audit_logs.html', context)

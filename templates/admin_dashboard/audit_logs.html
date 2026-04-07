@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Audit Logs | {{ school_config.name }}{% endblock %}
+
+{% block content %}
+<div class="animate-fade-up">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1" style="font-weight: 800; letter-spacing: -0.02em;">Systems Audit Trail</h2>
+            <p class="text-muted mb-0">Monitor institutional activity and system security protocols.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'admin_dashboard' %}" class="btn border-0 shadow-sm" style="background: white; border-radius: 12px; font-weight: 600;">
+                <i class="fas fa-arrow-left me-2"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="premium-card p-4 mb-4">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-muted">Action Type</label>
+                <select name="action" class="form-select border-0 shadow-sm" style="background: #f8fafc; border-radius: 10px;">
+                    <option value="">All Actions</option>
+                    {% for val, label in actions %}
+                        <option value="{{ val }}" {% if selected_action == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-uppercase text-muted">Resource Type</label>
+                <input type="text" name="resource" value="{{ selected_resource|default:'' }}" 
+                       placeholder="e.g. Student, Result" 
+                       class="form-control border-0 shadow-sm" 
+                       style="background: #f8fafc; border-radius: 10px;">
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100" style="border-radius: 10px; font-weight: 600;">
+                    <i class="fas fa-filter me-2"></i> Apply Filters
+                </button>
+                <a href="{% url 'audit_logs' %}" class="btn btn-light" style="border-radius: 10px;">
+                    <i class="fas fa-undo"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Logs Table -->
+    <div class="premium-card overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: #f8fafc;">
+                    <tr>
+                        <th class="ps-4 border-0 py-3 small fw-bold text-uppercase text-muted">Timestamp</th>
+                        <th class="border-0 py-3 small fw-bold text-uppercase text-muted">Actor</th>
+                        <th class="border-0 py-3 small fw-bold text-uppercase text-muted">Action</th>
+                        <th class="border-0 py-3 small fw-bold text-uppercase text-muted">Resource</th>
+                        <th class="border-0 py-3 small fw-bold text-uppercase text-muted">Description</th>
+                        <th class="border-0 py-3 small fw-bold text-uppercase text-muted">Source IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td class="ps-4 small text-muted">
+                            <i class="far fa-clock me-1 opa-5"></i> {{ log.timestamp|date:"M d, Y" }}<br>
+                            <span class="fw-bold">{{ log.timestamp|date:"H:i:s" }}</span>
+                        </td>
+                        <td>
+                            {% if log.user %}
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm-circle me-2">
+                                        {{ log.user.get_full_name|default:log.user.username|slice:":2"|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold small">{{ log.user.get_full_name|default:log.user.username }}</div>
+                                        <div class="text-muted extra-small">{{ log.user.role|capfirst }}</div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <span class="text-muted italic small">System/Anonymous</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if log.action == 'LOGIN' %}
+                                <span class="p-badge-success"><i class="fas fa-sign-in-alt me-1"></i> Login</span>
+                            {% elif log.action == 'LOGOUT' %}
+                                <span class="p-badge-info"><i class="fas fa-sign-out-alt me-1"></i> Logout</span>
+                            {% elif log.action == 'CREATE' %}
+                                <span class="p-badge-exemplary"><i class="fas fa-plus-circle me-1"></i> Created</span>
+                            {% elif log.action == 'UPDATE' %}
+                                <span class="p-badge-passing"><i class="fas fa-edit me-1"></i> Updated</span>
+                            {% elif log.action == 'DELETE' %}
+                                <span class="p-badge-critical"><i class="fas fa-trash-alt me-1"></i> Deleted</span>
+                            {% elif log.action == 'SYSTEM' %}
+                                <span class="p-badge-primary"><i class="fas fa-cogs me-1"></i> System</span>
+                            {% elif log.action == 'SECURITY' %}
+                                <span class="p-badge-critical animate-pulse"><i class="fas fa-shield-alt me-1"></i> Security</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark fw-normal border" style="border-radius: 6px;">{{ log.resource_type }}</span>
+                            {% if log.resource_id %}
+                                <span class="text-muted small ms-1">#{{ log.resource_id|truncatechars:10 }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="small">{{ log.description }}</td>
+                        <td class="small text-muted font-monospace">{{ log.ip_address|default:"Unknown" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="opa-2 mb-3"><i class="fas fa-file-invoice fa-3x"></i></div>
+                            <h5 class="text-muted">No activity logs found matching the criteria.</h5>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if logs.has_other_pages %}
+        <div class="p-4 d-flex justify-content-between align-items-center" style="background: #f8fafc; border-top: 1px solid #f1f5f9;">
+            <div class="small text-muted">
+                Showing {{ logs.start_index }} to {{ logs.end_index }} of {{ logs.paginator.count }} entries
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    {% if logs.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ logs.previous_page_number }}{% if selected_action %}&action={{ selected_action }}{% endif %}{% if selected_resource %}&resource={{ selected_resource }}{% endif %}">Previous</a></li>
+                    {% endif %}
+                    
+                    <li class="page-item active"><span class="page-link">{{ logs.number }}</span></li>
+                    
+                    {% if logs.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ logs.next_page_number }}{% if selected_action %}&action={{ selected_action }}{% endif %}{% if selected_resource %}&resource={{ selected_resource }}{% endif %}">Next</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .premium-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    .avatar-sm-circle {
+        width: 32px;
+        height: 32px;
+        background: var(--primary-light, #e2e8f0);
+        color: var(--primary-color, #475569);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+    .p-badge-success { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+    .p-badge-info { background: #e0f2fe; color: #075985; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+    .p-badge-exemplary { background: #f0f9ff; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; border: 1px solid #bae6fd; }
+    .p-badge-passing { background: #fef9c3; color: #854d0e; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+    .p-badge-critical { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+    .p-badge-primary { background: #eef2ff; color: #3730a3; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+    
+    .extra-small { font-size: 0.65rem; }
+    .animate-pulse { animation: pulse 2s infinite; }
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.6; }
+        100% { opacity: 1; }
+    }
+</style>
+{% endblock %}

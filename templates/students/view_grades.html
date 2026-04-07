@@ -1,120 +1,140 @@
 {% extends 'base.html' %}
-{% load widget_tweaks %}
+{% load static %}
 
-{% block title %}My Grades{% endblock %}
+{% block title %}Academics — My Grades{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .grades-header { margin-bottom: 2.5rem; }
+    .subject-card {
+        margin-bottom: 2rem;
+        background: white;
+        border-radius: var(--p-card-radius);
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+    .subject-header {
+        padding: 1.5rem 2rem;
+        background: rgba(0, 64, 103, 0.02);
+        border-bottom: 1px solid var(--border-color);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="sms-breadcrumb d-flex justify-content-between align-items-center mb-4">
-  <div>
-    <span>Home</span><span class="sep">›</span><span class="current">My Grades</span>
-  </div>
-  <a href="{% url 'download_report_card_pdf' %}" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm">
-      <i class="fas fa-file-pdf me-1"></i> Download Official PDF
-  </a>
-</div>
-
-<div class="stat-cards-row fade-in">
-    <div class="stat-card-akkhor stat-blue">
-        <div class="stat-card-icon"><i class="fas fa-graduation-cap"></i></div>
-        <div class="stat-card-body">
-            <div class="stat-card-number">{{ overall_gpa|floatformat:1 }}</div>
-            <div class="stat-card-label">Overall GPA (4.0 Scale)</div>
-        </div>
-    </div>
+<div class="container-fluid main-canvas-area">
     
-    <div class="stat-card-akkhor stat-teal">
-        <div class="stat-card-icon"><i class="fas fa-book-open"></i></div>
-        <div class="stat-card-body">
-            <div class="stat-card-number">{{ grades_by_subject|length }}</div>
-            <div class="stat-card-label">Subjects Graded</div>
+    <!-- Header -->
+    <div class="grades-header d-flex justify-content-between align-items-end animate-fade-up">
+        <div>
+            <h1 class="page-title with-sub mb-0">Academic Performance</h1>
+            <p class="page-subtitle mb-0">Comprehensive record of examination results and mastery levels.</p>
+        </div>
+        <div class="actions">
+            <a href="{% url 'download_report_card_pdf' %}" class="btn btn-primary-akkhor btn-sm-akkhor px-4">
+                <i class="fas fa-file-pdf me-2"></i> Official Report Card
+            </a>
         </div>
     </div>
-</div>
 
-<div class="container-fluid fade-in mt-4 pb-5 px-0">
-    {% if grades_by_subject %}
-        {% for subject_name, subject_data in grades_by_subject.items %}
-        <div class="reg-card mb-4" style="border-top: 4px solid var(--primary);">
-            <div class="reg-card-header d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="card-icon-wrap" style="background:#eff3ff;">
-                        <i class="fas fa-book" style="color:var(--primary);"></i>
+    <!-- Top Stats -->
+    <div class="row mb-5">
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-primary">
+                        <i class="fas fa-chart-line"></i>
                     </div>
-                    <div>
-                        <h5 class="mb-0 fw-bold text-dark">{{ subject_name }}</h5>
-                    </div>
+                    <div class="premium-stat-value">{{ overall_gpa|floatformat:2 }}</div>
+                    <div class="premium-stat-label">Cumulative GPA</div>
                 </div>
-                <span class="badge px-3 py-2
-                    {% if subject_data.grade_points >= 3.0 %}bg-success
-                    {% elif subject_data.grade_points >= 2.0 %}bg-warning
-                    {% else %}bg-danger{% endif %}"
-                    style="font-size: 0.9rem; font-weight:700;">
-                    GPA: {{ subject_data.grade_points|floatformat:1 }} / 4.0
-                </span>
             </div>
-            <div class="reg-card-body p-0">
-                <div class="p-4 border-bottom d-flex align-items-center" style="background:var(--body-bg);">
-                    <strong class="me-3" style="color:var(--text-muted); text-transform:uppercase; font-size:0.8rem;">Overall Average:</strong>
-                    <div class="progress flex-grow-1" style="height: 12px; max-width: 300px; border-radius: 10px; background-color:#e9ecef;">
-                        <div class="progress-bar {% if subject_data.average >= 75 %}bg-success{% elif subject_data.average >= 60 %}bg-warning{% else %}bg-danger{% endif %}"
-                                role="progressbar"
-                                style="width: {{ subject_data.average }}%; border-radius:10px;"
-                                aria-valuenow="{{ subject_data.average }}"
-                                aria-valuemin="0"
-                                aria-valuemax="100">
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-2">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ grades_by_subject|length }}</div>
+                    <div class="premium-stat-label">Subjects Evaluated</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subjects Grid -->
+    <div class="row animate-fade-up delay-3">
+        <div class="col-12">
+            {% if grades_by_subject %}
+                {% for subject_name, subject_data in grades_by_subject.items %}
+                <div class="subject-card">
+                    <div class="subject-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="premium-stat-icon p-icon-primary m-0" style="width:45px; height:45px;">
+                                <i class="fas fa-book" style="font-size: 1rem;"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark m-0">{{ subject_name }}</h5>
+                        </div>
+                        <span class="p-badge {% if subject_data.grade_points >= 3.0 %}p-badge-medium{% elif subject_data.grade_points >= 2.0 %}p-badge-high{% else %}p-badge-critical{% endif %}" style="padding: 0.5rem 1.25rem;">
+                            GPA: {{ subject_data.grade_points|floatformat:1 }}
+                        </span>
+                    </div>
+                    
+                    <div class="p-4" style="background: white;">
+                        <div class="d-flex align-items-center mb-4 p-3 rounded-3" style="background: #fbfdff; border: 1px solid rgba(0, 64, 103, 0.05);">
+                            <span class="text-muted small fw-bold text-uppercase me-4" style="letter-spacing: 1px;">Mastery Level:</span>
+                            <div class="progress flex-grow-1" style="height: 10px; border-radius: 5px; background: #eaeff5; max-width: 400px;">
+                                <div class="progress-bar {% if subject_data.average >= 75 %}bg-success{% elif subject_data.average >= 60 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ subject_data.average }}%; border-radius: 5px;"></div>
+                            </div>
+                            <span class="ms-4 fw-bold text-dark">{{ subject_data.average|floatformat:1 }}%</span>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead>
+                                    <tr>
+                                        <th>Exam / Assessment Type</th>
+                                        <th>Points Earned</th>
+                                        <th>Percentage</th>
+                                        <th class="text-end">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for result in subject_data.results %}
+                                    <tr>
+                                        <td><div class="fw-bold text-dark small">{{ result.exam_type|title }}</div><div class="text-muted" style="font-size: 0.7rem;">{{ result.date|date:"F d, Y" }}</div></td>
+                                        <td class="small">{{ result.score }} <span class="text-muted">/ {{ result.max_score }}</span></td>
+                                        <td>
+                                            {% widthratio result.score result.max_score 100 as percentage %}
+                                            <div class="fw-bold text-primary">{{ percentage }}%</div>
+                                        </td>
+                                        <td class="text-end">
+                                            {% if percentage|add:"0" >= 80 %}
+                                                <span class="p-badge p-badge-medium" style="font-size: 0.65rem;">EXCELLENT</span>
+                                            {% elif percentage|add:"0" >= 60 %}
+                                                <span class="p-badge p-badge-high" style="font-size: 0.65rem;">PASSING</span>
+                                            {% else %}
+                                                <span class="p-badge p-badge-critical" style="font-size: 0.65rem;">RETENTION RISK</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <span class="ms-3 fw-bold fs-5 text-dark">{{ subject_data.average|floatformat:1 }}%</span>
                 </div>
-
-                <div class="table-responsive border-0 overflow-hidden">
-                    <table class="table-akkhor m-0">
-                        <thead>
-                            <tr>
-                                <th class="px-4">Exam Type</th>
-                                <th>Score</th>
-                                <th>Percentage</th>
-                                <th>Date</th>
-                                <th class="px-4">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for result in subject_data.results %}
-                            <tr>
-                                <td class="px-4 fw-medium text-dark">{{ result.exam_type|title }}</td>
-                                <td><span style="font-weight:600;">{{ result.score }} / {{ result.max_score }}</span></td>
-                                <td>
-                                    {% widthratio result.score result.max_score 100 as percentage %}
-                                    <span class="fw-bold" style="color:var(--primary);">{{ percentage }}%</span>
-                                </td>
-                                <td style="color:var(--text-muted);">{{ result.date|date:"M d, Y" }}</td>
-                                <td class="px-4">
-                                    {% if percentage|add:"0" >= 75 %}
-                                        <span class="badge badge-akkhor text-success" style="background: rgba(40,167,69,0.1);">Excellent</span>
-                                    {% elif percentage|add:"0" >= 60 %}
-                                        <span class="badge badge-akkhor text-warning" style="background: rgba(255,193,7,0.1);">Good</span>
-                                    {% else %}
-                                        <span class="badge badge-akkhor text-danger" style="background: rgba(220,53,69,0.1);">Needs Improvement</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                {% endfor %}
+            {% else %}
+                <div class="premium-table-container text-center py-5">
+                    <i class="fas fa-folder-open text-muted fs-1 mb-3 opacity-25"></i>
+                    <p class="text-muted mb-0">No archived results found in your academic record.</p>
                 </div>
-            </div>
+            {% endif %}
         </div>
-        {% endfor %}
-    {% else %}
-        <div class="reg-card">
-            <div class="reg-card-body text-center py-5">
-                <div class="avatar-ring mb-3" style="width:80px; height:80px; font-size:2rem; background:#f3f6fb; color:var(--text-muted); margin:0 auto; display:flex; align-items:center; justify-content:center; border-radius:50%;">
-                    <i class="fas fa-file-invoice"></i>
-                </div>
-                <h5 class="text-dark fw-bold">No grades available yet</h5>
-                <p class="text-muted mb-0">Your grades will appear here once your teachers have entered them.</p>
-            </div>
-        </div>
-    {% endif %}
+    </div>
 </div>
 {% endblock %}

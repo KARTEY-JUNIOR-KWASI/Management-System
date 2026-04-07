@@ -12,12 +12,106 @@
                 <p style="color: var(--text-muted); margin: 0; font-size: 0.85rem;">Global institution performance, resource allocation, and risk management.</p>
             </div>
             <div class="d-flex gap-2">
+                <a href="{% url 'finance:finance_hub' %}" class="btn btn-outline-success rounded-pill px-3">
+                    <i class="fas fa-wallet me-1"></i> Finance Hub
+                </a>
                 <a href="{% url 'analytics:generate_report' %}" class="btn btn-outline-akkhor rounded-pill px-3">
-                    <i class="fas fa-file-invoice me-1"></i> System Report
+                    <i class="fas fa-file-invoice me-1"></i> Reporting Hub
                 </a>
                 <a href="{% url 'student_create' %}" class="btn btn-primary rounded-pill px-3 shadow-sm">
                     <i class="fas fa-plus me-1"></i> New Student
                 </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Institutional Notice Board (High Priority) -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 16px; background: linear-gradient(135deg, #1E293B 0%, #334155 100%);">
+            <div class="card-header border-0 bg-transparent p-4 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-white"><i class="fas fa-bullhorn me-2 text-warning"></i> Institutional Notice Board</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-glass text-white px-3"><i class="fas fa-history me-1"></i> Archives</button>
+                    <button class="btn btn-sm btn-warning rounded-pill px-3 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#createNoticeModal">
+                        <i class="fas fa-plus me-1"></i> New Notice
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-4 pt-0">
+                <div class="row g-3">
+                    {% for notice in notices %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="p-3 h-100 position-relative animate-fade-in" 
+                             style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; backdrop-filter: blur(10px);">
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge border bg-{% if notice.category == 'emergency' %}danger{% elif notice.category == 'academic' %}info{% elif notice.category == 'sports' %}success{% else %}light text-dark{% endif %}-subtle text-{% if notice.category == 'emergency' %}danger{% elif notice.category == 'academic' %}info{% elif notice.category == 'sports' %}success{% else %}dark{% endif %} extra-small">
+                                    {{ notice.get_category_display }}
+                                </span>
+                                {% if notice.is_pinned %}<i class="fas fa-thumbtack text-warning extra-small"></i>{% endif %}
+                            </div>
+                            
+                            <h6 class="text-white fw-bold small mb-1">{{ notice.title }}</h6>
+                            <p class="text-white-50 extra-small mb-3" style="line-height: 1.4;">{{ notice.content|truncatechars:100 }}</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-auto opa-7">
+                                <div class="d-flex align-items-center gap-1 extra-small text-white">
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width:16px; height:16px; font-size:0.5rem;">
+                                        {{ notice.author.first_name|slice:":1" }}
+                                    </div>
+                                    {{ notice.author.get_full_name|default:"Admin" }}
+                                </div>
+                                <span class="text-white-50 extra-small">{{ notice.created_at|date:"M d" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-4 text-white-50">
+                        <p class="small mb-0">No active institutional notices today.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Institutional Digital Treasury (Financial Pulse) -->
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow-sm overflow-hidden" 
+             style="border-radius: 16px; background: linear-gradient(135deg, #059669 0%, #10B981 100%);">
+            <div class="card-body p-4 d-flex flex-column flex-md-row align-items-center justify-content-between text-white">
+                <div class="d-flex align-items-center mb-3 mb-md-0">
+                    <div class="bg-white bg-opacity-20 rounded-pill d-flex align-items-center justify-content-center me-3" style="width:50px; height:50px;">
+                        <i class="fas fa-vault fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Institutional Digital Treasury</h5>
+                        <p class="opa-7 small mb-0">Real-time revenue tracking and fiscal oversight.</p>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-4 align-items-center px-lg-5">
+                    <div class="text-center">
+                        <div class="opa-7 extra-small fw-bold text-uppercase">Expected</div>
+                        <div class="fw-bold h5 mb-0">${{ total_revenue_expected|floatformat:2 }}</div>
+                    </div>
+                    <div class="vr opa-2 shadow-sm" style="height:30px;"></div>
+                    <div class="text-center">
+                        <div class="opa-7 extra-small fw-bold text-uppercase">Collected</div>
+                        <div class="fw-bold h5 mb-0 text-white">${{ total_revenue_collected|floatformat:2 }}</div>
+                    </div>
+                    <div class="vr opa-2 shadow-sm" style="height:30px;"></div>
+                    <div class="text-center d-none d-lg-block">
+                        <div class="opa-7 extra-small fw-bold text-uppercase">Rate</div>
+                        <div class="fw-bold h5 mb-0">{{ collection_percentage }}%</div>
+                    </div>
+                </div>
+
+                <div class="mt-3 mt-md-0">
+                    <a href="{% url 'finance:finance_hub' %}" class="btn btn-glass text-white px-4 fw-bold rounded-pill shadow-sm">
+                        Treasury Protocol <i class="fas fa-chevron-right ms-2 scale-9"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -155,13 +249,13 @@
         </div>
     </div>
 
-    <!-- Recent Students Table -->
-    <div class="col-xl-12 mb-4">
-        <div class="card card-akkhor">
+    <!-- Main Data Grid -->
+    <div class="col-xl-7 col-lg-7 mb-4">
+        <div class="card card-akkhor h-100">
             <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0">Recent Admissions</h5>
                 <div class="d-flex gap-2">
-                    <input type="text" id="adminSearchInp" placeholder="Quick search..." class="form-control form-control-sm rounded-pill px-3" style="width:200px;">
+                    <input type="text" id="adminSearchInp" placeholder="Search..." class="form-control form-control-sm rounded-pill px-2" style="width:120px; font-size: 0.75rem;">
                     <a href="{% url 'student_list' %}" class="btn btn-sm btn-primary rounded-pill px-3">View All</a>
                 </div>
             </div>
@@ -171,41 +265,24 @@
                         <thead class="bg-light">
                             <tr>
                                 <th class="ps-4 py-3 small text-uppercase text-muted fw-bold">Student</th>
-                                <th class="py-3 small text-uppercase text-muted fw-bold">ID</th>
                                 <th class="py-3 small text-uppercase text-muted fw-bold">Class</th>
-                                <th class="py-3 small text-uppercase text-muted fw-bold">Status</th>
                                 <th class="pe-4 py-3 text-end">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for student in students %}
+                            {% for student in students|slice:":5" %}
                             <tr>
                                 <td class="ps-4">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="topbar-avatar" style="width:36px; height:36px; font-size:0.8rem; background:rgba(67, 97, 238, 0.1); color:var(--primary);">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="topbar-avatar" style="width:30px; height:30px; font-size:0.7rem; background:rgba(67, 97, 238, 0.1); color:var(--primary);">
                                             {{ student.user.first_name|slice:":1" }}{{ student.user.last_name|slice:":1" }}
                                         </div>
-                                        <div>
-                                            <div class="fw-bold text-dark">{{ student.user.get_full_name }}</div>
-                                            <div class="text-muted small">{{ student.user.email }}</div>
-                                        </div>
+                                        <div class="fw-bold text-dark small">{{ student.user.get_full_name|truncatechars:20 }}</div>
                                     </div>
                                 </td>
-                                <td class="small fw-bold">{{ student.student_id }}</td>
-                                <td><span class="badge bg-light text-dark border">{{ student.class_enrolled.name }}</span></td>
-                                <td>
-                                    <span class="badge bg-success-subtle text-success rounded-pill px-3">Active</span>
-                                </td>
+                                <td><span class="badge bg-light text-dark border small">{{ student.class_enrolled.name }}</span></td>
                                 <td class="pe-4 text-end">
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-icon" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
-                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                            <li><a class="dropdown-item" href="{% url 'student_update' student.id %}"><i class="fas fa-pen me-2"></i> Edit</a></li>
-                                            <li><a class="dropdown-item" href="{% url 'analytics:student_performance_detail' student.id %}"><i class="fas fa-chart-line me-2"></i> Performance</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item text-danger" href="{% url 'student_delete' student.id %}"><i class="fas fa-trash me-2"></i> Delete</a></li>
-                                        </ul>
-                                    </div>
+                                    <a href="{% url 'student_detail' student.id %}" class="btn btn-sm btn-icon"><i class="fas fa-external-link-alt text-muted" style="font-size:0.7rem;"></i></a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -215,15 +292,103 @@
             </div>
         </div>
     </div>
+
+    <!-- System Pulse -->
+    <div class="col-xl-5 col-lg-5 mb-4">
+        <div class="card card-akkhor h-100 border-top border-4 border-primary">
+            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-primary"><i class="fas fa-broadcast-tower me-2"></i> System Pulse</h5>
+                <a href="{% url 'audit_logs' %}" class="small text-decoration-none fw-bold">Full Audit <i class="fas fa-chevron-right ms-1"></i></a>
+            </div>
+            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                <div class="list-group list-group-flush">
+                    {% for log in recent_logs %}
+                    <div class="list-group-item p-3 border-0 border-bottom">
+                        <div class="d-flex gap-3 align-items-start">
+                            <div class="flex-shrink-0 mt-1">
+                                {% if log.action == 'LOGIN' %}<i class="fas fa-sign-in-alt text-success"></i>
+                                {% elif log.action == 'SECURITY' %}<i class="fas fa-shield-alt text-danger animate-pulse"></i>
+                                {% elif log.action == 'DELETE' %}<i class="fas fa-trash-alt text-danger"></i>
+                                {% elif log.action == 'CREATE' %}<i class="fas fa-plus-circle text-info"></i>
+                                {% elif log.action == 'UPDATE' %}<i class="fas fa-edit text-warning"></i>
+                                {% else %}<i class="fas fa-circle text-muted"></i>{% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <span class="fw-bold small">{{ log.get_action_display }}</span>
+                                    <span class="text-muted extra-small">{{ log.timestamp|timesince }} ago</span>
+                                </div>
+                                <p class="text-muted m-0 extra-small">{{ log.description|truncatechars:60 }}</p>
+                                <div class="mt-1 extra-small opa-7">
+                                    <i class="fas fa-user-circle me-1"></i> {{ log.user.get_full_name|default:"System" }} 
+                                    <span class="mx-1">•</span> 
+                                    <i class="fas fa-map-marker-alt me-1"></i> {{ log.ip_address|default:"Internal" }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="p-4 text-center opa-5">
+                        <p class="small m-0">No recent activity recorded.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<!-- Create Notice Modal -->
+<div class="modal fade" id="createNoticeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2"></i>Create New Notice</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'create_notice' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="e.g. Annual Sports Meet 2026" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Category</label>
+                        <select name="category" class="form-select">
+                            <option value="general">General Announcement</option>
+                            <option value="academic">Academic</option>
+                            <option value="sports">Sports</option>
+                            <option value="event">Event</option>
+                            <option value="emergency">Emergency</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Content</label>
+                        <textarea name="content" class="form-control" rows="4" placeholder="Enter announcement details..." required></textarea>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="is_pinned" id="pinNotice">
+                        <label class="form-check-label small" for="pinNotice">Pin to top of board</label>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold">Publish Notice</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{ performance_trend|json_script:"trend-data" }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const ctx = document.getElementById('adminPerformanceChart').getContext('2d');
         
-        // Data from performance_trend context
-        const trendData = {{ performance_trend|safe }};
+        // Safely extract trend data
+        const trendData = JSON.parse(document.getElementById('trend-data').textContent);
         const labels = trendData.map(item => item.month);
         const scores = trendData.map(item => item.average_score);
 

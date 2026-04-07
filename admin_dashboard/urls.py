@@ -25,4 +25,15 @@ urlpatterns = [
     # Timetable URLs
     path('timetable/manage/', views.manage_timetable, name='manage_timetable'),
     path('timetable/<int:pk>/delete/', views.delete_timetable_entry, name='delete_timetable_entry'),
+    
+    # Institutional Settings
+    path('settings/', views.system_settings, name='system_settings'),
+    
+    # Academic Intelligence
+    path('academic/diagnostics/', views.academic_diagnostics, name='academic_diagnostics'),
+    path('academic/class/<int:class_id>/performance/', views.class_performance_analytics, name='class_performance'),
+
+    # Audit & Intelligence
+    path('audit/logs/', views.audit_log_list, name='audit_logs'),
+    path('notices/create/', views.create_notice, name='create_notice'),
 ]

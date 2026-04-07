@@ -1,164 +1,190 @@
 {% extends 'base.html' %}
-{% block title %}Upload Resource{% endblock %}
+{% load static %}
+
+{% block title %}Academics — Upload Intelligence Resource{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .form-canvas {
+        background: white;
+        border-radius: var(--p-card-radius);
+        border: 1px solid var(--border-color);
+        padding: 3rem;
+        box-shadow: 0 4px 25px rgba(0,0,0,0.03);
+    }
+    .form-section-title {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+        display: block;
+        border-bottom: 2px solid rgba(0, 64, 103, 0.05);
+        padding-bottom: 0.75rem;
+    }
+    .premium-input-group {
+        margin-bottom: 2rem;
+    }
+    .premium-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.75rem;
+        display: block;
+        font-size: 0.9rem;
+    }
+    .p-form-control {
+        height: 52px;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 64, 103, 0.1);
+        padding: 0 1.25rem;
+        transition: var(--p-transition-smooth);
+        background: #fbfdff;
+    }
+    .p-form-control:focus {
+        background: white;
+        border-color: var(--p-primary-hsl);
+        box-shadow: 0 0 0 4px rgba(0, 64, 103, 0.05);
+        outline: none;
+    }
+    .p-textarea {
+        height: auto;
+        padding: 1.25rem;
+    }
+    .upload-zone {
+        border: 2px dashed rgba(0, 64, 103, 0.15);
+        border-radius: 16px;
+        padding: 3rem;
+        text-align: center;
+        background: rgba(0, 64, 103, 0.01);
+        transition: var(--p-transition-smooth);
+        cursor: pointer;
+    }
+    .upload-zone:hover {
+        background: rgba(0, 64, 103, 0.03);
+        border-color: var(--p-primary-hsl);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 style="font-weight:800; margin:0;">Upload Resource</h2>
-      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">Share learning material with your students</p>
+<div class="container-fluid main-canvas-area" style="max-width: 900px;">
+    
+    <!-- Header -->
+    <div class="d-flex align-items-center gap-4 mb-5 animate-fade-up">
+        <a href="{% url 'teacher_library' %}" class="p-btn-icon bg-white shadow-sm" style="width: 45px; height: 45px;">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="page-title mb-0">Upload Resource</h1>
+            <p class="text-muted small mb-0">Anchor a new educational asset to the digital ecosystem.</p>
+        </div>
     </div>
-    <a href="{% url 'teacher_library' %}" class="btn btn-outline-akkhor">
-      <i class="fas fa-arrow-left me-1"></i> Back to Library
-    </a>
-  </div>
 
-  {% if messages %}
-    {% for m in messages %}
-      <div class="alert-akkhor alert-{{ m.tags }} fade-in mb-3"><i class="fas fa-exclamation-circle"></i> {{ m }}</div>
-    {% endfor %}
-  {% endif %}
+    {% if messages %}
+        {% for m in messages %}
+            <div class="alert alert-{{ m.tags }} rounded-4 border-0 shadow-sm mb-4 animate-fade-in">
+                <i class="fas fa-info-circle me-2"></i> {{ m }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-  <div style="display:grid; grid-template-columns:1fr 340px; gap:1.5rem; align-items:start;">
+    <!-- Form Canvas -->
+    <form method="post" enctype="multipart/form-data" class="animate-fade-up delay-1">
+        {% csrf_token %}
+        <div class="form-canvas">
+            <span class="form-section-title">Identity & Classification</span>
+            
+            <div class="premium-input-group">
+                <label class="premium-label">Resource Title</label>
+                <input type="text" name="title" class="p-form-control w-100" placeholder="e.g. Introduction to Quantum Mechanics" required>
+            </div>
 
-    <!-- Form -->
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="premium-label">Academic Subject</label>
+                    <select name="subject_id" class="p-form-control w-100">
+                        <option value="">Public / General</option>
+                        {% for s in subjects %}
+                            <option value="{{ s.id }}">{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="premium-label">Asset Classification</label>
+                    <select name="resource_type" class="p-form-control w-100">
+                        {% for key, label in resource_types %}
+                            <option value="{{ key }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
 
-      <!-- Basic Info -->
-      <div class="card card-akkhor mb-4" style="border-radius:14px;">
-        <div class="card-body">
-          <h5 style="font-weight:700; font-size:0.9rem; margin-bottom:1.25rem; padding-bottom:0.5rem; border-bottom:1px solid #f0f3f8;">
-            <i class="fas fa-info-circle me-2 text-primary"></i>Resource Details
-          </h5>
-          <div class="mb-3">
-            <label class="form-label" style="font-size:0.78rem; font-weight:600;">Title <span class="text-danger">*</span></label>
-            <input type="text" name="title" class="form-control" placeholder="Give this resource a clear title..." required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label" style="font-size:0.78rem; font-weight:600;">Description</label>
-            <textarea name="description" class="form-control" rows="3" placeholder="Briefly describe what this resource covers..."></textarea>
-          </div>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Resource Type</label>
-              <select name="resource_type" class="form-control">
-                {% for key, label in resource_types %}
-                  <option value="{{ key }}">{{ label }}</option>
-                {% endfor %}
-              </select>
+            <div class="premium-input-group">
+                <label class="premium-label">Extended Narrative (Description)</label>
+                <textarea name="description" rows="4" class="p-form-control p-textarea w-100" placeholder="Briefly articulate what this resource covers..."></textarea>
             </div>
-            <div class="col-md-6">
-              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Subject</label>
-              <select name="subject_id" class="form-control">
-                <option value="">-- All Subjects --</option>
-                {% for s in subjects %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
-              </select>
+
+            <span class="form-section-title">Delivery Method</span>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-12">
+                     <label class="premium-label">Option A: Digital File Upload</label>
+                     <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+                        <i class="fas fa-cloud-upload-alt fs-1 text-primary-akkhor mb-3"></i>
+                        <h6 class="fw-bold text-dark">Select Resource File</h6>
+                        <p class="text-muted small mb-0">PDF, DOCX, ZIP, or high-res imagery (Max 50MB)</p>
+                        <input type="file" id="file-input" name="file" style="display: none;" onchange="updateFileName(this)">
+                        <div id="file-name-display" class="mt-3 fw-bold text-success small" style="display:none;"></div>
+                     </div>
+                </div>
+                <div class="col-md-12">
+                     <label class="premium-label">Option B: External Resonance (URL)</label>
+                     <input type="url" name="external_url" class="p-form-control w-100" placeholder="https://youtube.com/watch?v=... or external drive link">
+                     <p class="text-muted small mt-2"><i class="fas fa-info-circle me-1"></i> YouTube and Vimeo links will be automatically embedded for students.</p>
+                </div>
             </div>
-            <div class="col-md-6">
-              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Target Class</label>
-              <select name="class_id" class="form-control">
-                <option value="">-- All Classes (Everyone) --</option>
-                {% for cls in classes %}<option value="{{ cls.id }}">{{ cls }}</option>{% endfor %}
-              </select>
-              <small class="text-muted">Leave blank to share with all students</small>
+
+            <span class="form-section-title">Access & Visibility</span>
+
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-4">
+                    <label class="premium-label">Target Audience</label>
+                    <select name="class_id" class="p-form-control w-100">
+                        <option value="">All Institutional Learners</option>
+                        {% for c in classes %}
+                            <option value="{{ c.id }}">{{ c.name }} ({{ c.section }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="form-check form-switch pt-4">
+                        <input class="form-check-input" type="checkbox" id="is_published" name="is_published" checked>
+                        <label class="form-check-label fw-bold text-dark small" for="is_published">Publish Immediately</label>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6">
-              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Visibility</label>
-              <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:8px; padding:0.65rem 1rem; display:flex; align-items:center; gap:0.75rem; margin-top:0.1rem;">
-                <input type="checkbox" name="is_published" id="is_published" checked style="width:16px; height:16px; cursor:pointer;">
-                <label for="is_published" style="cursor:pointer; font-size:0.85rem; margin:0;">Publish immediately (visible to students)</label>
-              </div>
+
+            <div class="mt-5 d-flex gap-3">
+                <button type="submit" class="btn btn-primary-akkhor rounded-3 px-5 py-3 shadow-sm flex-grow-1">
+                    <i class="fas fa-plus-circle me-2"></i> Anchor Asset to Library
+                </button>
+                <a href="{% url 'teacher_library' %}" class="btn btn-outline-akkhor rounded-3 px-4 py-3">Discard</a>
             </div>
-          </div>
         </div>
-      </div>
-
-      <!-- File or Link -->
-      <div class="card card-akkhor mb-4" style="border-radius:14px;">
-        <div class="card-body">
-          <h5 style="font-weight:700; font-size:0.9rem; margin-bottom:1.25rem; padding-bottom:0.5rem; border-bottom:1px solid #f0f3f8;">
-            <i class="fas fa-paperclip me-2 text-primary"></i>File or Link <span class="text-danger">*</span>
-          </h5>
-
-          <!-- Upload Zone -->
-          <div id="upload-zone" style="border:2px dashed #c7d2fe; border-radius:12px; padding:2.5rem; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:1rem; background:#fafbff;"
-            onclick="document.getElementById('file-input').click()"
-            ondragover="this.style.borderColor='var(--primary)'; event.preventDefault();"
-            ondragleave="this.style.borderColor='#c7d2fe';"
-            ondrop="handleDrop(event)">
-            <i class="fas fa-cloud-upload-alt" style="font-size:2.5rem; color:#a5b4fc;"></i>
-            <p style="margin:0.75rem 0 0.25rem; font-weight:600; color:var(--text-dark);">Drag & drop or click to upload</p>
-            <p style="font-size:0.78rem; color:var(--text-muted);">PDF, Word, PowerPoint, Images, Videos, Spreadsheets (max 50MB)</p>
-            <div id="file-name" style="margin-top:0.5rem; font-weight:600; color:var(--primary);"></div>
-          </div>
-          <input type="file" name="file" id="file-input" style="display:none;" onchange="showFileName(this)">
-
-          <div style="display:flex; align-items:center; gap:1rem; margin:0.75rem 0;">
-            <hr style="flex:1; margin:0;"> <span style="font-size:0.8rem; color:var(--text-muted);">OR</span> <hr style="flex:1; margin:0;">
-          </div>
-
-          <div>
-            <label class="form-label" style="font-size:0.78rem; font-weight:600;">External URL (YouTube, Google Drive, etc.)</label>
-            <div style="display:flex; border:1.5px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-              <span style="background:#f8fafc; border-right:1.5px solid #e2e8f0; padding:0.55rem 0.75rem; display:flex; align-items:center;">
-                <i class="fas fa-link" style="color:var(--text-muted);"></i>
-              </span>
-              <input type="url" name="external_url" class="form-control" placeholder="https://..." style="border:none; box-shadow:none;">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="d-flex gap-3">
-        <button type="submit" class="btn btn-primary-akkhor px-5">
-          <i class="fas fa-cloud-upload-alt me-1"></i> Upload Resource
-        </button>
-        <a href="{% url 'teacher_library' %}" class="btn btn-outline-akkhor">Cancel</a>
-      </div>
     </form>
-
-    <!-- Tips Sidebar -->
-    <div>
-      <div class="card card-akkhor" style="border-radius:14px; border-left:4px solid var(--primary);">
-        <div class="card-body">
-          <h6 style="font-weight:700; color:var(--primary); margin-bottom:1rem;"><i class="fas fa-lightbulb me-2"></i>Upload Tips</h6>
-          <ul style="font-size:0.82rem; color:var(--text-muted); padding-left:1.2rem; line-height:1.8;">
-            <li>Use clear, descriptive titles students can find easily</li>
-            <li>Choose the right type so students see the correct icon</li>
-            <li>Target a specific class to limit access</li>
-            <li>Save as <strong>Draft</strong> if not ready to publish</li>
-            <li>Use external links for YouTube videos or Google Docs</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="card card-akkhor mt-3" style="border-radius:14px; background:#f0fdf4; border-color:#bbf7d0;">
-        <div class="card-body">
-          <h6 style="font-weight:700; color:#16a34a; margin-bottom:0.75rem;"><i class="fas fa-shield-check me-2"></i>Student Access</h6>
-          <p style="font-size:0.8rem; color:#15803d; margin:0;">
-            Students will see this resource in their Library portal as soon as you publish it. 
-            If you select a specific class, only students in that class will see it.
-          </p>
-        </div>
-      </div>
-    </div>
-
-  </div>
 </div>
 
 <script>
-function showFileName(input) {
-  const name = input.files[0]?.name || '';
-  document.getElementById('file-name').textContent = name ? '📄 ' + name : '';
-  if(name) document.getElementById('upload-zone').style.borderColor = 'var(--primary)';
-}
-function handleDrop(e) {
-  e.preventDefault();
-  const dt = e.dataTransfer;
-  const inp = document.getElementById('file-input');
-  inp.files = dt.files;
-  showFileName(inp);
-  document.getElementById('upload-zone').style.borderColor = 'var(--primary)';
-}
+    function updateFileName(input) {
+        const display = document.getElementById('file-name-display');
+        if (input.files.length > 0) {
+            display.textContent = 'Selected: ' + input.files[0].name;
+            display.style.display = 'block';
+        } else {
+            display.style.display = 'none';
+        }
+    }
 </script>
 {% endblock %}

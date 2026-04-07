@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     'analytics',
     'api',
     'library',
+    'finance',
 ]
 
 SITE_ID = 1
@@ -100,6 +101,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'core.middleware.ThreadLocalMiddleware',
 ]
 
 ROOT_URLCONF = 'school_management.urls'
@@ -115,6 +117,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.unread_notifications',
+                'core.context_processors.school_config',
             ],
         },
     },
@@ -246,3 +249,8 @@ CACHES = {
 CACHE_MIDDLEWARE_ALIAS = 'default'
 CACHE_MIDDLEWARE_SECONDS = 300  # 5 minutes
 CACHE_MIDDLEWARE_KEY_PREFIX = 'school_management'
+
+# Institutional Communication Settings
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@edums.edu'
+SERVER_EMAIL = 'admin@edums.edu'

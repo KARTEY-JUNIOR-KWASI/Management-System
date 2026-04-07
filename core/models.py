@@ -1,4 +1,28 @@
 from django.db import models
+from django.conf import settings
+from django.utils import timezone
+
+class AcademicTerm(models.Model):
+    """Naming and duration for institutional periods (e.g. First Term 2024)."""
+    name = models.CharField(max_length=100)
+    session = models.CharField(max_length=20, help_text="e.g. 2024/2025")
+    start_date = models.DateField()
+    end_date = models.DateField()
+    is_current = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-start_date']
+        verbose_name = "Academic Term"
+        verbose_name_plural = "Academic Terms"
+
+    def __str__(self):
+        return f"{self.name} ({self.session})"
+
+    def save(self, *args, **kwargs):
+        if self.is_current:
+            # Ensure only one term is 'current'
+            AcademicTerm.objects.filter(is_current=True).update(is_current=False)
+        super().save(*args, **kwargs)
 
 class Class(models.Model):
     name = models.CharField(max_length=100)
@@ -140,3 +164,84 @@ class Timetable(models.Model):
 
     def __str__(self):
         return f"{self.class_assigned} - {self.day} - {self.subject}"
+
+
+class SchoolConfiguration(models.Model):
+    """Singleton model for overall institutional configuration."""
+    name = models.CharField(max_length=200, default="Edu Ms Intelligence")
+    motto = models.CharField(max_length=300, blank=True, default="Empowering Future Leaders")
+    logo = models.ImageField(upload_to='school/', null=True, blank=True)
+    contact_email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+    address = models.TextField(blank=True)
+    current_academic_year = models.CharField(max_length=20, default="2025-2026")
+    established_year = models.IntegerField(default=2024)
+    active_term = models.ForeignKey(AcademicTerm, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    class Meta:
+        verbose_name = "Institutional Configuration"
+        verbose_name_plural = "Institutional Configuration"
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_config(cls):
+        """Helper to get the singleton instance."""
+        obj, created = cls.objects.get_or_create(id=1)
+        return obj
+
+class AuditLog(models.Model):
+    """System-wide tracking for institutional activity and security."""
+    ACTION_CHOICES = [
+        ('LOGIN', 'User Login'),
+        ('LOGOUT', 'User Logout'),
+        ('CREATE', 'Record Created'),
+        ('UPDATE', 'Record Updated'),
+        ('DELETE', 'Record Deleted'),
+        ('SYSTEM', 'System Configuration Change'),
+        ('SECURITY', 'Security Alert'),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='audit_logs')
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    resource_type = models.CharField(max_length=100, help_text="e.g. Student, Result, Teacher")
+    resource_id = models.CharField(max_length=100, null=True, blank=True)
+    description = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['action', 'timestamp']),
+            models.Index(fields=['resource_type', 'resource_id']),
+        ]
+
+    def __str__(self):
+        return f"{self.user} - {self.action} - {self.resource_type} ({self.timestamp})"
+class NoticeBoard(models.Model):
+    """Institutional announcements and global notices."""
+    CATEGORY_CHOICES = [
+        ('academic', 'Academic'),
+        ('sports', 'Sports'),
+        ('event', 'Event'),
+        ('emergency', 'Emergency'),
+        ('general', 'General Announcement'),
+    ]
+
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='general')
+    is_pinned = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-is_pinned', '-created_at']
+        verbose_name = "Institutional Notice"
+        verbose_name_plural = "Institutional Notices"
+
+    def __str__(self):
+        return f"{self.get_category_display()}: {self.title}"

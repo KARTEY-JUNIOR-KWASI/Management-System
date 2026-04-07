@@ -1,236 +1,228 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Analytics Dashboard - Admin{% endblock %}
+{% block title %}Intelligence Dashboard — Admin{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    /* Scope specific adjustments */
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+    }
+    .main-canvas-area {
+        padding-top: 1rem;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-            <div class="sidebar-sticky">
-                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                    <span>Analytics Menu</span>
-                </h6>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'analytics:analytics_dashboard' %}">
-                            <i class="fas fa-chart-line"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'analytics:create_notification' %}">
-                            <i class="fas fa-bell"></i> Send Notification
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'analytics:generate_report' %}">
-                            <i class="fas fa-file-pdf"></i> Generate Reports
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'analytics:notifications_list' %}">
-                            <i class="fas fa-inbox"></i> Notifications
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+<div class="container-fluid main-canvas-area">
+    
+    <!-- Top Header Section -->
+    <div class="dashboard-header d-flex justify-content-between align-items-end animate-fade-up">
+        <div>
+            <h1 class="page-title with-sub mb-0">System Intelligence</h1>
+            <p class="page-subtitle mb-0">Real-time overview of institutional performance & risk metrics.</p>
+        </div>
+        <div class="actions">
+            <button class="btn btn-outline-akkhor btn-sm-akkhor" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-2"></i> Sync Data
+            </button>
+        </div>
+    </div>
 
-        <!-- Main content -->
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Analytics Dashboard</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group mr-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
-                            <i class="fas fa-sync"></i> Refresh
+    <!-- Premium Stat Cards Row -->
+    <div class="row mb-5">
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-primary">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ system_analytics.total_students }}</div>
+                    <div class="premium-stat-label">Total Enrollment</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-2">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-success">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ system_analytics.overall_attendance_rate|floatformat:1 }}%</div>
+                    <div class="premium-stat-label">Avg Attendance</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-3">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-warning">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ system_analytics.average_gpa|floatformat:2 }}</div>
+                    <div class="premium-stat-label">Institutional GPA</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-4">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ total_at_risk }}</div>
+                    <div class="premium-stat-label">Students at Risk</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <!-- Risk Analysis & Table -->
+        <div class="col-lg-8 mb-4 animate-fade-up delay-1">
+            <div class="premium-table-container">
+                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+                    <h5 class="fw-bold m-0"><i class="fas fa-shield-alt text-danger me-2"></i> Priority Intervention List</h5>
+                    <span class="text-muted small">Top 10 High Risk Cases</span>
+                </div>
+
+                {% if at_risk_students %}
+                <div class="table-responsive">
+                    <table class="premium-table">
+                        <thead>
+                            <tr>
+                                <th>Student Identity</th>
+                                <th>Class</th>
+                                <th>Risk Level</th>
+                                <th>Stats</th>
+                                <th>Primary Issues</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student_data in at_risk_students %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ student_data.student.user.get_full_name }}</div>
+                                    <div class="text-muted small">{{ student_data.student.student_id }}</div>
+                                </td>
+                                <td><span class="badge-akkhor badge-primary">{{ student_data.student.class_enrolled.name }}</span></td>
+                                <td>
+                                    <span class="p-badge p-badge-{% if student_data.risk_level == 'critical' %}critical{% elif student_data.risk_level == 'high' %}high{% else %}medium{% endif %}">
+                                        {{ student_data.risk_level|upper }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="small">Att: <span class="fw-bold">{{ student_data.attendance_rate|floatformat:0 }}%</span></div>
+                                    <div class="small">GPA: <span class="fw-bold">{{ student_data.gpa|floatformat:1 }}</span></div>
+                                </td>
+                                <td>
+                                    <div class="text-muted" style="max-width: 180px; font-size: 0.75rem;">
+                                        {% for factor in student_data.risk_factors %}
+                                            • {{ factor }}{% if not forloop.last %}<br>{% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="{% url 'analytics:student_performance_detail' student_data.student.id %}" class="p-btn-icon" title="View Profile">
+                                            <i class="fas fa-user-chart"></i>
+                                        </a>
+                                        <button class="p-btn-icon" title="Send Alert" onclick="alert('Notification trigger simulated for {{ student_data.student.user.username }}')">
+                                            <i class="fas fa-bell"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800592.png" alt="Clean State" style="max-width: 150px; opacity: 0.5;">
+                    <p class="text-muted mt-3">All clear! No students require immediate intervention.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Side: Recent activity and actions -->
+        <div class="col-lg-4 mb-4 animate-fade-up delay-2">
+            <!-- Global Actions -->
+            <div class="card-akkhor p-4 mb-4">
+                <h6 class="fw-bold mb-3">Intelligence Actions</h6>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'analytics:create_notification' %}" class="btn btn-primary-akkhor py-2">
+                        <i class="fas fa-paper-plane me-2"></i> Broadcast Notification
+                    </a>
+                    <a href="{% url 'analytics:generate_report' %}" class="btn btn-outline-akkhor py-2">
+                        <i class="fas fa-file-invoice me-2"></i> Executive PDF Report
+                    </a>
+                    <button class="btn btn-outline-akkhor py-2" onclick="exportAnalytics()">
+                        <i class="fas fa-file-export me-2"></i> Export Dataset (JSON)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Notifications -->
+            <div class="card-akkhor overflow-hidden">
+                <div class="card-header-akkhor">
+                    <h5>Latest Communications</h5>
+                    <a href="{% url 'analytics:notifications_list' %}" class="small text-primary text-decoration-none">View All</a>
+                </div>
+                <div class="p-0">
+                    {% if recent_notifications %}
+                        {% for notification in recent_notifications %}
+                        <div class="p-3 border-bottom hover-lift-lite" style="cursor: default;">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <span class="badge rounded-pill {% if notification.priority == 'high' %}bg-danger{% else %}bg-primary{% endif %}" style="font-size: 10px; padding: 2px 8px;">
+                                    {{ notification.priority|upper }}
+                                </span>
+                                <small class="text-muted" style="font-size: 10px;">{{ notification.created_at|timesince }} ago</small>
+                            </div>
+                            <div class="fw-bold text-dark small">{{ notification.title }}</div>
+                            <div class="text-muted" style="font-size: 11px;">{{ notification.message|truncatechars:65 }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-4 text-center text-muted small">No recent activity logs.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Charts Section -->
+    <div class="row animate-fade-up delay-3">
+        <div class="col-12 mb-4">
+            <div class="chart-premium-wrapper">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h5 class="fw-bold m-0">Performance Trend Analysis</h5>
+                        <p class="text-muted small mb-0">System-wide score aggregate over the last 6 months.</p>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-akkhor dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            Filter: All Departments
                         </button>
                     </div>
                 </div>
-            </div>
-
-            <!-- System Overview Cards -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card text-white bg-primary">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h5 class="card-title">{{ system_analytics.total_students }}</h5>
-                                    <p class="card-text">Total Students</p>
-                                </div>
-                                <i class="fas fa-users fa-2x"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-white bg-success">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h5 class="card-title">{{ system_analytics.total_teachers }}</h5>
-                                    <p class="card-text">Total Teachers</p>
-                                </div>
-                                <i class="fas fa-chalkboard-teacher fa-2x"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-white bg-info">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h5 class="card-title">{{ system_analytics.overall_attendance_rate|floatformat:1 }}%</h5>
-                                    <p class="card-text">Avg Attendance</p>
-                                </div>
-                                <i class="fas fa-calendar-check fa-2x"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card text-white bg-warning">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h5 class="card-title">{{ system_analytics.average_gpa|floatformat:1 }}</h5>
-                                    <p class="card-text">Average GPA</p>
-                                </div>
-                                <i class="fas fa-graduation-cap fa-2x"></i>
-                            </div>
-                        </div>
-                    </div>
+                <div style="height: 350px; width: 100%;">
+                    <canvas id="performanceChart"></canvas>
                 </div>
             </div>
-
-            <!-- Risk Analysis -->
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Students at Risk</h5>
-                        </div>
-                        <div class="card-body">
-                            {% if at_risk_students %}
-                                <div class="alert alert-danger">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    <strong>{{ total_at_risk }} students</strong> require attention
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Student</th>
-                                                <th>Class</th>
-                                                <th>Risk Level</th>
-                                                <th>Attendance</th>
-                                                <th>GPA</th>
-                                                <th>Issues</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for student_data in at_risk_students %}
-                                            <tr>
-                                                <td>{{ student_data.student.user.get_full_name }}</td>
-                                                <td>{{ student_data.student.class_enrolled.name }}</td>
-                                                <td>
-                                                    <span class="badge bg-{% if student_data.risk_level == 'critical' %}danger{% elif student_data.risk_level == 'high' %}warning{% else %}info{% endif %}">
-                                                        {{ student_data.risk_level|title }}
-                                                    </span>
-                                                </td>
-                                                <td>{{ student_data.attendance_rate|floatformat:1 }}%</td>
-                                                <td>{{ student_data.gpa|floatformat:1 }}</td>
-                                                <td>
-                                                    <small>
-                                                        {% for factor in student_data.risk_factors %}
-                                                            {{ factor }}{% if not forloop.last %}, {% endif %}
-                                                        {% endfor %}
-                                                    </small>
-                                                </td>
-                                                <td>
-                                                    <a href="{% url 'analytics:student_performance_detail' student_data.student.id %}" class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-eye"></i> View Details
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            {% else %}
-                                <div class="alert alert-success">
-                                    <i class="fas fa-check-circle"></i> No students currently at risk!
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Quick Actions</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a href="{% url 'analytics:create_notification' %}" class="btn btn-primary">
-                                    <i class="fas fa-bell"></i> Send Alert
-                                </a>
-                                <a href="{% url 'analytics:generate_report' %}" class="btn btn-success">
-                                    <i class="fas fa-file-pdf"></i> Generate Report
-                                </a>
-                                <button type="button" class="btn btn-info" onclick="exportAnalytics()">
-                                    <i class="fas fa-download"></i> Export Data
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent Notifications -->
-                    <div class="card mt-3">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Recent Notifications</h5>
-                        </div>
-                        <div class="card-body">
-                            {% if recent_notifications %}
-                                {% for notification in recent_notifications %}
-                                <div class="mb-2 p-2 border rounded">
-                                    <small class="text-muted">{{ notification.created_at|date:"M d, H:i" }}</small>
-                                    <div class="fw-bold">{{ notification.title }}</div>
-                                    <small>{{ notification.message|truncatechars:50 }}</small>
-                                </div>
-                                {% endfor %}
-                            {% else %}
-                                <p class="text-muted mb-0">No recent notifications</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Performance Trends Chart -->
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Performance Trends (Last 6 Months)</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="performanceChart" width="400" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+        </div>
     </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 function exportAnalytics() {
-    // Simple export functionality
     const data = {
         total_students: {{ system_analytics.total_students }},
         total_teachers: {{ system_analytics.total_teachers }},
@@ -239,43 +231,74 @@ function exportAnalytics() {
         students_at_risk: {{ total_at_risk }},
         exported_at: new Date().toISOString()
     };
-
     const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'school_analytics_' + new Date().toISOString().split('T')[0] + '.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    a.href = url; a.download = 'edums_export_' + new Date().toISOString().split('T')[0] + '.json';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
-// Performance Trends Chart
-const ctx = document.getElementById('performanceChart').getContext('2d');
-const performanceData = {{ performance_trend|safe }};
+// Performance Trends Chart — Refined Configuration
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const performanceData = {{ performance_trend|safe }};
+    
+    // Create modern gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(0, 64, 103, 0.4)');
+    gradient.addColorStop(1, 'rgba(0, 64, 103, 0.0)');
 
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: performanceData.map(item => item.month),
-        datasets: [{
-            label: 'Average Score',
-            data: performanceData.map(item => item.average_score),
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1,
-            fill: false
-        }]
-    },
-    options: {
-        responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true,
-                max: 100
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: performanceData.map(item => item.month),
+            datasets: [{
+                label: 'Average Score (%)',
+                data: performanceData.map(item => item.average_score),
+                borderColor: '#004067',
+                borderWidth: 4,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: '#004067',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#111827',
+                    titleFont: { family: 'Outfit', size: 14, weight: 'bold' },
+                    bodyFont: { family: 'Inter', size: 13 },
+                    padding: 12,
+                    cornerRadius: 10,
+                    displayColors: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+                    ticks: {
+                        font: { family: 'Inter', size: 12 },
+                        callback: function(value) { return value + '%'; }
+                    }
+                },
+                x: {
+                    grid: { display: false, drawBorder: false },
+                    ticks: { font: { family: 'Inter', size: 12 } }
+                }
             }
         }
-    }
+    });
 });
 </script>
-{% endblock %}
+{% endblock %}

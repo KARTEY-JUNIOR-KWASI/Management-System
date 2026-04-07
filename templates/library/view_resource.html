@@ -1,224 +1,128 @@
 {% extends 'base.html' %}
-{% block title %}{{ resource.title }} — Library{% endblock %}
-{% block content %}
+{% load static %}
+
+{% block title %}Academics — {{ resource.title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
 <style>
-.viewer-wrap {
-  max-width: 900px;
-  margin: 0 auto;
-}
-.resource-header {
-  background: linear-gradient(135deg, #1a3a6b 0%, #4f46e5 100%);
-  border-radius: 16px;
-  padding: 2rem 2.5rem;
-  color: #fff;
-  margin-bottom: 1.75rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 1.25rem;
-}
-.res-type-icon {
-  width: 56px; height: 56px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.2);
-  border: 2px solid rgba(255,255,255,0.3);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-.resource-header h2 { font-size: 1.25rem; font-weight: 800; margin: 0 0 0.3rem; }
-.resource-header p  { margin: 0; opacity: 0.8; font-size: 0.85rem; }
-
-.meta-pill {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 20px;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  margin-top: 0.75rem; margin-right: 0.4rem;
-}
-
-/* Content viewer */
-.content-panel {
-  background: #fff;
-  border: 1px solid #e4eaf0;
-  border-radius: 14px;
-  overflow: hidden;
-  margin-bottom: 1.5rem;
-}
-.content-panel-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #f0f3f8;
-  font-weight: 700;
-  font-size: 0.88rem;
-  color: var(--text-dark);
-  background: #fafbff;
-}
-.content-panel-body { padding: 1.5rem; }
-
-iframe.pdf-viewer {
-  width: 100%;
-  height: 70vh;
-  border: none;
-  border-radius: 8px;
-}
-
-.link-open-card {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  background: #eff6ff;
-  border: 2px solid #bfdbfe;
-  border-radius: 12px;
-  padding: 1.5rem;
-}
-.link-open-card .url-icon {
-  width: 56px; height: 56px;
-  background: #dbeafe;
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; color: #1d4ed8;
-  flex-shrink: 0;
-}
-.link-open-card h5 { font-size: 0.9rem; font-weight: 700; color: #1e40af; margin: 0 0 0.2rem; }
-.link-open-card p  { font-size: 0.8rem; color: #3b82f6; margin: 0; word-break: break-all; }
-
-.btn-open-link {
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  background: #1d4ed8; color: #fff;
-  border-radius: 10px; padding: 0.7rem 1.5rem;
-  font-weight: 700; font-size: 0.88rem;
-  text-decoration: none; transition: background 0.2s;
-  margin-top: 1rem; white-space: nowrap;
-}
-.btn-open-link:hover { background: #1e40af; color: #fff; }
-
-img.res-image { max-width: 100%; border-radius: 10px; }
-
-.desc-box {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1.25rem;
-  font-size: 0.87rem;
-  color: var(--text-dark);
-  line-height: 1.7;
-}
+    .view-card {
+        background: white;
+        border-radius: var(--p-card-radius);
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 */
+        height: 0;
+        overflow: hidden;
+        border-radius: 12px;
+        background: #000;
+        margin-bottom: 2rem;
+    }
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+    .res-sidebar-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        margin-bottom: 1.5rem;
+    }
 </style>
+{% endblock %}
 
-<div class="container-fluid">
-  <div class="viewer-wrap">
-
-    <div class="mb-3">
-      <a href="{% url 'student_library' %}" style="color:var(--primary); font-size:0.82rem; font-weight:600; text-decoration:none;">
-        <i class="fas fa-arrow-left me-1"></i> Back to Library
-      </a>
-    </div>
-
-    <!-- Resource Header -->
-    <div class="resource-header">
-      <div class="res-type-icon">
-        <i class="fas {{ resource.icon }}"></i>
-      </div>
-      <div>
-        <h2>{{ resource.title }}</h2>
-        {% if resource.description %}
-          <p>{{ resource.description }}</p>
-        {% endif %}
-        <div>
-          <span class="meta-pill"><i class="fas {{ resource.icon }}"></i> {{ resource.get_resource_type_display }}</span>
-          {% if resource.subject %}<span class="meta-pill"><i class="fas fa-book-open"></i> {{ resource.subject.name }}</span>{% endif %}
-          <span class="meta-pill"><i class="fas fa-user"></i> {{ resource.uploaded_by.get_full_name|default:resource.uploaded_by.username }}</span>
-          <span class="meta-pill"><i class="fas fa-calendar"></i> {{ resource.created_at|date:"d M Y" }}</span>
-          <span class="meta-pill"><i class="fas fa-eye"></i> {{ resource.view_count }} views</span>
+{% block content %}
+<div class="container-fluid main-canvas-area">
+    
+    <!-- Navigation & Title -->
+    <div class="d-flex justify-content-between align-items-center mb-4 animate-fade-up">
+        <div class="d-flex align-items-center gap-4">
+            <a href="{% url 'student_library' %}" class="p-btn-icon bg-white shadow-sm" style="width: 45px; height: 45px;">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h2 class="fw-bold text-dark mb-0" style="letter-spacing: -0.5px;">{{ resource.title }}</h2>
+                <div class="d-flex align-items-center gap-2 mt-1">
+                    <span class="text-muted small">Uploaded by <strong>{{ resource.uploaded_by.get_full_name }}</strong></span>
+                    <span class="text-muted opacity-25">•</span>
+                    <span class="text-muted small">{{ resource.created_at|date:"F d, Y" }}</span>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Content Viewer -->
-    <div class="content-panel">
-      <div class="content-panel-header">
-        <i class="fas fa-play-circle me-2 text-primary"></i> Resource Content
-      </div>
-      <div class="content-panel-body">
-
-        {% if resource.external_url %}
-          <!-- External Link or Embedded Video -->
-          {% if embed_url %}
-            <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:10px;">
-              <iframe src="{{ embed_url }}"
-                style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
-                allowfullscreen></iframe>
-            </div>
-          {% else %}
-            <div class="link-open-card">
-              <div class="link-open-card">
-                <div class="url-icon"><i class="fas fa-external-link-alt"></i></div>
-                <div>
-                  <h5>External Resource</h5>
-                  <p>{{ resource.external_url }}</p>
-                  <a href="{{ resource.external_url }}" target="_blank" rel="noopener" class="btn-open-link">
-                    <i class="fas fa-external-link-alt"></i> Open Resource
-                  </a>
-                </div>
-              </div>
-            </div>
-          {% endif %}
-
-        {% elif resource.file %}
-          {% with fname=resource.file.name %}
-            {% if '.pdf' in fname %}
-              <iframe src="{{ resource.file.url }}" class="pdf-viewer"></iframe>
-            {% elif '.jpg' in fname or '.jpeg' in fname or '.png' in fname or '.gif' in fname or '.webp' in fname %}
-              <img src="{{ resource.file.url }}" class="res-image" alt="{{ resource.title }}">
-            {% elif '.mp4' in fname or '.webm' in fname or '.ogg' in fname %}
-              <video controls style="width:100%; border-radius:10px; max-height:60vh;">
-                <source src="{{ resource.file.url }}">
-                Your browser does not support video playback.
-              </video>
-            {% else %}
-              <div class="link-open-card">
-                <div class="url-icon"><i class="fas fa-download"></i></div>
-                <div>
-                  <h5>Download to View</h5>
-                  <p style="color:#3b82f6;">{{ resource.file.name|slice:"9:" }}</p>
-                  <a href="{{ resource.file.url }}" download class="btn-open-link">
-                    <i class="fas fa-download"></i> Download File
-                  </a>
-                </div>
-              </div>
+        <div class="d-flex gap-2">
+            {% if resource.file %}
+                <a href="{{ resource.file.url }}" class="btn btn-primary-akkhor shadow-sm px-4" download>
+                    <i class="fas fa-download me-2"></i> Download Resource
+                </a>
+            {% elif resource.external_url %}
+                 <a href="{{ resource.external_url }}" target="_blank" class="btn btn-outline-akkhor shadow-sm px-4">
+                    <i class="fas fa-external-link-alt me-2"></i> Visit External Link
+                </a>
             {% endif %}
-          {% endwith %}
-        {% endif %}
-
-      </div>
+        </div>
     </div>
 
-    <!-- Description -->
-    {% if resource.description %}
-    <div class="content-panel">
-      <div class="content-panel-header"><i class="fas fa-align-left me-2 text-primary"></i>Description</div>
-      <div class="content-panel-body">
-        <div class="desc-box">{{ resource.description|linebreaks }}</div>
-      </div>
-    </div>
-    {% endif %}
+    <div class="row g-4 mb-5 animate-fade-up delay-1">
+        <!-- Main Content (Video / Details) -->
+        <div class="col-lg-8">
+            <div class="view-card p-4">
+                {% if embed_url %}
+                    <div class="video-container shadow-lg">
+                        <iframe src="{{ embed_url }}" allowfullscreen></iframe>
+                    </div>
+                {% elif resource.resource_type == 'image' and resource.file %}
+                    <div class="mb-4 rounded-3 overflow-hidden border shadow-sm text-center bg-light">
+                        <img src="{{ resource.file.url }}" alt="{{ resource.title }}" class="img-fluid" style="max-height: 600px;">
+                    </div>
+                {% else %}
+                    <div class="p-5 text-center bg-light rounded-4 mb-4 border border-dashed">
+                        <i class="fas {{ resource.icon }} fs-1 text-primary mb-3 opacity-25"></i>
+                        <h5 class="text-dark">{{ resource.get_resource_type_display }} Resource</h5>
+                        <p class="text-muted small">This resource is available for download using the button above.</p>
+                    </div>
+                {% endif %}
 
-    <div class="d-flex justify-content-between align-items-center">
-      <a href="{% url 'student_library' %}" class="btn btn-outline-akkhor">
-        <i class="fas fa-arrow-left me-1"></i> Back to Library
-      </a>
-      {% if resource.file %}
-      <a href="{{ resource.file.url }}" download class="btn btn-primary-akkhor">
-        <i class="fas fa-download me-1"></i> Download
-      </a>
-      {% elif resource.external_url %}
-      <a href="{{ resource.external_url }}" target="_blank" class="btn btn-primary-akkhor">
-        <i class="fas fa-external-link-alt me-1"></i> Open Link
-      </a>
-      {% endif %}
-    </div>
+                <div class="p-3">
+                    <h5 class="fw-bold text-dark mb-3">Resource Insight</h5>
+                    <div class="text-muted" style="line-height: 1.7; font-size: 0.95rem;">
+                        {{ resource.description|default:"No extended narrative provided for this intelligence asset."|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  </div>
+        <!-- Sidebar (Metadata) -->
+        <div class="col-lg-4">
+            <div class="res-sidebar-card">
+                <h6 class="text-muted small fw-bold text-uppercase mb-4" style="letter-spacing: 1px;">Engagement Stats</h6>
+                <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                    <span class="text-muted small">Total Views</span>
+                    <span class="fw-bold text-dark">{{ resource.view_count }} students</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                    <span class="text-muted small">Academic Subject</span>
+                    <span class="p-badge p-badge-medium">{{ resource.subject.name|default:"General" }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted small">Format</span>
+                    <span class="p-badge p-badge-high">{{ resource.get_resource_type_display }}</span>
+                </div>
+            </div>
+
+            <div class="res-sidebar-card" style="background: rgba(0, 64, 103, 0.02);">
+                <h6 class="text-dark fw-bold mb-3"><i class="fas fa-info-circle text-primary me-2"></i> Need Assistance?</h6>
+                <p class="text-muted small mb-0">If you have questions about this resource, please reach out directly to <strong>{{ resource.uploaded_by.get_full_name }}</strong> during institutional hours.</p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

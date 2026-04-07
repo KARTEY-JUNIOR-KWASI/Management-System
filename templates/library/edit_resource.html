@@ -1,136 +1,187 @@
 {% extends 'base.html' %}
-{% block title %}Edit Resource — {{ resource.title }}{% endblock %}
+{% load static %}
+
+{% block title %}Academics — Refine Resource Intelligence{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .form-canvas {
+        background: white;
+        border-radius: var(--p-card-radius);
+        border: 1px solid var(--border-color);
+        padding: 3rem;
+        box-shadow: 0 4px 25px rgba(0,0,0,0.03);
+    }
+    .form-section-title {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+        display: block;
+        border-bottom: 2px solid rgba(0, 64, 103, 0.05);
+        padding-bottom: 0.75rem;
+    }
+    .premium-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.75rem;
+        display: block;
+        font-size: 0.9rem;
+    }
+    .p-form-control {
+        height: 52px;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 64, 103, 0.1);
+        padding: 0 1.25rem;
+        transition: var(--p-transition-smooth);
+        background: #fbfdff;
+    }
+    .p-form-control:focus {
+        background: white;
+        border-color: var(--p-primary-hsl);
+        box-shadow: 0 0 0 4px rgba(0, 64, 103, 0.05);
+        outline: none;
+    }
+    .p-textarea {
+        height: auto;
+        padding: 1.25rem;
+    }
+    .upload-zone {
+        border: 2px dashed rgba(0, 64, 103, 0.15);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        background: rgba(0, 64, 103, 0.01);
+        transition: var(--p-transition-smooth);
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 style="font-weight:800; margin:0;">Edit Resource</h2>
-      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">{{ resource.title }}</p>
+<div class="container-fluid main-canvas-area" style="max-width: 900px;">
+    
+    <!-- Header -->
+    <div class="d-flex align-items-center gap-4 mb-5 animate-fade-up">
+        <a href="{% url 'teacher_library' %}" class="p-btn-icon bg-white shadow-sm" style="width: 45px; height: 45px;">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="page-title mb-0">Refine Resource</h1>
+            <p class="text-muted small mb-0">Modifying: <strong>{{ resource.title }}</strong></p>
+        </div>
     </div>
-    <a href="{% url 'teacher_library' %}" class="btn btn-outline-akkhor">
-      <i class="fas fa-arrow-left me-1"></i> Back to Library
-    </a>
-  </div>
 
-  {% if messages %}
-    {% for m in messages %}
-      <div class="alert-akkhor alert-{{ m.tags }} fade-in mb-3"><i class="fas fa-circle-check"></i> {{ m }}</div>
-    {% endfor %}
-  {% endif %}
+    <!-- Form Canvas -->
+    <form method="post" enctype="multipart/form-data" class="animate-fade-up delay-1">
+        {% csrf_token %}
+        <div class="form-canvas">
+            <span class="form-section-title">Identity & Classification</span>
+            
+            <div class="mb-4">
+                <label class="premium-label">Resource Title</label>
+                <input type="text" name="title" class="p-form-control w-100" value="{{ resource.title }}" required>
+            </div>
 
-  <div style="display:grid; grid-template-columns:1fr 300px; gap:1.5rem; align-items:start;">
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="premium-label">Academic Subject</label>
+                    <select name="subject_id" class="p-form-control w-100">
+                        <option value="">Public / General</option>
+                        {% for s in subjects %}
+                            <option value="{{ s.id }}" {% if resource.subject_id == s.id %}selected{% endif %}>{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="premium-label">Asset Classification</label>
+                    <select name="resource_type" class="p-form-control w-100">
+                        {% for key, label in resource_types %}
+                            <option value="{{ key }}" {% if resource.resource_type == key %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
 
-      <div class="card card-akkhor mb-4" style="border-radius:14px;">
-        <div class="card-body">
-          <h5 style="font-weight:700; font-size:0.9rem; margin-bottom:1.25rem; padding-bottom:0.5rem; border-bottom:1px solid #f0f3f8;">
-            <i class="fas fa-info-circle me-2 text-primary"></i>Resource Details
-          </h5>
-          <div class="mb-3">
-            <label class="form-label" style="font-size:0.78rem; font-weight:600;">Title <span class="text-danger">*</span></label>
-            <input type="text" name="title" class="form-control" value="{{ resource.title }}" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label" style="font-size:0.78rem; font-weight:600;">Description</label>
-            <textarea name="description" class="form-control" rows="3">{{ resource.description }}</textarea>
-          </div>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Resource Type</label>
-              <select name="resource_type" class="form-control">
-                {% for key, label in resource_types %}
-                  <option value="{{ key }}" {% if resource.resource_type == key %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-              </select>
+            <div class="mb-4">
+                <label class="premium-label">Extended Narrative (Description)</label>
+                <textarea name="description" rows="4" class="p-form-control p-textarea w-100">{{ resource.description }}</textarea>
             </div>
-            <div class="col-md-6">
-              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Subject</label>
-              <select name="subject_id" class="form-control">
-                <option value="">-- All Subjects --</option>
-                {% for s in subjects %}<option value="{{ s.id }}" {% if resource.subject_id == s.id %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
-              </select>
+
+            <span class="form-section-title">Delivery Content</span>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-{% if resource.file %}7{% else %}12{% endif %}">
+                     <label class="premium-label">Substitute Digital File</label>
+                     <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+                        <i class="fas fa-file-export fs-3 text-primary-akkhor mb-2"></i>
+                        <p class="text-muted small mb-0">Select a new file to overwrite the current selection.</p>
+                        <input type="file" id="file-input" name="file" style="display: none;" onchange="updateFileName(this)">
+                        <div id="file-name-display" class="mt-2 fw-bold text-success small" style="display:none;"></div>
+                     </div>
+                </div>
+                {% if resource.file %}
+                <div class="col-md-5">
+                    <label class="premium-label">Active Resource</label>
+                    <div class="p-3 border rounded-3 bg-light">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="fas {{ resource.icon }} fs-4 text-primary"></i>
+                            <div style="min-width: 0;">
+                                <div class="text-truncate fw-bold small text-dark">{{ resource.file.name|slice:"17:" }}</div>
+                                <div class="small text-muted">{{ resource.file.size|filesizeformat }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="col-md-12">
+                     <label class="premium-label">External Resonance (URL)</label>
+                     <input type="url" name="external_url" class="p-form-control w-100" value="{{ resource.external_url }}" placeholder="https://youtube.com/watch?v=...">
+                </div>
             </div>
-            <div class="col-md-6">
-              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Target Class</label>
-              <select name="class_id" class="form-control">
-                <option value="">-- All Classes --</option>
-                {% for cls in classes %}<option value="{{ cls.id }}" {% if resource.target_class_id == cls.id %}selected{% endif %}>{{ cls }}</option>{% endfor %}
-              </select>
+
+            <span class="form-section-title">Targeting & Visibility</span>
+
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-4">
+                    <label class="premium-label">Target Audience</label>
+                    <select name="class_id" class="p-form-control w-100">
+                        <option value="">All Institutional Learners</option>
+                        {% for c in classes %}
+                            <option value="{{ c.id }}" {% if resource.target_class_id == c.id %}selected{% endif %}>{{ c.name }} ({{ c.section }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="form-check form-switch pt-4">
+                        <input class="form-check-input" type="checkbox" id="is_published" name="is_published" {% if resource.is_published %}checked{% endif %}>
+                        <label class="form-check-label fw-bold text-dark small" for="is_published">Visible in Student Library</label>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6">
-              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Visibility</label>
-              <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:8px; padding:0.65rem 1rem; display:flex; align-items:center; gap:0.75rem; margin-top:0.1rem;">
-                <input type="checkbox" name="is_published" id="is_published" {% if resource.is_published %}checked{% endif %} style="width:16px;height:16px;cursor:pointer;">
-                <label for="is_published" style="cursor:pointer; font-size:0.85rem; margin:0;">Published (visible to students)</label>
-              </div>
+
+            <div class="mt-5 d-flex gap-3">
+                <button type="submit" class="btn btn-primary-akkhor rounded-3 px-5 py-3 shadow-sm flex-grow-1">
+                    <i class="fas fa-check-circle me-2"></i> Update Intelligence Asset
+                </button>
+                <a href="{% url 'teacher_library' %}" class="btn btn-outline-akkhor rounded-3 px-4 py-3">Cancel Changes</a>
             </div>
-          </div>
         </div>
-      </div>
-
-      <div class="card card-akkhor mb-4" style="border-radius:14px;">
-        <div class="card-body">
-          <h5 style="font-weight:700; font-size:0.9rem; margin-bottom:1.25rem; padding-bottom:0.5rem; border-bottom:1px solid #f0f3f8;">
-            <i class="fas fa-paperclip me-2 text-primary"></i>Update File or Link
-          </h5>
-
-          {% if resource.file %}
-          <div style="background:#f0fdf4; border:1.5px solid #bbf7d0; border-radius:10px; padding:1rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.75rem;">
-            <i class="fas fa-check-circle" style="color:#16a34a; font-size:1.2rem;"></i>
-            <div>
-              <div style="font-size:0.8rem; font-weight:600; color:#15803d;">Current File</div>
-              <div style="font-size:0.75rem; color:#166534;">{{ resource.file.name }}</div>
-            </div>
-            <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-outline-akkhor ms-auto" style="font-size:0.72rem;">Preview</a>
-          </div>
-          {% endif %}
-
-          <div class="mb-3">
-            <label class="form-label" style="font-size:0.78rem; font-weight:600;">Replace File (optional)</label>
-            <input type="file" name="file" class="form-control">
-          </div>
-          <div>
-            <label class="form-label" style="font-size:0.78rem; font-weight:600;">External URL</label>
-            <div style="display:flex; border:1.5px solid #e2e8f0; border-radius:8px; overflow:hidden;">
-              <span style="background:#f8fafc; border-right:1.5px solid #e2e8f0; padding:0.55rem 0.75rem; display:flex; align-items:center;">
-                <i class="fas fa-link" style="color:var(--text-muted);"></i>
-              </span>
-              <input type="url" name="external_url" class="form-control" value="{{ resource.external_url }}" placeholder="https://..." style="border:none; box-shadow:none;">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="d-flex gap-3">
-        <button type="submit" class="btn btn-primary-akkhor px-5">
-          <i class="fas fa-save me-1"></i> Save Changes
-        </button>
-        <a href="{% url 'teacher_library' %}" class="btn btn-outline-akkhor">Cancel</a>
-      </div>
     </form>
-
-    <!-- Info card -->
-    <div class="card card-akkhor" style="border-radius:14px; border-left:4px solid var(--stat-orange);">
-      <div class="card-body">
-        <h6 style="font-weight:700; margin-bottom:1rem; color:var(--stat-orange);">
-          <i class="fas fa-info-circle me-1"></i> Resource Stats
-        </h6>
-        <div style="font-size:0.82rem; line-height:2;">
-          <div><strong>Views:</strong> {{ resource.view_count }}</div>
-          <div><strong>Created:</strong> {{ resource.created_at|date:"d M Y" }}</div>
-          <div><strong>Last Updated:</strong> {{ resource.updated_at|date:"d M Y" }}</div>
-          <div><strong>Status:</strong>
-            {% if resource.is_published %}
-              <span style="color:#16a34a; font-weight:600;">Published</span>
-            {% else %}
-              <span style="color:#dc2626; font-weight:600;">Draft</span>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
 </div>
+
+<script>
+    function updateFileName(input) {
+        const display = document.getElementById('file-name-display');
+        if (input.files.length > 0) {
+            display.textContent = 'Selected: ' + input.files[0].name;
+            display.style.display = 'block';
+        } else {
+            display.style.display = 'none';
+        }
+    }
+</script>
 {% endblock %}

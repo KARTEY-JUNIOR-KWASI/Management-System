@@ -1,4 +1,9 @@
-from .models import Notification
+from .models import Notification, SchoolConfiguration
+
+def school_config(request):
+    """Injects institutional metadata globally."""
+    config = SchoolConfiguration.get_config()
+    return {'school_config': config}
 
 def unread_notifications(request):
     if request.user.is_authenticated:

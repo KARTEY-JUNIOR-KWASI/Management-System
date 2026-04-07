@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Academics — Class Performance Rankings{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .ranking-canvas {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        padding: 2.5rem;
+        box-shadow: 0 15px 40px rgba(0, 64, 103, 0.04);
+    }
+    .position-badge {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 0.9rem;
+    }
+    .pos-1 { background: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
+    .pos-2 { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .pos-3 { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+    .pos-other { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+
+    .medal-icon {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+    }
+    .medal-1 { color: #fbbf24; }
+    .medal-2 { color: #94a3b8; }
+    .medal-3 { color: #ea580c; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid main-canvas-area">
+    
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-4 animate-fade-up">
+        <div>
+            <h1 class="page-title with-sub mb-0">Class Performance Rankings</h1>
+            <p class="page-subtitle mb-0">Academic positioning and diagnostic tracking for {{ target_class.name }} {{ target_class.section }} [{{ target_class.grade }}].</p>
+        </div>
+        <div class="d-flex gap-2">
+             <a href="{% url 'academic_diagnostics' %}" class="btn btn-outline-akkhor rounded-3 px-3">
+                <i class="fas fa-arrow-left me-2"></i> Institutional Overview
+            </a>
+        </div>
+    </div>
+
+    <div class="ranking-canvas animate-fade-up delay-1">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="bg-light">
+                    <tr class="x-small text-muted text-uppercase fw-bold">
+                        <th class="ps-4">Position</th>
+                        <th>Student Information</th>
+                        <th>Academic Performance</th>
+                        <th>Exam Intensity</th>
+                        <th class="text-end pe-4">Diagnostics</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in rankings %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="position-badge {% if r.position == 1 %}pos-1{% elif r.position == 2 %}pos-2{% elif r.position == 3 %}pos-3{% else %}pos-other{% endif %}">
+                                    {{ r.position }}
+                                </div>
+                                {% if r.position == 1 %}<i class="fas fa-award medal-icon medal-1 ms-2"></i>{% endif %}
+                                {% if r.position == 2 %}<i class="fas fa-award medal-icon medal-2 ms-2"></i>{% endif %}
+                                {% if r.position == 3 %}<i class="fas fa-award medal-icon medal-3 ms-2"></i>{% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="p-avatar p-avatar-sm me-3" style="background: var(--p-primary-hsl); color: white;">
+                                    {{ r.student.user.get_full_name|slice:":1" }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold small">{{ r.student.user.get_full_name }}</div>
+                                    <div class="x-small text-muted">ID: {{ r.student.student_id }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div>
+                                    <div class="fw-bold fs-5 text-dark">{{ r.avg_percentage|floatformat:1 }}%</div>
+                                    <div class="x-small text-muted">Weighted Average</div>
+                                </div>
+                                <div class="progress" style="height: 6px; width: 80px; background: rgba(0,0,0,0.05); border-radius: 10px;">
+                                    <div class="progress-bar {% if r.avg_percentage >= 75 %}bg-success{% elif r.avg_percentage >= 50 %}bg-primary{% else %}bg-danger{% endif %}" 
+                                         role="progressbar" style="width: {{ r.avg_percentage }}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="p-badge p-badge-medium small">
+                                <i class="fas fa-file-invoice me-1"></i> {{ r.exam_count }} Assessments
+                            </div>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'student_detail' r.student.id %}" class="p-btn-icon" title="Full Transcript">
+                                <i class="fas fa-file-medical"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center p-5 text-muted">
+                            <i class="fas fa-search mb-3 fs-1 opacity-25"></i>
+                            <div>No academic data modulated for this class yet.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,60 +1,131 @@
 {% extends 'base.html' %}
-{% block title %}Student Registration — EduSystem{% endblock %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Student Enrollment — Intelligence Portal{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .auth-bg {
+        position: relative;
+        min-height: 100vh;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+        overflow-x: hidden;
+    }
+    .auth-glass-container {
+        width: 100%;
+        max-width: 550px;
+        position: relative;
+        z-index: 10;
+    }
+    .auth-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 32px;
+        padding: 3.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+    }
+    .p-form-group {
+        margin-bottom: 1.5rem;
+    }
+    .p-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--text-muted);
+        margin-bottom: 0.6rem;
+        padding-left: 0.25rem;
+    }
+    .p-field {
+        width: 100%;
+        height: 52px;
+        padding: 0 1.25rem;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 64, 103, 0.1);
+        background: rgba(255, 255, 255, 0.6);
+        font-weight: 500;
+        transition: var(--p-transition-smooth);
+    }
+    .p-field:focus {
+        background: white;
+        border-color: var(--p-primary-hsl);
+        box-shadow: 0 0 0 4px rgba(0, 64, 103, 0.05);
+        outline: none;
+    }
+    .bg-animation-blob {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(111, 177, 63, 0.08), transparent 70%);
+        top: -300px;
+        left: -300px;
+        border-radius: 50%;
+        z-index: 1;
+    }
+</style>
+{% endblock %}
 
 {% block noauth_content %}
-<div class="auth-page">
-  <div class="auth-box fade-in">
+<div class="auth-bg">
+    <div class="bg-animation-blob"></div>
+    
+    <div class="auth-glass-container animate-fade-up">
+        <div class="auth-card">
+            <div class="text-center mb-5">
+                <div class="p-badge p-badge-high mb-3" style="padding: 0.5rem 1.5rem; font-size: 0.7rem; letter-spacing: 1px;">STUDENT ENROLLMENT</div>
+                <h2 class="fw-bold text-dark" style="letter-spacing: -1px;">Join the Intelligence Network</h2>
+                <p class="text-muted small">Begin your institutional journey today.</p>
+            </div>
 
-    <div class="auth-box-header" style="background:var(--stat-green);">
-      <div class="auth-logo">Edu<span>MS</span></div>
-      <p>Student Registration</p>
+            <form method="post" enctype="multipart/form-data" class="premium-form">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                    <div class="p-form-group">
+                        <label class="p-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field|add_class:"p-field" }}
+                        
+                        {% if field.help_text %}
+                            <p class="text-muted mt-1 px-1" style="font-size: 0.7rem;">{{ field.help_text }}</p>
+                        {% endif %}
+                        
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <div class="text-danger x-small mt-2 px-1 fw-bold"><i class="fas fa-exclamation-circle me-1"></i> {{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                {% if form.non_field_errors %}
+                    <div class="p-2 bg-danger-soft text-danger small rounded-3 mb-4 px-3 border border-danger">
+                        <i class="fas fa-triangle-exclamation me-2"></i> {{ form.non_field_errors|join:", " }}
+                    </div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary-akkhor w-100 py-3 rounded-3 shadow-sm mt-3" style="font-weight: 700;">
+                    Initialize Account <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </form>
+
+            <div class="text-center mt-5 pt-3">
+                <p class="text-muted small">Already registered? <a href="{% url 'account_login' %}" class="fw-bold text-primary text-decoration-none">Secure Login</a></p>
+                <p class="text-muted small mt-2">Are you an educator? <a href="{% url 'teacher_signup' %}" class="fw-bold text-success text-decoration-none">Teacher Onboarding</a></p>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <p class="text-muted" style="font-size: 0.75rem;">&copy; 2026 EduMS. Empowering Education Intelligence.</p>
+        </div>
     </div>
-
-    <div class="auth-box-body">
-      <h2><i class="fas fa-user-graduate" style="color:var(--stat-green); margin-right:0.5rem;"></i>Create Student Account</h2>
-
-      <form method="post" enctype="multipart/form-data" class="form-akkhor">
-        {% csrf_token %}
-        {% for field in form %}
-          <div class="form-group">
-            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}
-              <p style="font-size:0.74rem; color:var(--text-muted); margin-top:0.25rem;">{{ field.help_text }}</p>
-            {% endif %}
-            {% if field.errors %}
-              {% for error in field.errors %}
-                <p style="color:var(--danger); font-size:0.78rem; margin-top:0.3rem;">
-                  <i class="fas fa-exclamation-circle"></i> {{ error }}
-                </p>
-              {% endfor %}
-            {% endif %}
-          </div>
-        {% endfor %}
-
-        {% if form.non_field_errors %}
-          <div class="alert-akkhor alert-danger">
-            <i class="fas fa-exclamation-circle"></i> {{ form.non_field_errors|join:", " }}
-          </div>
-        {% endif %}
-
-        <button type="submit" id="btn-register-student" class="btn-akkhor btn-success-akkhor"
-                style="width:100%; justify-content:center; padding:0.7rem; font-size:0.9rem; margin-top:0.5rem;">
-          <i class="fas fa-user-plus"></i> Register as Student
-        </button>
-      </form>
-
-      <hr class="divider-akkhor" style="margin:1.25rem 0;">
-      <p style="text-align:center; font-size:0.82rem; color:var(--text-muted);">
-        Already have an account?
-        <a href="{% url 'account_login' %}" style="color:var(--primary); font-weight:600;">Login here</a>
-      </p>
-      <p style="text-align:center; font-size:0.82rem; color:var(--text-muted); margin-top:0.4rem;">
-        Are you a teacher?
-        <a href="{% url 'teacher_signup' %}" style="color:var(--primary); font-weight:600;">Teacher signup</a>
-      </p>
-    </div>
-
-  </div>
 </div>
 {% endblock noauth_content %}

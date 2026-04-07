@@ -1,148 +1,186 @@
 {% extends 'base.html' %}
-{% block title %}Library — My Resources{% endblock %}
-{% block content %}
+{% load static %}
+
+{% block title %}Academics — My Library Resources{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
 <style>
-.lib-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.25rem; }
-.res-card { background:#fff; border:1px solid #e4eaf0; border-radius:14px; overflow:hidden; transition:box-shadow 0.2s,transform 0.2s; }
-.res-card:hover { box-shadow:0 6px 24px rgba(0,0,0,0.1); transform:translateY(-3px); }
-.res-card-top { padding:1.25rem 1.25rem 0.75rem; display:flex; align-items:flex-start; gap:0.9rem; }
-.res-icon { width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.2rem; color:#fff; }
-.res-title { font-size:0.9rem; font-weight:700; color:var(--text-dark); line-height:1.3; margin-bottom:0.2rem; }
-.res-desc { font-size:0.76rem; color:var(--text-muted); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-.res-meta { display:flex; gap:0.5rem; flex-wrap:wrap; padding:0 1.25rem 0.75rem; }
-.res-badge { font-size:0.68rem; padding:0.2rem 0.6rem; border-radius:20px; font-weight:600; }
-.res-footer { display:flex; justify-content:space-between; align-items:center; padding:0.65rem 1rem; border-top:1px solid #f0f3f8; background:#fafbff; }
-.res-footer .date { font-size:0.7rem; color:var(--text-muted); }
-.toggle-pub { width:34px; height:18px; border-radius:9px; cursor:pointer; display:inline-block; }
-
-.stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
-.stat-box { background:#fff; border:1px solid #e4eaf0; border-radius:12px; padding:1rem 1.25rem; text-align:center; }
-.stat-box .num { font-size:1.6rem; font-weight:800; color:var(--primary); }
-.stat-box .lbl { font-size:0.72rem; color:var(--text-muted); margin-top:0.1rem; }
+    .library-header { margin-bottom: 2.5rem; }
+    .resource-card {
+        background: white;
+        border-radius: var(--p-card-radius);
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        transition: var(--p-transition-smooth);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .resource-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0, 64, 103, 0.08);
+        border-color: var(--p-primary-hsl);
+    }
+    .res-top-banner { height: 6px; }
+    .res-body { padding: 1.5rem; flex-grow: 1; }
+    .res-footer {
+        padding: 0.75rem 1.5rem;
+        background: rgba(0, 64, 103, 0.01);
+        border-top: 1px solid var(--border-color);
+    }
+    .res-icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: white;
+        margin-bottom: 1rem;
+    }
 </style>
+{% endblock %}
 
-<div class="container-fluid">
-
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 style="font-weight:800; margin:0;">📚 My Library</h2>
-      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">Manage learning resources you've uploaded for students</p>
-    </div>
-    <a href="{% url 'upload_resource' %}" class="btn btn-primary-akkhor">
-      <i class="fas fa-cloud-upload-alt me-1"></i> Upload Resource
-    </a>
-  </div>
-
-  {% if messages %}
-    {% for m in messages %}
-      <div class="alert-akkhor alert-{{ m.tags }} fade-in mb-3"><i class="fas fa-circle-check"></i> {{ m }}</div>
-    {% endfor %}
-  {% endif %}
-
-  <!-- Stats -->
-  <div class="stat-row">
-    <div class="stat-box">
-      <div class="num">{{ total }}</div>
-      <div class="lbl">Total Uploads</div>
-    </div>
-    <div class="stat-box">
-      <div class="num">{{ resources|length }}</div>
-      <div class="lbl">Shown</div>
-    </div>
-    <div class="stat-box">
-      <div class="num" style="color:#27ae60;">{{ resources|length }}</div>
-      <div class="lbl">Published</div>
-    </div>
-    <div class="stat-box">
-      <div class="num" style="color:var(--stat-orange);">{{ resource_types|length }}</div>
-      <div class="lbl">Resource Types</div>
-    </div>
-  </div>
-
-  <!-- Filters -->
-  <div class="card card-akkhor mb-4" style="border-radius:12px;">
-    <div class="card-body py-3">
-      <form method="get" class="d-flex gap-3 flex-wrap align-items-end">
-        <div style="flex:1; min-width:180px;">
-          <label style="font-size:0.75rem; font-weight:600; margin-bottom:0.25rem; display:block;">Search</label>
-          <input type="text" name="q" class="form-control" placeholder="Search resources..." value="{{ q }}">
+{% block content %}
+<div class="container-fluid main-canvas-area">
+    
+    <!-- Header -->
+    <div class="library-header d-flex justify-content-between align-items-end animate-fade-up">
+        <div>
+            <h1 class="page-title with-sub mb-0">Resource Management</h1>
+            <p class="page-subtitle mb-0">Manage digital educational assets and student access.</p>
         </div>
-        <div style="min-width:160px;">
-          <label style="font-size:0.75rem; font-weight:600; margin-bottom:0.25rem; display:block;">Subject</label>
-          <select name="subject" class="form-control">
-            <option value="">All Subjects</option>
-            {% for s in subjects %}<option value="{{ s.id }}" {% if selected_subject == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
-          </select>
+        <div class="actions">
+            <a href="{% url 'upload_resource' %}" class="btn btn-primary-akkhor rounded-3 px-4 shadow-sm">
+                <i class="fas fa-cloud-upload-alt me-2"></i> Upload Resource
+            </a>
         </div>
-        <div style="min-width:160px;">
-          <label style="font-size:0.75rem; font-weight:600; margin-bottom:0.25rem; display:block;">Type</label>
-          <select name="type" class="form-control">
-            <option value="">All Types</option>
-            {% for key,label in resource_types %}<option value="{{ key }}" {% if selected_type == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
-          </select>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="row mb-5">
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-primary">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ total }}</div>
+                    <div class="premium-stat-label">Total Assets</div>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary-akkhor" style="height:40px;">Filter</button>
-        {% if q or selected_subject or selected_type %}
-          <a href="{% url 'teacher_library' %}" class="btn btn-outline-akkhor" style="height:40px;">Clear</a>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-2">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-success">
+                        <i class="fas fa-globe-africa"></i>
+                    </div>
+                    <div class="premium-stat-value">{{ resources|length }}</div>
+                    <div class="premium-stat-label">Currently Live</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-3">
+            <div class="premium-stat-card">
+                <div>
+                    <div class="premium-stat-icon p-icon-info">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="premium-stat-value">{% with count=0 %}{% for r in resources %}{% with total_v=count|add:r.view_count %}{{ total_v }}{% endwith %}{% endfor %}{% endwith %}*</div>
+                    <div class="premium-stat-label">Total Engagement</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Filters -->
+    <div class="row mb-5 animate-fade-up delay-1">
+        <div class="col-12">
+            <div class="premium-table-container py-3">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-lg-5">
+                        <label class="text-muted small fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Search Identity</label>
+                        <input type="text" name="q" class="form-control" placeholder="Search by title..." value="{{ q }}" style="height: 48px; border-radius: 10px;">
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="text-muted small fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Academic Subject</label>
+                        <select name="subject" class="form-select" style="height: 48px; border-radius: 10px;">
+                            <option value="">All Subjects</option>
+                            {% for s in subjects %}<option value="{{ s.id }}" {% if selected_subject == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-2">
+                        <label class="text-muted small fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 1px;">Classification</label>
+                        <select name="type" class="form-select" style="height: 48px; border-radius: 10px;">
+                            <option value="">All Types</option>
+                            {% for key,label in resource_types %}<option value="{{ key }}" {% if selected_type == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary-akkhor flex-grow-1" style="height: 48px; border-radius: 10px;">Filter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Grid -->
+    <div class="row g-4 mb-5 animate-fade-up delay-2">
+        {% if resources %}
+            {% for r in resources %}
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="resource-card">
+                    <div class="res-top-banner" style="background: {{ r.color }};"></div>
+                    <div class="res-body">
+                        <div class="res-icon-box" style="background: {{ r.color }};">
+                            <i class="fas {{ r.icon }}"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-2">{{ r.title }}</h6>
+                        <p class="text-muted small mb-3" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            {{ r.description|default:"No deep dive specified." }}
+                        </p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="p-badge p-badge-medium" style="font-size: 0.6rem;">{{ r.get_resource_type_display }}</span>
+                            {% if r.target_class %}
+                                <span class="p-badge p-badge-high" style="font-size: 0.6rem;">{{ r.target_class }}</span>
+                            {% else %}
+                                <span class="p-badge p-badge-high" style="font-size: 0.6rem; opacity: 0.5;">Global</span>
+                            {% endif %}
+                            {% if not r.is_published %}
+                                <span class="p-badge p-badge-critical" style="font-size: 0.6rem;">DRAFT</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="res-footer d-flex justify-content-between align-items-center">
+                        <div class="small text-muted"><i class="fas fa-eye me-1"></i> {{ r.view_count }} v.</div>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'edit_resource' r.pk %}" class="p-btn-icon" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form method="post" action="{% url 'delete_resource' r.pk %}" onsubmit="return confirm('Archive this asset permanently?');" style="margin:0;">
+                                {% csrf_token %}
+                                <button type="submit" class="p-btn-icon text-danger" style="width: 32px; height: 32px; font-size: 0.8rem; border: none; background: rgba(225, 23, 119, 0.05);">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <div class="premium-table-container text-center py-5">
+                    <i class="fas fa-folder-plus text-muted fs-1 mb-3 opacity-25"></i>
+                    <h5 class="text-muted">Repository Idle</h5>
+                    <p class="text-muted small">Ready to anchor your first learning resource.</p>
+                    <a href="{% url 'upload_resource' %}" class="btn btn-outline-akkhor mt-3 rounded-pill px-4">Upload Now</a>
+                </div>
+            </div>
         {% endif %}
-      </form>
     </div>
-  </div>
-
-  <!-- Resources Grid -->
-  {% if resources %}
-  <div class="lib-grid">
-    {% for r in resources %}
-    <div class="res-card">
-      <div class="res-card-top">
-        <div class="res-icon" style="background:{{ r.color }};">
-          <i class="fas {{ r.icon }}"></i>
-        </div>
-        <div style="flex:1; min-width:0;">
-          <div class="res-title">{{ r.title }}</div>
-          <div class="res-desc">{{ r.description|default:"No description." }}</div>
-        </div>
-      </div>
-
-      <div class="res-meta">
-        <span class="res-badge" style="background:#eff3ff; color:var(--primary);">{{ r.get_resource_type_display }}</span>
-        {% if r.subject %}<span class="res-badge" style="background:#f0fdf4; color:#16a34a;">{{ r.subject.name }}</span>{% endif %}
-        {% if r.target_class %}<span class="res-badge" style="background:#fff7ed; color:#ea580c;">{{ r.target_class }}</span>
-        {% else %}<span class="res-badge" style="background:#f1f5f9; color:#64748b;">All Classes</span>{% endif %}
-        {% if not r.is_published %}<span class="res-badge" style="background:#fee2e2; color:#991b1b;">Draft</span>{% endif %}
-      </div>
-
-      <div class="res-footer">
-        <div class="date"><i class="fas fa-clock me-1"></i>{{ r.created_at|date:"d M Y" }} &middot; <i class="fas fa-eye me-1"></i>{{ r.view_count }} views</div>
-        <div class="d-flex gap-2">
-          <a href="{% url 'edit_resource' r.pk %}" class="btn btn-sm btn-outline-akkhor" style="padding:0.2rem 0.6rem; font-size:0.72rem;">
-            <i class="fas fa-edit"></i>
-          </a>
-          <form method="post" action="{% url 'delete_resource' r.pk %}" onsubmit="return confirm('Delete this resource?');" style="margin:0;">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-sm" style="padding:0.2rem 0.6rem; font-size:0.72rem; background:#fee2e2; color:#991b1b; border:none; border-radius:6px;">
-              <i class="fas fa-trash"></i>
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-
-  {% else %}
-  <div class="card card-akkhor">
-    <div class="card-body text-center py-5">
-      <i class="fas fa-book-open" style="font-size:3.5rem; color:var(--text-muted); opacity:0.3;"></i>
-      <h5 class="mt-3" style="color:var(--text-muted);">No resources yet</h5>
-      <p style="color:var(--text-muted); font-size:0.85rem;">Upload your first resource to share learning materials with students.</p>
-      <a href="{% url 'upload_resource' %}" class="btn btn-primary-akkhor mt-2">
-        <i class="fas fa-cloud-upload-alt me-1"></i> Upload Resource
-      </a>
-    </div>
-  </div>
-  {% endif %}
-
 </div>
 {% endblock %}

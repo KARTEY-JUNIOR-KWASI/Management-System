@@ -449,23 +449,29 @@ def grade_submissions(request, assignment_id):
         })
 
     if request.method == 'POST':
-        student_id = request.POST.get('student_id')
-        grade = request.POST.get('grade')
-        feedback = request.POST.get('feedback', '')
-
-        if student_id and grade:
-            student = get_object_or_404(Student, id=student_id)
-            # Find or create submission for grading
-            submission, created = Submission.objects.get_or_create(
-                assignment=assignment,
-                student=student,
-                defaults={'feedback': feedback} # Only uses default if creating
-            )
-            submission.grade = grade
-            submission.feedback = feedback
-            submission.save()
-            messages.success(request, f'Grade updated for {student.user.get_full_name()}')
-            return redirect('grade_submissions', assignment_id=assignment.id)
+        # Batch Grading Logic
+        student_ids = request.POST.getlist('student_ids')
+        for sid in student_ids:
+            grade = request.POST.get(f'grade_{sid}')
+            feedback = request.POST.get(f'feedback_{sid}', '')
+            
+            if grade:
+                try:
+                    student = Student.objects.get(id=sid)
+                    # Find or create submission for grading
+                    submission, created = Submission.objects.get_or_create(
+                        assignment=assignment,
+                        student=student,
+                        defaults={'feedback': feedback}
+                    )
+                    submission.grade = grade
+                    submission.feedback = feedback
+                    submission.save()
+                except Student.DoesNotExist:
+                    continue
+        
+        messages.success(request, f'Successfully updated grades for the roster.')
+        return redirect('grade_submissions', assignment_id=assignment.id)
 
     context = {
         'assignment': assignment,

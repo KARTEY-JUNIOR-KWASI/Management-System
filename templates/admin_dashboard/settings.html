@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Institutional — System Configuration{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .settings-canvas {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        padding: 3rem;
+        box-shadow: 0 15px 35px rgba(0, 64, 103, 0.04);
+    }
+    .logo-preview-container {
+        width: 120px;
+        height: 120px;
+        border-radius: 24px;
+        background: #f8fafc;
+        border: 2px dashed var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    .logo-preview-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    .settings-section-title {
+        font-weight: 800;
+        color: var(--text-dark);
+        letter-spacing: -0.5px;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .p-form-group {
+        margin-bottom: 1.5rem;
+    }
+    .p-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--text-muted);
+        margin-bottom: 0.6rem;
+        display: block;
+    }
+    .p-input {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 64, 103, 0.1);
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        transition: var(--p-transition-smooth);
+    }
+    .p-input:focus {
+        border-color: var(--p-primary-hsl);
+        box-shadow: 0 0 0 4px rgba(0, 64, 103, 0.05);
+        outline: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid main-canvas-area">
+    
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-end mb-5 animate-fade-up">
+        <div>
+            <h1 class="page-title with-sub mb-0">System Orchestration</h1>
+            <p class="page-subtitle mb-0">Modulating high-level institutional metadata and identity.</p>
+        </div>
+        <div class="d-flex gap-3">
+             <div class="p-badge p-badge-high">
+                <i class="fas fa-microchip me-2"></i> Mode: System Administrator
+            </div>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="animate-fade-up delay-1">
+        {% csrf_token %}
+        <div class="settings-canvas mb-5">
+            <div class="row g-5">
+                <!-- Branding & Identity -->
+                <div class="col-lg-4">
+                    <h5 class="settings-section-title">
+                        <i class="fas fa-fingerprint text-primary"></i> Institutional Identity
+                    </h5>
+                    <div class="logo-preview-container">
+                        {% if config.logo %}
+                            <img src="{{ config.logo.url }}" alt="School Logo">
+                        {% else %}
+                            <i class="fas fa-image text-muted opacity-25 fs-1"></i>
+                        {% endif %}
+                    </div>
+                    <div class="mb-4">
+                        <label class="p-label">Institutional Seal (Logo)</label>
+                        {{ form.logo|add_class:"form-control p-input" }}
+                    </div>
+                    <div class="mb-4">
+                        <label class="p-label">Institutional Name</label>
+                        {{ form.name|add_class:"p-input"|attr:"placeholder:Enter School Name" }}
+                    </div>
+                    <div class="mb-4">
+                        <label class="p-label">Strategic Motto</label>
+                        {{ form.motto|add_class:"p-input"|attr:"placeholder:Enter Institutional Motto" }}
+                    </div>
+                </div>
+
+                <!-- Global Parameters -->
+                <div class="col-lg-8">
+                    <h5 class="settings-section-title">
+                        <i class="fas fa-sliders-h text-primary"></i> Global Metadata Parameters
+                    </h5>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="p-label">Active Academic Year</label>
+                            {{ form.current_academic_year|add_class:"p-input" }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="p-label">Founded Year</label>
+                            {{ form.established_year|add_class:"p-input" }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="p-label">Primary Contact Email</label>
+                            {{ form.contact_email|add_class:"p-input" }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="p-label">Institutional Phone</label>
+                            {{ form.phone|add_class:"p-input" }}
+                        </div>
+                        <div class="col-12">
+                            <label class="p-label">Physical Coordinates (Address)</label>
+                            {{ form.address|add_class:"p-input" }}
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 d-flex justify-content-end gap-3 border-top">
+                        <button type="reset" class="btn btn-outline-akkhor px-4 rounded-3 fw-bold">Revert</button>
+                        <button type="submit" class="btn btn-primary-akkhor px-5 py-3 rounded-3 shadow-sm fw-bold">
+                            Deploy Configuration <i class="fas fa-rocket ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

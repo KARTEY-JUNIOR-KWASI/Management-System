@@ -1,284 +1,180 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load widget_tweaks %}
 {% load i18n %}
 {% load account %}
 
+{% block title %}Log In — Intelligence Portal{% endblock %}
 
-{% block title %}Log In — EduMS{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .auth-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        overflow: hidden;
+    }
+    .auth-glass-container {
+        width: 100%;
+        max-width: 480px;
+        position: relative;
+        z-index: 10;
+        padding: 2rem;
+    }
+    .auth-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 32px;
+        padding: 3.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+    }
+    .auth-brand {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    .auth-brand img {
+        height: 60px;
+        margin-bottom: 1.5rem;
+    }
+    .auth-input-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    .auth-input-group i {
+        position: absolute;
+        left: 1.25rem;
+        top: 1.1rem;
+        color: var(--p-primary-hsl);
+        opacity: 0.5;
+    }
+    .auth-field {
+        width: 100%;
+        height: 54px;
+        padding: 0 1.5rem 0 3.5rem;
+        border-radius: 14px;
+        border: 1px solid rgba(0, 64, 103, 0.1);
+        background: rgba(255, 255, 255, 0.5);
+        font-weight: 500;
+        transition: var(--p-transition-smooth);
+    }
+    .auth-field:focus {
+        background: white;
+        border-color: var(--p-primary-hsl);
+        box-shadow: 0 0 0 4px rgba(0, 64, 103, 0.05);
+        outline: none;
+    }
+    .auth-btn {
+        width: 100%;
+        height: 54px;
+        background: var(--p-primary-hsl);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: var(--p-transition-smooth);
+        box-shadow: 0 10px 20px -5px rgba(0, 64, 103, 0.3);
+    }
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px -5px rgba(0, 64, 103, 0.4);
+    }
+    .auth-btn:active {
+        transform: translateY(0);
+    }
+    .bg-animation-blob {
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(0, 163, 255, 0.1), transparent 70%);
+        top: -250px;
+        right: -250px;
+        border-radius: 50%;
+        z-index: 1;
+    }
+    .bg-animation-blob-2 {
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(111, 177, 63, 0.1), transparent 70%);
+        bottom: -200px;
+        left: -200px;
+        border-radius: 50%;
+        z-index: 1;
+    }
+</style>
+{% endblock %}
 
 {% block noauth_content %}
-<div class="auth-wrapper">
-    <!-- Animated Background Shapes -->
-    <div class="bg-shape shape-1"></div>
-    <div class="bg-shape shape-2"></div>
-    <div class="bg-shape shape-3"></div>
-
-    <div class="auth-container">
-        <div class="auth-card glass-card fade-up">
-            <div class="auth-header">
-                <div class="brand-display mb-3">
-                    <img src="/static/images/logo.png" alt="EduMS Logo" class="brand-logo" onerror="this.onerror=null; this.src='https://placehold.co/200x80/004067/ffffff?text=EduMS';">
-                </div>
-                <h2 class="auth-title">Authorized Access</h2>
-                <p class="auth-subtitle">Welcome back. Please enter your credentials.</p>
+<div class="auth-bg">
+    <div class="bg-animation-blob"></div>
+    <div class="bg-animation-blob-2"></div>
+    
+    <div class="auth-glass-container animate-fade-up">
+        <div class="auth-card">
+            <div class="auth-brand">
+                <img src="/static/images/logo.png" alt="EduMS" onerror="this.onerror=null; this.src='https://placehold.co/200x80/ffffff/004067?text=EduMS+Intelligence';">
+                <h2 class="fw-bold text-dark mt-2" style="letter-spacing: -1px;">Intelligence Portal</h2>
+                <p class="text-muted small">Authorized Access Required.</p>
             </div>
 
-            <div class="auth-body">
-                <form method="post" class="auth-form">
-                    {% csrf_token %}
+            <form method="post" class="auth-form">
+                {% csrf_token %}
 
-                    {% for field in form %}
-                        <div class="input-field mb-4">
-                            <label class="field-label" for="{{ field.id_for_label }}">
-                                {% if field.name == 'login' %}
-                                    User ID
-                                {% else %}
-                                    {{ field.label }}
-                                {% endif %}
-                            </label>
-                            <div class="input-wrapper">
-                                <span class="input-icon">
-                                    {% if field.name == 'login' %}
-                                        <i class="fas fa-id-badge"></i>
-                                    {% else %}
-                                        <i class="fas fa-lock"></i>
-                                    {% endif %}
-                                </span>
-                                {{ field|add_class:"auth-input"|attr:"placeholder:Enter your ID..." }}
-                            </div>
-                            
-                            {% if field.errors %}
-                                {% for error in field.errors %}
-                                    <span class="field-error"><i class="fas fa-info-circle"></i> {{ error }}</span>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-
-
-                    {% if form.non_field_errors %}
-                        <div class="error-banner mb-4">
-                            <i class="fas fa-exclamation-triangle"></i> {{ form.non_field_errors|join:", " }}
-                        </div>
-                    {% endif %}
-
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="remember" id="remember">
-                            <label class="form-check-label small text-muted" for="remember">Remember me</label>
-                        </div>
-                        <a href="#" class="small text-primary fw-bold text-decoration-none hover-link">Forgot Password?</a>
+                {% for field in form %}
+                    <div class="auth-input-group">
+                        <i class="fas {% if field.name == 'login' %}fa-user-shield{% else %}fa-lock-open{% endif %}"></i>
+                        {{ field|add_class:"auth-field"|attr:"placeholder:Enter Credentials" }}
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <div class="text-danger x-small mt-2 px-1 fw-bold"><i class="fas fa-exclamation-circle me-1"></i> {{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
                     </div>
+                {% endfor %}
 
-                    <button type="submit" class="auth-submit btn-premium">
-                        <span>Sign In</span>
-                        <i class="fas fa-chevron-right ms-2"></i>
-                    </button>
-                </form>
-            </div>
+                {% if form.non_field_errors %}
+                    <div class="p-2 bg-danger-soft text-danger small rounded-3 mb-4 px-3 border border-danger">
+                        <i class="fas fa-triangle-exclamation me-2"></i> {{ form.non_field_errors|join:", " }}
+                    </div>
+                {% endif %}
 
-            <div class="auth-footer text-center mt-5 pt-4">
-                <p class="text-muted small mb-0">System access is restricted to provisioned accounts.</p>
-                <div class="portal-info mt-2">
-                    <span class="small text-muted">Need access? Contact your Admin or IT Department.</span>
+                <div class="d-flex justify-content-between align-items-center mb-4 px-1">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                        <label class="form-check-label text-muted small" for="remember">Preserve Session</label>
+                    </div>
+                    <a href="{% url 'account_reset_password' %}" class="small text-primary fw-bold text-decoration-none">Recovery</a>
+                </div>
+
+                <button type="submit" class="auth-btn">
+                    Authenticate <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </form>
+
+            <div class="text-center mt-5">
+                <p class="text-muted small mb-0">System secured by 256-bit encryption.</p>
+                <div class="mt-3">
+                    <a href="{% url 'student_signup' %}" class="text-decoration-none small fw-bold text-success me-3">Student Portal</a>
+                    <span class="text-muted opacity-25">|</span>
+                    <a href="{% url 'teacher_signup' %}" class="text-decoration-none small fw-bold text-primary ms-3">Teacher Portal</a>
                 </div>
             </div>
-
         </div>
         
-        <div class="auth-copyright text-center mt-4">
-            <p>&copy; 2026 EduMS. Empowering Education Intelligence.</p>
+        <div class="text-center mt-4">
+            <p class="text-muted" style="font-size: 0.75rem;">&copy; 2026 EduMS. Empowering Education Intelligence.</p>
         </div>
     </div>
 </div>
-
-<style>
-/* ── Auth Page Specific Styles ── */
-.auth-wrapper {
-    position: relative;
-    min-height: 100vh;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    overflow: hidden;
-    background-color: var(--body-bg);
-}
-
-.bg-shape {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    z-index: 0;
-    opacity: 0.15;
-}
-
-.shape-1 { width: 400px; height: 400px; background: var(--primary); top: -100px; right: -100px; }
-.shape-2 { width: 300px; height: 300px; background: var(--success); bottom: -50px; left: -50px; }
-.shape-3 { width: 250px; height: 250px; background: var(--warning); top: 50%; left: 80%; }
-
-.auth-container {
-    position: relative;
-    z-index: 10;
-    width: 100%;
-    max-width: 480px;
-}
-
-.auth-card {
-    padding: 3rem;
-    border-radius: var(--radius-lg);
-}
-
-.brand-logo {
-    max-width: 180px;
-    height: auto;
-}
-
-.auth-title {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: var(--text-dark);
-    margin-bottom: 0.5rem;
-    letter-spacing: -0.5px;
-}
-
-.auth-subtitle {
-    color: var(--text-light);
-    font-size: 0.95rem;
-    margin-bottom: 2rem;
-}
-
-.input-field {
-    text-align: left;
-}
-
-.field-label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text-medium);
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.input-icon {
-    position: absolute;
-    left: 1.25rem;
-    color: var(--text-muted);
-    font-size: 1rem;
-}
-
-.auth-input {
-    width: 100%;
-    padding: 0.85rem 1.25rem 0.85rem 3.25rem;
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius-md);
-    background: white;
-    font-family: 'Inter', sans-serif;
-    font-size: 1rem;
-    transition: var(--transition);
-}
-
-.auth-input:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(0, 64, 103, 0.1);
-}
-
-.field-error {
-    display: block;
-    color: var(--danger);
-    font-size: 0.75rem;
-    margin-top: 0.5rem;
-    font-weight: 600;
-}
-
-.error-banner {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--danger);
-    padding: 0.75rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.85rem;
-    font-weight: 600;
-    border-left: 4px solid var(--danger);
-}
-
-.auth-submit {
-    width: 100%;
-    padding: 1rem;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: var(--radius-md);
-    font-weight: 700;
-    font-size: 1.1rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: var(--transition);
-    cursor: pointer;
-    box-shadow: 0 10px 15px -3px rgba(0, 64, 103, 0.3);
-}
-
-.auth-submit:hover {
-    background: var(--primary-light);
-    transform: translateY(-2px);
-    box-shadow: 0 20px 25px -5px rgba(0, 64, 103, 0.3);
-}
-
-.auth-submit:active {
-    transform: translateY(0);
-}
-
-.portal-link {
-    font-weight: 700;
-    font-size: 0.9rem;
-    text-decoration: none;
-    transition: var(--transition);
-}
-
-.portal-link.student { color: var(--success); }
-.portal-link.teacher { color: var(--primary); }
-.portal-link:hover { opacity: 0.7; }
-
-.link-divider {
-    width: 1px;
-    height: 14px;
-    background: var(--border-color);
-    display: inline-block;
-    vertical-align: middle;
-    margin: 0 0.75rem;
-}
-
-.auth-copyright {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
-
-.hover-link:hover {
-    text-decoration: underline !important;
-}
-
-/* Animations */
-.fade-up {
-    animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 576px) {
-    .auth-card { padding: 2rem; }
-}
-</style>
 {% endblock noauth_content %}
