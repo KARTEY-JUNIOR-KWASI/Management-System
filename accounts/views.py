@@ -3,10 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import login
 from django.urls import reverse
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-
 from allauth.account import app_settings as account_settings
+
 from .forms import CustomSignupForm, UserProfileForm
 
 @login_required
@@ -67,15 +65,4 @@ def teacher_signup(request):
         form = CustomSignupForm(request=request, initial={'role': 'teacher'})
     return render(request, 'accounts/teacher_signup.html', {'form': form})
 
-@require_POST
-@login_required
-def complete_onboarding(request):
-    """
-    ✨ Persistence: Updates the database flag so the onboarding tour 
-    doesn't start automatically on next login.
-    """
-    user = request.user
-    user.has_completed_onboarding = True
-    user.save()
-    return JsonResponse({'status': 'success', 'message': 'Onboarding marked as completed.'})
 

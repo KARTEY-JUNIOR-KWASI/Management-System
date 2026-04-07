@@ -2,7 +2,8 @@
 {% block title %}System Administration — EduSystem{% endblock %}
 
 {% block content %}
-<div class="row layout-spacing" id="dashboard-header">
+<div class="row layout-spacing">
+
 
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -22,7 +23,8 @@
     </div>
 
     <!-- Global Stats Header -->
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4" id="stats-cards">
+    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+
 
         <div class="card card-akkhor h-100 overflow-hidden" style="border-left: 4px solid var(--primary);">
             <div class="card-body p-4">
@@ -101,7 +103,8 @@
                 <h5 class="fw-bold mb-0">Academic Performance Trends</h5>
                 <button class="btn btn-sm btn-light border" onclick="location.reload()"><i class="fas fa-sync-alt"></i></button>
             </div>
-            <div class="card-body p-4" id="performance-chart">
+            <div class="card-body p-4">
+
 
                 <div style="height: 350px;">
                     <canvas id="adminPerformanceChart"></canvas>
