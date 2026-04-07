@@ -225,7 +225,8 @@ LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_LOGIN_METHODS = {'email', 'username'}
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_LOGOUT_ON_GET = True
-ACCOUNT_ADAPTER = 'accounts.adapters.AccountAdapter'
+ACCOUNT_ADAPTER = 'accounts.adapter.CustomAccountAdapter'
+
 
 
 REST_FRAMEWORK = {
