@@ -82,8 +82,11 @@ def student_create(request):
     if request.method == 'POST':
         form = StudentForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Student created successfully')
+            student = form.save()
+            msg = f'Student {student.user.get_full_name()} created successfully.'
+            if hasattr(form, 'generated_password'):
+                msg += f' [User ID: {form.generated_username}] [Password: {form.generated_password}]'
+            messages.success(request, msg)
             return redirect('student_list')
     else:
         form = StudentForm()
@@ -253,8 +256,11 @@ def teacher_create(request):
     if request.method == 'POST':
         form = TeacherForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Teacher created successfully')
+            teacher = form.save()
+            msg = f'Teacher {teacher.user.get_full_name()} created successfully.'
+            if hasattr(form, 'generated_password'):
+                msg += f' [User ID: {form.generated_username}] [Password: {form.generated_password}]'
+            messages.success(request, msg)
             return redirect('teacher_list')
     else:
         form = TeacherForm()

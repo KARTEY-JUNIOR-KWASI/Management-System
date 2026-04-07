@@ -1,6 +1,5 @@
 from functools import wraps
-from django.shortcuts import redirect
-from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 
 def admin_required(view_func):
@@ -9,9 +8,7 @@ def admin_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if request.user.role == 'admin':
             return view_func(request, *args, **kwargs)
-        else:
-            messages.error(request, 'You do not have permission to access this page.')
-            return redirect('home')
+        raise PermissionDenied
     return _wrapped_view
 
 def teacher_required(view_func):
@@ -20,9 +17,7 @@ def teacher_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if request.user.role == 'teacher':
             return view_func(request, *args, **kwargs)
-        else:
-            messages.error(request, 'You do not have permission to access this page.')
-            return redirect('home')
+        raise PermissionDenied
     return _wrapped_view
 
 def student_required(view_func):
@@ -31,9 +26,7 @@ def student_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if request.user.role == 'student':
             return view_func(request, *args, **kwargs)
-        else:
-            messages.error(request, 'You do not have permission to access this page.')
-            return redirect('home')
+        raise PermissionDenied
     return _wrapped_view
 
 def role_required(*roles):
@@ -47,8 +40,7 @@ def role_required(*roles):
         def _wrapped_view(request, *args, **kwargs):
             if request.user.role in roles:
                 return view_func(request, *args, **kwargs)
-            else:
-                messages.error(request, 'You do not have permission to access this page.')
-                return redirect('home')
+            raise PermissionDenied
         return _wrapped_view
     return decorator
+

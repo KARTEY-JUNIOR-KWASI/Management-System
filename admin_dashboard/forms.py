@@ -3,6 +3,7 @@ from students.models import Student
 from teachers.models import Teacher
 from core.models import Subject, Class
 from accounts.models import User
+from accounts.utils import generate_user_id, generate_random_password
 
 
 class StudentForm(forms.ModelForm):
@@ -62,22 +63,24 @@ class StudentForm(forms.ModelForm):
             user.save()
             student = super().save(commit=commit)
         else:
-            username = self.cleaned_data.get('student_id')
+            # AUTO-GENERATE credentials for new students
+            username = generate_user_id('student')
+            password = generate_random_password(12)
+            
             user = User.objects.create_user(
                 username=username,
                 first_name=self.cleaned_data['first_name'],
                 last_name=self.cleaned_data['last_name'],
-                password=self.cleaned_data['password'],
+                password=password,
                 role='student'
             )
             
-            # 🔄 SIGNAL HANDLING:
-            # The post_save signal on User automatically creates a Student profile.
-            # We must fetch that existing profile and update it with form data.
-            student, created = Student.objects.get_or_create(user=user)
+            # Store generated password temporarily so view can show it
+            self.generated_password = password
+            self.generated_username = username
             
-            # Apply form fields to the instance
-            student.student_id = self.cleaned_data.get('student_id')
+            student, created = Student.objects.get_or_create(user=user)
+            student.student_id = username
             student.class_enrolled = self.cleaned_data.get('class_enrolled')
             student.enrollment_date = self.cleaned_data.get('enrollment_date')
             student.age = self.cleaned_data.get('age')
@@ -181,15 +184,23 @@ class TeacherForm(forms.ModelForm):
             teacher = super().save(commit=commit)
             teacher.subjects.set(self.cleaned_data.get('subjects', []))
         else:
-            username = self.cleaned_data.get('teacher_id')
+            # AUTO-GENERATE credentials for new teachers
+            username = generate_user_id('teacher')
+            password = generate_random_password(12)
+            
             user = User.objects.create_user(
                 username=username,
                 email=self.cleaned_data['email'],
                 first_name=self.cleaned_data['first_name'],
                 last_name=self.cleaned_data['last_name'],
-                password=self.cleaned_data['password'],
+                password=password,
                 role='teacher'
             )
+            
+            # Store generated password temporarily so view can show it
+            self.generated_password = password
+            self.generated_username = username
+            
             # Add supplemental profile details
             user.gender = self.cleaned_data['gender']
             user.phone = self.cleaned_data['phone']
@@ -199,10 +210,8 @@ class TeacherForm(forms.ModelForm):
                 user.profile_picture = self.cleaned_data['profile_picture']
             user.save()
             
-            # Fetch auto-created profile (likely created via signals, otherwise created by get_or_create)
             teacher, created = Teacher.objects.get_or_create(user=user)
-            
-            teacher.teacher_id = self.cleaned_data.get('teacher_id')
+            teacher.teacher_id = username
             teacher.department = self.cleaned_data.get('department', '')
             teacher.qualification = self.cleaned_data.get('qualification', '')
             teacher.specialization = self.cleaned_data.get('specialization', '')

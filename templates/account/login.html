@@ -28,7 +28,7 @@
                         <div class="input-field mb-4">
                             <label class="field-label" for="{{ field.id_for_label }}">
                                 {% if field.name == 'login' %}
-                                    Username or Email
+                                    User ID
                                 {% else %}
                                     {{ field.label }}
                                 {% endif %}
@@ -36,12 +36,12 @@
                             <div class="input-wrapper">
                                 <span class="input-icon">
                                     {% if field.name == 'login' %}
-                                        <i class="fas fa-user"></i>
+                                        <i class="fas fa-id-badge"></i>
                                     {% else %}
                                         <i class="fas fa-lock"></i>
                                     {% endif %}
                                 </span>
-                                {{ field|add_class:"auth-input"|attr:"placeholder:Type here..." }}
+                                {{ field|add_class:"auth-input"|attr:"placeholder:Enter your ID..." }}
                             </div>
                             
                             {% if field.errors %}
@@ -51,6 +51,7 @@
                             {% endif %}
                         </div>
                     {% endfor %}
+
 
                     {% if form.non_field_errors %}
                         <div class="error-banner mb-4">

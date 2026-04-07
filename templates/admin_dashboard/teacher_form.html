@@ -186,6 +186,23 @@
                 {% if form.date_of_birth.errors %}<div class="field-error">{{ form.date_of_birth.errors|join:", " }}</div>{% endif %}
               </div>
             </div>
+            <!-- Hidden fields for new users, shown for editing if needed -->
+            {% if not form.instance.pk %}
+                <div class="alert alert-info py-2 small mb-3">
+                    <i class="fas fa-magic me-2"></i> User ID and Password will be <strong>automatically generated</strong>.
+                </div>
+            {% else %}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Teacher ID</label>
+                        {{ form.teacher_id|add_class:"form-control bg-light"|attr:"readonly:readonly" }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Password</label>
+                        {{ form.password|add_class:"form-control"|attr:"placeholder:Enter new password to change..." }}
+                    </div>
+                </div>
+            {% endif %}
             <div class="col-md-4">
               <div class="field-group">
                 <label>Phone Number</label>

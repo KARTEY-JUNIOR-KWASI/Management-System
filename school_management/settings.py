@@ -222,12 +222,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-ACCOUNT_SIGNUP_FORM = 'accounts.forms.CustomSignupForm'
 ACCOUNT_LOGIN_METHODS = {'email', 'username'}
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_LOGOUT_ON_GET = True
-ACCOUNT_ADAPTER = 'accounts.adapter.CustomAccountAdapter'
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*', 'role*', 'gender']
+ACCOUNT_ADAPTER = 'accounts.adapters.AccountAdapter'
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
