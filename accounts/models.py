@@ -18,6 +18,8 @@ class User(AbstractUser):
     address = models.TextField(blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
+    has_completed_onboarding = models.BooleanField(default=False)
+
 
     def __str__(self):
         return f"{self.get_full_name()} ({self.role})"

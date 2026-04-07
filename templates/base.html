@@ -10,10 +10,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   {% load static %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css"/>
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   {% block extra_head %}{% endblock %}
+
 </head>
-<body>
+<body data-onboarding-completed="{{ user.has_completed_onboarding|yesno:'true,false' }}" data-user-role="{{ user.role }}">
+
 
 {% if user.is_authenticated %}
 
@@ -40,8 +43,9 @@
           </a>
         </div>
 
-        <div class="sidebar-item">
+        <div class="sidebar-item" id="sidebar-students">
           <div class="sidebar-link" id="toggle-students" onclick="toggleSubmenu('sub-students', this)">
+
             <i class="fas fa-user-graduate"></i> Students
             <i class="fas fa-chevron-right chevron"></i>
           </div>
@@ -51,8 +55,9 @@
           </div>
         </div>
 
-        <div class="sidebar-item">
+        <div class="sidebar-item" id="sidebar-teachers">
           <div class="sidebar-link" id="toggle-teachers" onclick="toggleSubmenu('sub-teachers', this)">
+
             <i class="fas fa-chalkboard-teacher"></i> Teachers
             <i class="fas fa-chevron-right chevron"></i>
           </div>
@@ -312,7 +317,9 @@
 
         <div class="topbar-dropdown" id="topbarDropdown">
           <a href="{% url 'profile' %}"><i class="fas fa-user"></i> Profile</a>
+          <a href="#" id="restart-tour-btn"><i class="fas fa-play-circle"></i> Restart Tour</a>
           <hr>
+
           <form method="POST" action="{% url 'account_logout' %}" id="logout-form" class="logout-form">
             {% csrf_token %}
             <button type="submit" class="logout-link logout-btn">
@@ -401,6 +408,9 @@
     }
   });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
+<script src="{% static 'js/onboarding.js' %}"></script>
 {% block extra_js %}{% endblock %}
+
 </body>
 </html>
