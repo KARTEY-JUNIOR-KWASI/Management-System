@@ -1,0 +1,350 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Register New{% endif %} Teacher — EduSystem{% endblock %}
+
+{% block content %}
+<div class="container-fluid pb-5">
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 style="font-weight:800; margin:0; color:var(--text-dark);">
+        {% if form.instance.pk %}Edit Teacher Profile{% else %}Register New Teacher{% endif %}
+      </h2>
+      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">
+        {% if form.instance.pk %}Update the teacher's information and save changes{% else %}Fill in all sections to create a complete teacher account{% endif %}
+      </p>
+    </div>
+    <a href="{% url 'teacher_list' %}" class="btn btn-outline-akkhor">
+      <i class="fas fa-arrow-left me-1"></i> Back to Teachers
+    </a>
+  </div>
+
+  <!-- Error Summary -->
+  {% if form.errors %}
+  <div class="reg-error-alert fade-in">
+    <i class="fas fa-circle-exclamation" style="color:#e74c3c; font-size:1.1rem; margin-top:0.1rem;"></i>
+    <div>
+      <strong style="font-size:0.85rem; color:#991b1b;">Please fix the following errors before saving:</strong>
+      <ul>
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}<li>{{ field|capfirst }}: {{ error }}</li>{% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" class="reg-layout" id="reg-form">
+    {% csrf_token %}
+
+    <!-- ══════ LEFT SIDEBAR ══════ -->
+    <div class="reg-sidebar">
+      <div class="reg-sidebar-header">
+        <div class="avatar-ring">
+          <i class="fas fa-chalkboard-teacher"></i>
+        </div>
+        <h5>Teacher Profile</h5>
+        <p>Complete all sections below</p>
+      </div>
+      <nav class="reg-steps">
+        <a class="reg-step active" href="#sec-account" onclick="setActive(this)">
+          <span class="step-num">1</span>
+          <div>
+            <div>Account Credentials</div>
+            <div style="font-size:0.68rem; opacity:0.7;">Name, ID, password</div>
+          </div>
+        </a>
+        <a class="reg-step" href="#sec-personal" onclick="setActive(this)">
+          <span class="step-num">2</span>
+          <div>
+            <div>Personal Details</div>
+            <div style="font-size:0.68rem; opacity:0.7;">Contact, DOB, Avatar</div>
+          </div>
+        </a>
+        <a class="reg-step" href="#sec-professional" onclick="setActive(this)">
+          <span class="step-num">3</span>
+          <div>
+            <div>Professional Info</div>
+            <div style="font-size:0.68rem; opacity:0.7;">Subjects, department</div>
+          </div>
+        </a>
+        <a class="reg-step" href="#sec-emergency" onclick="setActive(this)">
+          <span class="step-num">4</span>
+          <div>
+            <div>Emergency Contact</div>
+            <div style="font-size:0.68rem; opacity:0.7;">Contact details</div>
+          </div>
+        </a>
+
+        <div style="border-top:1px solid #f0f3f8; margin:0.75rem 0;"></div>
+        <!-- Submit inside sidebar too -->
+        <div style="padding:0 1rem;">
+          <button type="submit" form="reg-form"
+            style="width:100%; background:var(--primary); color:#fff; border:none; border-radius:8px; padding:0.65rem; font-size:0.85rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem;">
+            <i class="fas fa-save"></i>
+            {% if form.instance.pk %}Update Teacher{% else %}Register Teacher{% endif %}
+          </button>
+          <a href="{% url 'teacher_list' %}" style="display:block; text-align:center; margin-top:0.5rem; font-size:0.78rem; color:var(--text-muted);">Cancel</a>
+        </div>
+      </nav>
+    </div>
+
+    <!-- ══════ RIGHT CONTENT ══════ -->
+    <div>
+
+      <!-- ─── SECTION 1: Account ─────────────────── -->
+      <div id="sec-account" class="reg-section reg-card">
+        <div class="reg-card-header">
+          <div class="card-icon-wrap" style="background:#eff3ff;">
+            <i class="fas fa-user-tie" style="color:var(--primary);"></i>
+          </div>
+          <div>
+            <h5>Account &amp; Credentials</h5>
+            <p>These details will be used to log into the system</p>
+          </div>
+        </div>
+        <div class="reg-card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="field-group">
+                <label>First Name <span class="text-danger">*</span></label>
+                {% render_field form.first_name class="form-control" placeholder="Enter first name" %}
+                {% if form.first_name.errors %}<div class="field-error">{{ form.first_name.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="field-group">
+                <label>Last Name <span class="text-danger">*</span></label>
+                {% render_field form.last_name class="form-control" placeholder="Enter last name" %}
+                {% if form.last_name.errors %}<div class="field-error">{{ form.last_name.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="field-group">
+                <label>Email Address <span class="text-danger">*</span></label>
+                {% render_field form.email class="form-control" placeholder="teacher@school.edu" %}
+                {% if form.email.errors %}<div class="field-error">{{ form.email.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="field-group">
+                <label>Teacher ID <span class="text-danger">*</span></label>
+                <div class="id-gen-wrap">
+                  {% render_field form.teacher_id class="form-control" id="id_teacher_id" placeholder="e.g. TCH12345" %}
+                  {% if not form.instance.pk %}
+                  <button class="id-gen-btn" type="button" onclick="generateTeacherId()">
+                    <i class="fas fa-wand-magic-sparkles"></i> Generate
+                  </button>
+                  {% endif %}
+                </div>
+                <div class="field-hint"><i class="fas fa-fingerprint"></i> Used for system login</div>
+                {% if form.teacher_id.errors %}<div class="field-error">{{ form.teacher_id.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="field-group">
+                <label>Account Password {% if not form.instance.pk %}<span class="text-danger">*</span>{% endif %}</label>
+                {% if form.instance.pk %}
+                  {% render_field form.password class="form-control" placeholder="Leave blank to keep current" %}
+                  <div class="field-hint"><i class="fas fa-lock"></i> Leave empty to keep existing password</div>
+                {% else %}
+                  {% render_field form.password class="form-control" placeholder="Set a secure password" %}
+                {% endif %}
+                {% if form.password.errors %}<div class="field-error">{{ form.password.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SECTION 2: Personal Details ────────────────────── -->
+      <div id="sec-personal" class="reg-section reg-card">
+        <div class="reg-card-header">
+          <div class="card-icon-wrap" style="background:#fff7ed;">
+            <i class="fas fa-id-card-clip" style="color:#f97316;"></i>
+          </div>
+          <div>
+            <h5>Personal Details &amp; Contact</h5>
+            <p>Biographical and contact information</p>
+          </div>
+        </div>
+        <div class="reg-card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Gender</label>
+                {% render_field form.gender class="form-control form-select" %}
+                {% if form.gender.errors %}<div class="field-error">{{ form.gender.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Date of Birth</label>
+                {% render_field form.date_of_birth class="form-control" %}
+                {% if form.date_of_birth.errors %}<div class="field-error">{{ form.date_of_birth.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Phone Number</label>
+                {% render_field form.phone class="form-control" placeholder="+123 456 7890" %}
+                {% if form.phone.errors %}<div class="field-error">{{ form.phone.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="field-group">
+                <label>Residential Address</label>
+                {% render_field form.address class="form-control" rows="2" placeholder="Full street address" %}
+                {% if form.address.errors %}<div class="field-error">{{ form.address.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Profile Picture</label>
+                {% render_field form.profile_picture class="form-control" %}
+                <div class="field-hint">PNG or JPG preferred</div>
+                {% if form.profile_picture.errors %}<div class="field-error">{{ form.profile_picture.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SECTION 3: Professional Information ────────────────── -->
+      <div id="sec-professional" class="reg-section reg-card">
+        <div class="reg-card-header">
+          <div class="card-icon-wrap" style="background:#f0fdf4;">
+            <i class="fas fa-graduation-cap" style="color:#16a34a;"></i>
+          </div>
+          <div>
+            <h5>Professional Information</h5>
+            <p>Qualifications, department and subject assignments</p>
+          </div>
+        </div>
+        <div class="reg-card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="field-group">
+                <label>Department</label>
+                {% render_field form.department class="form-control" placeholder="e.g. Science, Mathematics" %}
+                {% if form.department.errors %}<div class="field-error">{{ form.department.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="field-group">
+                <label>Qualification</label>
+                {% render_field form.qualification class="form-control form-select" %}
+                {% if form.qualification.errors %}<div class="field-error">{{ form.qualification.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="field-group">
+                <label>Specialization</label>
+                {% render_field form.specialization class="form-control" placeholder="e.g. Theoretical Physics, Early Childhood Dev" %}
+                {% if form.specialization.errors %}<div class="field-error">{{ form.specialization.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="field-group">
+                <label>Assigned Subjects</label>
+                {% render_field form.subjects class="form-control form-select" style="height:120px;" %}
+                <div class="field-hint">Hold Ctrl (or Cmd on Mac) to select multiple items</div>
+                {% if form.subjects.errors %}<div class="field-error">{{ form.subjects.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SECTION 4: Emergency Contact ─────────────────── -->
+      <div id="sec-emergency" class="reg-section reg-card">
+        <div class="reg-card-header">
+          <div class="card-icon-wrap" style="background:#fff5f5;">
+            <i class="fas fa-phone-alt" style="color:#e74c3c;"></i>
+          </div>
+          <div>
+            <h5>Emergency Contact</h5>
+            <p>Person to contact in case of emergency</p>
+          </div>
+        </div>
+        <div class="reg-card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Name</label>
+                {% render_field form.emergency_contact_name class="form-control" placeholder="Contact full name" %}
+                {% if form.emergency_contact_name.errors %}<div class="field-error">{{ form.emergency_contact_name.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Emergency Phone</label>
+                <div style="display:flex; border:1.5px solid #fca5a5; border-radius:8px; overflow:hidden; background:#fff5f5;">
+                  <span style="background:#fee2e2; border-right:1.5px solid #fca5a5; padding:0.55rem 0.75rem; display:flex; align-items:center;">
+                    <i class="fas fa-phone-alt" style="color:#e74c3c; font-size:0.8rem;"></i>
+                  </span>
+                  {% render_field form.emergency_contact_phone class="form-control" placeholder="+233..." style="border:none; background:transparent; box-shadow:none;" %}
+                </div>
+                {% if form.emergency_contact_phone.errors %}<div class="field-error">{{ form.emergency_contact_phone.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Relationship</label>
+                {% render_field form.emergency_contact_relationship class="form-control" placeholder="Relationship" %}
+                {% if form.emergency_contact_relationship.errors %}<div class="field-error">{{ form.emergency_contact_relationship.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Submit Bar ─────────────────────────────────────── -->
+      <div class="reg-submit-bar">
+        <div class="note">
+          <i class="fas fa-shield-check" style="color:var(--primary);"></i>
+          Information is secured following privacy standards.
+        </div>
+        <div style="display:flex; gap:0.75rem;">
+          <a href="{% url 'teacher_list' %}" class="btn btn-outline-akkhor">Cancel</a>
+          <button type="submit" class="btn btn-primary-akkhor px-5">
+            <i class="fas fa-save me-1"></i>
+            {% if form.instance.pk %}Update Teacher{% else %}Register Teacher{% endif %}
+          </button>
+        </div>
+      </div>
+
+    </div><!-- end right content -->
+  </form>
+</div>
+
+<script>
+function generateTeacherId() {
+  const prefix = 'TCH';
+  const num = Math.floor(10000 + Math.random() * 90000);
+  document.getElementById('id_teacher_id').value = prefix + num;
+}
+
+function setActive(el) {
+  document.querySelectorAll('.reg-step').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Highlight active step on scroll
+const sections = document.querySelectorAll('.reg-section');
+const steps    = document.querySelectorAll('.reg-step');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(sec => {
+    if (window.scrollY + 120 >= sec.offsetTop) current = sec.id;
+  });
+  steps.forEach(step => {
+    const href = step.getAttribute('href').replace('#', '');
+    step.classList.toggle('active', href === current);
+  });
+});
+</script>
+{% endblock %}

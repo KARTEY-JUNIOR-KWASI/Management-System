@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Out — EduSystem{% endblock %}
+
+{% block noauth_content %}
+<div class="auth-page">
+  <div class="auth-box fade-in" style="max-width: 420px; text-align: center;">
+
+    <div class="mb-4 text-center">
+      <div class="d-inline-flex align-items-center justify-content-center bg-primary-light text-primary rounded-circle mb-3" style="width: 70px; height: 70px; font-size: 2rem;">
+        <i class="fas fa-sign-out-alt"></i>
+      </div>
+      <h2 style="font-weight: 700; color: var(--text-dark);">Sign Out</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Are you sure you want to sign out from EduSystem?</p>
+    </div>
+
+    <form method="post" action="{% url 'account_logout' %}" class="akkhor-form">
+      {% csrf_token %}
+      {% if redirect_field_value %}
+      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+      {% endif %}
+
+      <div class="d-flex gap-3 justify-content-center mt-4">
+        <a href="javascript:history.back()" class="btn-akkhor btn-outline-akkhor w-50 justify-content-center">
+          Cancel
+        </a>
+        <button type="submit" class="btn-akkhor btn-danger-akkhor w-50 justify-content-center">
+          <i class="fas fa-power-off"></i> Sign Out
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock noauth_content %}

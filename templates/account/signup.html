@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Join EduSystem — Role Selection{% endblock %}
+
+{% block noauth_content %}
+<div class="auth-page">
+  <div class="auth-box fade-in" style="max-width: 600px;">
+
+    <!-- Header bar -->
+    <div class="auth-box-header" style="background: linear-gradient(135deg, var(--sidebar-bg), var(--primary));">
+      <div class="auth-logo">Edu<span>MS</span></div>
+      <p>Join our modern teaching & learning community</p>
+    </div>
+
+    <div class="auth-box-body p-5">
+      <div class="text-center mb-5">
+        <h2 class="fw-bold text-dark">Register Your Account</h2>
+        <p class="text-muted">Please select your primary role to continue registration.</p>
+      </div>
+
+      <div class="row g-4 justify-content-center">
+        <!-- Student Portal Card -->
+        <div class="col-md-6">
+          <a href="{% url 'student_signup' %}" class="card h-100 border-0 shadow-sm text-decoration-none role-card-akkhor" 
+             style="transition: all 0.3s ease; border-radius: 12px; overflow: hidden; background: #f8fafc;">
+            <div class="p-4 text-center">
+              <div class="mb-3 d-inline-flex align-items-center justify-content-center" 
+                   style="width: 70px; height: 70px; background: rgba(39, 174, 96, 0.1); color: var(--stat-green); border-radius: 50%;">
+                <i class="fas fa-user-graduate" style="font-size: 2.2rem;"></i>
+              </div>
+              <h5 class="fw-bold text-dark mb-2">Student Portal</h5>
+              <p class="small text-muted mb-0">Access grades, attendance, and AI-driven growth insights.</p>
+              <div class="mt-4">
+                <span class="btn btn-sm btn-success rounded-pill px-3">Join as Student</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- Teacher Portal Card -->
+        <div class="col-md-6">
+          <a href="{% url 'teacher_signup' %}" class="card h-100 border-0 shadow-sm text-decoration-none role-card-akkhor" 
+             style="transition: all 0.3s ease; border-radius: 12px; overflow: hidden; background: #f8fafc;">
+            <div class="p-4 text-center">
+              <div class="mb-3 d-inline-flex align-items-center justify-content-center" 
+                   style="width: 70px; height: 70px; background: rgba(41, 128, 185, 0.1); color: var(--primary); border-radius: 50%;">
+                <i class="fas fa-chalkboard-teacher" style="font-size: 2.2rem;"></i>
+              </div>
+              <h5 class="fw-bold text-dark mb-2">Teacher Portal</h5>
+              <p class="small text-muted mb-0">Manage classes, grade assignments, and track at-risk students.</p>
+              <div class="mt-4">
+                <span class="btn btn-sm btn-primary rounded-pill px-3">Join as Teacher</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-5 pt-3 border-top text-center">
+        <p class="text-muted small">
+          Already have an account? 
+          <a href="{% url 'account_login' %}" class="fw-bold text-primary text-decoration-none">Login here</a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .role-card-akkhor:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.12) !important;
+    background: #fff !important;
+  }
+  .role-card-akkhor:hover h5 { color: var(--primary) !important; }
+</style>
+{% endblock noauth_content %}

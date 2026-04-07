@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}Manage Grades{% endblock %}
+{% block content %}
+<div class="container-fluid pb-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 style="font-weight:800; margin:0; color:var(--text-dark);">Manage Grades</h2>
+      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">Assign grades to students by class and subject</p>
+    </div>
+    <a href="{% url 'grade_report' %}" class="btn btn-outline-akkhor">
+      <i class="fas fa-chart-bar me-1"></i> View Report
+    </a>
+  </div>
+
+  {% if messages %}
+    {% for m in messages %}
+      <div class="alert-akkhor alert-{{ m.tags }} fade-in mb-3"><i class="fas fa-circle-check"></i> {{ m }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Filter -->
+  <div class="reg-card mb-4" style="border-top: 4px solid var(--primary);">
+    <div class="reg-card-body">
+      <h5 style="font-weight:700; color:var(--primary); margin-bottom:1.25rem;"><i class="fas fa-filter me-2"></i>Select Class & Subject</h5>
+      <form method="get">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <div class="field-group">
+              <label>Class</label>
+              <select name="class_id" class="form-control form-select" required>
+                <option value="">-- Select Class --</option>
+                {% for cls in teacher_classes %}
+                  <option value="{{ cls.id }}" {% if selected_class.id == cls.id %}selected{% endif %}>{{ cls }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="field-group">
+              <label>Subject</label>
+              <select name="subject_id" class="form-control form-select" required>
+                <option value="">-- Select Subject --</option>
+                {% for subj in teacher_subjects %}
+                  <option value="{{ subj.id }}" {% if selected_subject.id == subj.id %}selected{% endif %}>{{ subj.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <button type="submit" class="btn btn-primary-akkhor w-100" style="padding:0.6rem 1rem;">
+              <i class="fas fa-search me-1"></i> Load Students
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Grade Entry Table -->
+  {% if students %}
+  <div class="reg-card">
+    <div class="reg-card-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-3">
+        <div class="card-icon-wrap" style="background:#eff3ff;">
+          <i class="fas fa-check-double" style="color:var(--primary);"></i>
+        </div>
+        <div>
+          <h5 style="margin:0; font-weight:700;">{{ selected_class }} — {{ selected_subject.name }}</h5>
+          <p style="margin:0; font-size:0.75rem; color:var(--text-muted);">Enter grades for each student</p>
+        </div>
+      </div>
+      <span class="badge badge-akkhor badge-primary">{{ students|length }} Students</span>
+    </div>
+
+    <div class="reg-card-body">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="class_id" value="{{ selected_class.id }}">
+        <input type="hidden" name="subject_id" value="{{ selected_subject.id }}">
+
+        <div class="row g-3 mb-4" style="background:var(--body-bg); padding:1.25rem; border-radius:10px; border:1px solid var(--border-color);">
+          <div class="col-md-4">
+            <div class="field-group">
+              <label>Exam Type <span class="text-danger">*</span></label>
+              <select name="exam_type" class="form-control form-select" required>
+                {% for key, label in exam_types %}
+                <option value="{{ key }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="field-group">
+              <label>Maximum Score</label>
+              <input type="number" name="max_score" class="form-control" value="100" min="1" step="0.01">
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive mb-4">
+          <table class="table-akkhor">
+            <thead>
+              <tr>
+                <th style="width:50px;">#</th>
+                <th>Student</th>
+                <th style="width:160px;">Score</th>
+                <th>Previous Grades</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for student in students %}
+              <tr>
+                <td style="color:var(--text-muted); font-size:0.8rem;">{{ forloop.counter }}</td>
+                <td>
+                  <div style="font-weight:600; color:var(--text-dark);">{{ student.user.get_full_name|default:student.user.username }}</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">{{ student.student_id }}</div>
+                </td>
+                <td>
+                  <input type="number" name="score_{{ student.id }}" class="form-control form-control-sm"
+                    placeholder="Score" min="0" step="0.01"
+                    style="width:130px; font-weight:600;">
+                </td>
+                <td>
+                  {% if student.existing_grades %}
+                    <div class="d-flex flex-wrap gap-1">
+                    {% for exam_type, result in student.existing_grades.items %}
+                      <span class="badge" style="background:var(--primary-light); color:var(--primary); font-size:0.75rem; font-weight:600;">
+                        {{ exam_type }}: {{ result.score }}/{{ result.max_score }}
+                      </span>
+                    {% endfor %}
+                    </div>
+                  {% else %}
+                    <span style="color:var(--text-muted); font-size:0.8rem; font-style:italic;">No grades yet</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-end border-top pt-3">
+          <button type="submit" name="save_grades" class="btn btn-primary-akkhor px-5">
+            <i class="fas fa-save me-1"></i> Save All Grades
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% elif selected_class %}
+    <div class="reg-card">
+      <div class="reg-card-body text-center py-5">
+        <div class="avatar-ring mb-3" style="width:80px; height:80px; font-size:2rem; background:#f3f6fb; color:var(--text-muted); margin:0 auto; display:flex; align-items:center; justify-content:center; border-radius:50%;">
+          <i class="fas fa-user-graduate"></i>
+        </div>
+        <h5 style="color:var(--text-dark); font-weight:700;">No Students Found</h5>
+        <p style="color:var(--text-muted);">There are no students enrolled in {{ selected_class }}.</p>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

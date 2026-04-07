@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Grade Report{% endblock %}
+{% block content %}
+<div class="container-fluid pb-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 style="font-weight:800; margin:0; color:var(--text-dark);">Grade Report</h2>
+      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">View student performance by class and subject</p>
+    </div>
+    <a href="{% url 'manage_grades' %}" class="btn btn-outline-akkhor">
+      <i class="fas fa-edit me-1"></i> Manage Grades
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="reg-card mb-4" style="border-top: 4px solid var(--primary);">
+    <div class="reg-card-body">
+      <h5 style="font-weight:700; color:var(--primary); margin-bottom:1.25rem;"><i class="fas fa-filter me-2"></i>Filter Grades</h5>
+      <form method="get">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <div class="field-group">
+              <label>Class</label>
+              <select name="class_id" class="form-control form-select">
+                <option value="">-- All Classes --</option>
+                {% for cls in teacher_classes %}
+                  <option value="{{ cls.id }}" {% if selected_class.id == cls.id %}selected{% endif %}>{{ cls }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="field-group">
+              <label>Subject (Optional)</label>
+              <select name="subject_id" class="form-control form-select">
+                <option value="">-- All Subjects --</option>
+                {% for subj in teacher_subjects %}
+                  <option value="{{ subj.id }}" {% if selected_subject.id == subj.id %}selected{% endif %}>{{ subj.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <button type="submit" class="btn btn-primary-akkhor w-100" style="padding:0.6rem 1rem;">
+              <i class="fas fa-search me-1"></i> Load Report
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if grade_data %}
+  <div class="reg-card">
+    <div class="reg-card-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-3">
+        <div class="card-icon-wrap" style="background:#eff3ff;">
+          <i class="fas fa-poll" style="color:var(--primary);"></i>
+        </div>
+        <div>
+          <h5 style="margin:0; font-weight:700;">{{ selected_class }} {% if selected_subject %}— {{ selected_subject.name }}{% endif %}</h5>
+        </div>
+      </div>
+      <span class="badge badge-akkhor badge-primary">{{ grade_data|length }} Students</span>
+    </div>
+    <div class="reg-card-body">
+      <div class="table-responsive border rounded-3 overflow-hidden">
+        <table class="table-akkhor m-0">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Exams</th>
+              <th>Average</th>
+              <th>Grade</th>
+              <th>Report Card</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in grade_data %}
+            <tr>
+              <td>
+                <div style="font-weight:600; color:var(--text-dark);">{{ row.student.user.get_full_name }}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">{{ row.student.student_id }}</div>
+              </td>
+              <td style="font-weight:600;">{{ row.results|length }}</td>
+              <td>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <div style="flex:1; background:#e9ecef; border-radius:4px; height:8px; max-width:120px;">
+                    <div style="width:{{ row.average }}%; background:{% if row.average >= 70 %}var(--stat-green){% elif row.average >= 50 %}var(--stat-orange){% else %}var(--stat-red){% endif %}; height:8px; border-radius:4px;"></div>
+                  </div>
+                  <span style="font-weight:700; font-size:0.9rem; color:var(--text-dark);">{{ row.average }}%</span>
+                </div>
+              </td>
+              <td>
+                <span class="badge" style="font-size:0.9rem; font-weight:700; background:{% if row.grade_letter == 'A' %}#dcfce7{% elif row.grade_letter == 'B' %}#dbeafe{% elif row.grade_letter == 'C' %}#fef9c3{% elif row.grade_letter == 'D' %}#ffedd5{% else %}#fee2e2{% endif %}; color:{% if row.grade_letter == 'A' %}#166534{% elif row.grade_letter == 'B' %}#1e40af{% elif row.grade_letter == 'C' %}#854d0e{% elif row.grade_letter == 'D' %}#9a3412{% else %}#991b1b{% endif %}; padding:0.4rem 0.75rem; border-radius:6px;">
+                  {{ row.grade_letter }}
+                </span>
+              </td>
+              <td>
+                <a href="{% url 'student_report_card' row.student.id %}" class="btn btn-sm btn-outline-akkhor" target="_blank">
+                  <i class="fas fa-file-alt me-1"></i> Report Card
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% elif selected_class %}
+    <div class="reg-card">
+      <div class="reg-card-body text-center py-5">
+        <div class="avatar-ring mb-3" style="width:80px; height:80px; font-size:2rem; background:#f3f6fb; color:var(--text-muted); margin:0 auto; display:flex; align-items:center; justify-content:center; border-radius:50%;">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <h5 style="color:var(--text-dark); font-weight:700;">No Grade Records</h5>
+        <p style="color:var(--text-muted);">No grade records found for the selected filters.</p>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

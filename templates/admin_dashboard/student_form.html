@@ -1,0 +1,581 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Register New{% endif %} Student — EduSystem{% endblock %}
+
+{% block content %}
+<style>
+/* ── Page Layout ───────────────────────────────────── */
+.reg-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+/* ── Sticky Sidebar Navigator ───────────────────────── */
+.reg-sidebar {
+  position: sticky;
+  top: 80px;
+}
+.reg-sidebar-header {
+  background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+  color: #fff;
+  border-radius: 14px 14px 0 0;
+  padding: 1.5rem;
+  text-align: center;
+}
+.reg-sidebar-header .avatar-ring {
+  width: 64px; height: 64px;
+  background: rgba(255,255,255,0.15);
+  border: 3px solid rgba(255,255,255,0.4);
+  border-radius: 50%;
+  margin: 0 auto 0.75rem;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+}
+.reg-sidebar-header h5 { font-weight: 700; font-size: 0.95rem; margin:0; }
+.reg-sidebar-header p  { font-size: 0.75rem; opacity: 0.8; margin: 0.2rem 0 0; }
+
+.reg-steps {
+  background: #fff;
+  border: 1px solid #e4eaf0;
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  padding: 1rem 0;
+  overflow: hidden;
+}
+.reg-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  border-left: 3px solid transparent;
+}
+.reg-step:hover { background: #f3f6fb; color: var(--primary); }
+.reg-step.active {
+  background: #eff3ff;
+  color: var(--primary);
+  border-left-color: var(--primary);
+  font-weight: 600;
+}
+.reg-step .step-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: #e9ecef;
+  color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+.reg-step.active .step-num {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ── Section cards ──────────────────────────────────── */
+.reg-section {
+  scroll-margin-top: 80px;
+}
+.reg-card {
+  background: #fff;
+  border: 1px solid #e4eaf0;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  transition: box-shadow 0.2s;
+}
+.reg-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+.reg-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f0f3f8;
+}
+.reg-card-header .card-icon-wrap {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.reg-card-header h5 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+.reg-card-header p {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+.reg-card-body { padding: 1.5rem; }
+
+/* ── Field styles ────────────────────────────────────── */
+.field-group { margin-bottom: 0; }
+.field-group label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.35rem;
+  display: block;
+}
+.field-group .form-control {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  padding: 0.55rem 0.85rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #fafbff;
+}
+.field-group .form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  background: #fff;
+}
+.field-group .form-select {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  padding: 0.55rem 0.85rem;
+}
+.field-hint {
+  font-size: 0.71rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+.field-error { font-size: 0.72rem; color: #e74c3c; margin-top: 0.25rem; }
+
+/* ── ID Generator ────────────────────────────────────── */
+.id-gen-wrap {
+  display: flex;
+  gap: 0;
+}
+.id-gen-wrap .form-control { border-radius: 8px 0 0 8px !important; }
+.id-gen-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0 1rem;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 0.4rem;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.id-gen-btn:hover { background: #4f46e5; }
+
+/* ── Emergency banner ────────────────────────────────── */
+.emergency-banner {
+  background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+  border: 1.5px solid #fecaca;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.8rem;
+  color: #7f1d1d;
+}
+.emergency-banner i { flex-shrink: 0; font-size: 1rem; margin-top: 0.1rem; }
+
+/* ── Submit bar ──────────────────────────────────────── */
+.reg-submit-bar {
+  background: #fff;
+  border: 1px solid #e4eaf0;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.reg-submit-bar .note { font-size: 0.78rem; color: var(--text-muted); }
+
+/* ── Error alert ─────────────────────────────────────── */
+.reg-error-alert {
+  background: #fff5f5;
+  border: 1.5px solid #fca5a5;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.reg-error-alert ul { margin: 0.5rem 0 0 1.25rem; padding: 0; font-size: 0.8rem; }
+
+@media (max-width: 900px) {
+  .reg-layout { grid-template-columns: 1fr; }
+  .reg-sidebar { position: static; }
+}
+</style>
+
+<div class="container-fluid pb-5">
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 style="font-weight:800; margin:0; color:var(--text-dark);">
+        {% if form.instance.pk %}Edit Student Profile{% else %}Register New Student{% endif %}
+      </h2>
+      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">
+        {% if form.instance.pk %}Update the student's information and save changes{% else %}Fill in all sections to create a complete student profile{% endif %}
+      </p>
+    </div>
+    <a href="{% url 'student_list' %}" class="btn btn-outline-akkhor">
+      <i class="fas fa-arrow-left me-1"></i> Back to Students
+    </a>
+  </div>
+
+  <!-- Error Summary -->
+  {% if form.errors %}
+  <div class="reg-error-alert fade-in">
+    <i class="fas fa-circle-exclamation" style="color:#e74c3c; font-size:1.1rem; margin-top:0.1rem;"></i>
+    <div>
+      <strong style="font-size:0.85rem; color:#991b1b;">Please fix the following errors before saving:</strong>
+      <ul>
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}<li>{{ field|capfirst }}: {{ error }}</li>{% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+
+  <form method="post" class="reg-layout" id="reg-form">
+    {% csrf_token %}
+
+    <!-- ══════ LEFT SIDEBAR ══════ -->
+    <div class="reg-sidebar">
+      <div class="reg-sidebar-header">
+        <div class="avatar-ring">
+          <i class="fas fa-user-graduate"></i>
+        </div>
+        <h5>Student Profile</h5>
+        <p>Complete all sections below</p>
+      </div>
+      <nav class="reg-steps">
+        <a class="reg-step active" href="#sec-account" onclick="setActive(this)">
+          <span class="step-num">1</span>
+          <div>
+            <div>Account &amp; Login</div>
+            <div style="font-size:0.68rem; opacity:0.7;">ID, name, password</div>
+          </div>
+        </a>
+        <a class="reg-step" href="#sec-personal" onclick="setActive(this)">
+          <span class="step-num">2</span>
+          <div>
+            <div>Personal Info</div>
+            <div style="font-size:0.68rem; opacity:0.7;">Age, gender, hobbies</div>
+          </div>
+        </a>
+        <a class="reg-step" href="#sec-parent" onclick="setActive(this)">
+          <span class="step-num">3</span>
+          <div>
+            <div>Parent &amp; Guardian</div>
+            <div style="font-size:0.68rem; opacity:0.7;">Contact details</div>
+          </div>
+        </a>
+        <a class="reg-step" href="#sec-emergency" onclick="setActive(this)">
+          <span class="step-num">4</span>
+          <div>
+            <div>Emergency Contact</div>
+            <div style="font-size:0.68rem; opacity:0.7;">SMS notifications</div>
+          </div>
+        </a>
+
+        <div style="border-top:1px solid #f0f3f8; margin:0.75rem 0;"></div>
+        <!-- Submit inside sidebar too -->
+        <div style="padding:0 1rem;">
+          <button type="submit" form="reg-form"
+            style="width:100%; background:var(--primary); color:#fff; border:none; border-radius:8px; padding:0.65rem; font-size:0.85rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem;">
+            <i class="fas fa-save"></i>
+            {% if form.instance.pk %}Update Student{% else %}Register Student{% endif %}
+          </button>
+          <a href="{% url 'student_list' %}" style="display:block; text-align:center; margin-top:0.5rem; font-size:0.78rem; color:var(--text-muted);">Cancel</a>
+        </div>
+      </nav>
+    </div>
+
+    <!-- ══════ RIGHT CONTENT ══════ -->
+    <div>
+
+      <!-- ─── SECTION 1: Account & Login ─────────────────── -->
+      <div id="sec-account" class="reg-section reg-card">
+        <div class="reg-card-header">
+          <div class="card-icon-wrap" style="background:#eff3ff;">
+            <i class="fas fa-key" style="color:var(--primary);"></i>
+          </div>
+          <div>
+            <h5>Account &amp; Login Credentials</h5>
+            <p>These details will be used to log into the system</p>
+          </div>
+        </div>
+        <div class="reg-card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>First Name <span class="text-danger">*</span></label>
+                {% render_field form.first_name class="form-control" placeholder="Enter first name" %}
+                {% if form.first_name.errors %}<div class="field-error">{{ form.first_name.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Last Name <span class="text-danger">*</span></label>
+                {% render_field form.last_name class="form-control" placeholder="Enter last name" %}
+                {% if form.last_name.errors %}<div class="field-error">{{ form.last_name.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Password {% if not form.instance.pk %}<span class="text-danger">*</span>{% endif %}</label>
+                {% if form.instance.pk %}
+                  {% render_field form.password class="form-control" placeholder="Leave blank to keep current" %}
+                  <div class="field-hint"><i class="fas fa-lock"></i> Leave empty to keep existing password</div>
+                {% else %}
+                  {% render_field form.password class="form-control" placeholder="Set a secure password" %}
+                {% endif %}
+                {% if form.password.errors %}<div class="field-error">{{ form.password.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="field-group">
+                <label>Student ID <span class="text-danger">*</span></label>
+                <div class="id-gen-wrap">
+                  {% render_field form.student_id class="form-control" id="id_student_id" placeholder="e.g. STU12345" %}
+                  {% if not form.instance.pk %}
+                  <button class="id-gen-btn" type="button" onclick="generateStudentId()">
+                    <i class="fas fa-wand-magic-sparkles"></i> Generate
+                  </button>
+                  {% endif %}
+                </div>
+                <div class="field-hint"><i class="fas fa-fingerprint"></i> This unique ID is used as the student's login username</div>
+                {% if form.student_id.errors %}<div class="field-error">{{ form.student_id.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Class Enrolled</label>
+                {% render_field form.class_enrolled class="form-control" %}
+                {% if form.class_enrolled.errors %}<div class="field-error">{{ form.class_enrolled.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Admission Date <span class="text-danger">*</span></label>
+                {% render_field form.enrollment_date class="form-control" type="date" %}
+                <div class="field-hint"><i class="fas fa-calendar-alt"></i> Date the student was admitted to the school</div>
+                {% if form.enrollment_date.errors %}<div class="field-error">{{ form.enrollment_date.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SECTION 2: Personal Info ────────────────────── -->
+      <div id="sec-personal" class="reg-section reg-card">
+        <div class="reg-card-header">
+          <div class="card-icon-wrap" style="background:#f0fdf4;">
+            <i class="fas fa-id-card" style="color:#16a34a;"></i>
+          </div>
+          <div>
+            <h5>Personal Information</h5>
+            <p>Student's demographic and personal details</p>
+          </div>
+        </div>
+        <div class="reg-card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="field-group">
+                <label>Age</label>
+                {% render_field form.age class="form-control" placeholder="e.g. 14" type="number" min="3" max="25" %}
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="field-group">
+                <label>Gender</label>
+                {% render_field form.gender class="form-control form-select" %}
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="field-group">
+                <label>Status</label>
+                {% render_field form.status class="form-control form-select" %}
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="field-group">
+                <label>Hobbies &amp; Interests</label>
+                {% render_field form.hobbies class="form-control" rows="2" placeholder="e.g. Football, Reading, Drawing, Music..." %}
+                <div class="field-hint">Separate hobbies with commas</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SECTION 3: Parent / Guardian ────────────────── -->
+      <div id="sec-parent" class="reg-section reg-card">
+        <div class="reg-card-header">
+          <div class="card-icon-wrap" style="background:#fff7ed;">
+            <i class="fas fa-users" style="color:#ea580c;"></i>
+          </div>
+          <div>
+            <h5>Parent / Guardian Information</h5>
+            <p>Primary contact responsible for the student</p>
+          </div>
+        </div>
+        <div class="reg-card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="field-group">
+                <label>Parent / Guardian Full Name</label>
+                {% render_field form.parent_name class="form-control" placeholder="e.g. John Mensah" %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="field-group">
+                <label>Relationship to Student</label>
+                {% render_field form.parent_relationship class="form-control" placeholder="e.g. Father, Mother, Guardian" %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="field-group">
+                <label>Parent Phone Number</label>
+                <div style="display:flex; border:1.5px solid #e2e8f0; border-radius:8px; overflow:hidden; background:#fafbff;">
+                  <span style="background:#f8fafc; border-right:1.5px solid #e2e8f0; padding:0.55rem 0.75rem; display:flex; align-items:center;">
+                    <i class="fas fa-phone" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                  </span>
+                  {% render_field form.parent_phone class="form-control" placeholder="+233 000 000 000" style="border:none; background:transparent; box-shadow:none;" %}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="field-group">
+                <label>Parent Email <span style="color:var(--text-muted); font-weight:400; font-size:0.7rem;">(Optional)</span></label>
+                <div style="display:flex; border:1.5px solid #e2e8f0; border-radius:8px; overflow:hidden; background:#fafbff;">
+                  <span style="background:#f8fafc; border-right:1.5px solid #e2e8f0; padding:0.55rem 0.75rem; display:flex; align-items:center;">
+                    <i class="fas fa-envelope" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                  </span>
+                  {% render_field form.parent_email class="form-control" placeholder="parent@email.com" style="border:none; background:transparent; box-shadow:none;" %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SECTION 4: Emergency Contact ─────────────────── -->
+      <div id="sec-emergency" class="reg-section reg-card">
+        <div class="reg-card-header">
+          <div class="card-icon-wrap" style="background:#fff5f5;">
+            <i class="fas fa-phone-alt" style="color:#e74c3c;"></i>
+          </div>
+          <div>
+            <h5>Emergency Contact</h5>
+            <p>This person receives SMS alerts when attendance is marked</p>
+          </div>
+        </div>
+        <div class="reg-card-body">
+
+          <!-- SMS notice banner -->
+          <div class="emergency-banner">
+            <i class="fas fa-sms"></i>
+            <div>
+              <strong>📱 SMS Attendance Notification</strong> — When a teacher marks this student as <strong>Present</strong>,
+              an automatic SMS will be sent to this contact's phone number to notify them that the student is in school.
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Emergency Contact Name</label>
+                {% render_field form.emergency_contact_name class="form-control" placeholder="Full name" %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Emergency Phone <span class="text-danger">*</span></label>
+                <div style="display:flex; border:1.5px solid #fca5a5; border-radius:8px; overflow:hidden; background:#fff5f5;">
+                  <span style="background:#fee2e2; border-right:1.5px solid #fca5a5; padding:0.55rem 0.75rem; display:flex; align-items:center;">
+                    <i class="fas fa-phone-alt" style="color:#e74c3c; font-size:0.8rem;"></i>
+                  </span>
+                  {% render_field form.emergency_contact_phone class="form-control" placeholder="+233 000 000 000" style="border:none; background:transparent; box-shadow:none;" %}
+                </div>
+                <div class="field-hint" style="color:#e74c3c;"><i class="fas fa-bell"></i> SMS notifications go to this number</div>
+                {% if form.emergency_contact_phone.errors %}<div class="field-error">{{ form.emergency_contact_phone.errors|join:", " }}</div>{% endif %}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="field-group">
+                <label>Relationship to Student</label>
+                {% render_field form.emergency_contact_relationship class="form-control" placeholder="e.g. Uncle, Aunt, Sibling" %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Submit Bar ─────────────────────────────────────── -->
+      <div class="reg-submit-bar">
+        <div class="note">
+          <i class="fas fa-shield-check" style="color:var(--primary);"></i>
+          All data is securely stored and only accessible by authorised school staff.
+        </div>
+        <div style="display:flex; gap:0.75rem;">
+          <a href="{% url 'student_list' %}" class="btn btn-outline-akkhor">Cancel</a>
+          <button type="submit" class="btn btn-primary-akkhor px-5">
+            <i class="fas fa-save me-1"></i>
+            {% if form.instance.pk %}Update Student{% else %}Register Student{% endif %}
+          </button>
+        </div>
+      </div>
+
+    </div><!-- end right content -->
+  </form>
+</div>
+
+<script>
+function generateStudentId() {
+  const prefix = 'STU';
+  const num = Math.floor(10000 + Math.random() * 90000);
+  document.getElementById('id_student_id').value = prefix + num;
+}
+
+function setActive(el) {
+  document.querySelectorAll('.reg-step').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Highlight active step on scroll
+const sections = document.querySelectorAll('.reg-section');
+const steps    = document.querySelectorAll('.reg-step');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(sec => {
+    if (window.scrollY + 120 >= sec.offsetTop) current = sec.id;
+  });
+  steps.forEach(step => {
+    const href = step.getAttribute('href').replace('#', '');
+    step.classList.toggle('active', href === current);
+  });
+});
+</script>
+{% endblock %}

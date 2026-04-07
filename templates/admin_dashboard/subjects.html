@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Subjects{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 style="font-weight:800; margin:0; color:var(--text-dark);">Manage Subjects</h2>
+            <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">View and manage all subjects in the system.</p>
+        </div>
+        <a href="{% url 'subject_create' %}" class="btn btn-primary-akkhor">
+            <i class="fas fa-plus me-1"></i> Add New Subject
+        </a>
+    </div>
+
+    <div class="reg-card">
+        <div class="reg-card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <div class="card-icon-wrap" style="background:#fef3d7;">
+                    <i class="fas fa-book" style="color:#b7770d;"></i>
+                </div>
+                <div>
+                    <h5 style="margin:0; font-weight:700; font-size:0.95rem;">Subject List</h5>
+                </div>
+            </div>
+        </div>
+        <div class="reg-card-body p-0">
+            <div class="table-responsive">
+                <table class="table-akkhor">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th class="text-end" style="padding-right:1.5rem;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subject in subjects %}
+                        <tr>
+                            <td><span style="font-family:monospace; background:#e9ecef; padding:0.2rem 0.5rem; border-radius:4px; font-size:0.8rem; color:var(--text-dark);">{{ subject.code }}</span></td>
+                            <td>
+                                <div style="font-weight:600; color:var(--text-dark);">{{ subject.name }}</div>
+                            </td>
+                            <td><span style="font-size:0.8rem; color:var(--text-medium);">{{ subject.description|truncatechars:50|default:"<i class='text-muted'>No description</i>" }}</span></td>
+                            <td class="text-end" style="padding-right:1.5rem;">
+                                <a href="{% url 'subject_update' subject.pk %}" class="card-action-btn d-inline-flex border-0 bg-light text-muted me-1" style="width:28px; height:28px; font-size:0.8rem;">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'subject_delete' subject.pk %}" class="card-action-btn d-inline-flex border-0 bg-light text-danger" style="width:28px; height:28px; font-size:0.8rem;">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <i class="fas fa-book fa-3x text-muted mb-3" style="opacity:0.4;"></i>
+                                <p class="text-muted mb-0">No subjects found.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination Controls -->
+            {% if page_obj.has_other_pages %}
+            <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
+                <span class="text-muted-sm">Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                <div class="d-flex gap-2">
+                    {% if page_obj.has_previous %}
+                    <a href="?page=1" class="btn btn-sm btn-outline-akkhor">&laquo; First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-outline-akkhor">Previous</a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-outline-akkhor">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm btn-outline-akkhor">Last &raquo;</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

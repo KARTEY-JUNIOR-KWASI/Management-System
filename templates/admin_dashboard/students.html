@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Students{% endblock %}
+
+{% block content %}
+<div class="row layout-spacing">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 style="font-weight: 800; margin: 0; color: var(--text-dark);">🧑‍🎓 Manage Students</h2>
+                <p style="color: var(--text-muted); margin: 0; font-size: 0.85rem;">Total {{ total_students }} student{{ total_students|pluralize }} registered.</p>
+            </div>
+            <a href="{% url 'student_create' %}" class="btn btn-primary-akkhor px-4">
+                <i class="fas fa-plus me-1"></i> Add Student
+            </a>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="card card-akkhor mb-4" style="border-radius: 12px;">
+            <div class="card-body py-3">
+                <form method="get" class="d-flex gap-3 flex-wrap align-items-end">
+                    <div style="flex:1; min-width: 250px;">
+                        <label style="font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem; display: block; color: var(--text-muted);">Search</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="background: transparent; border-right: none; color: var(--text-muted);">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" name="q" class="form-control" placeholder="Search by name or ID..." value="{{ q }}" style="border-left: none; box-shadow: none;">
+                        </div>
+                    </div>
+                    <div style="min-width: 200px;">
+                        <label style="font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem; display: block; color: var(--text-muted);">Filter by Class</label>
+                        <select name="class" class="form-control">
+                            <option value="">All Classes</option>
+                            {% for c in classes %}
+                                <option value="{{ c.id }}" {% if selected_class == c.id|stringformat:"s" %}selected{% endif %}>{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary-akkhor" style="height: 40px; padding: 0 1.5rem;">Filter</button>
+                    {% if q or selected_class %}
+                        <a href="{% url 'student_list' %}" class="btn btn-outline-akkhor" style="height: 40px; padding: 0 1.5rem;">Clear</a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <div class="card card-akkhor">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover akkhor-table">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Class</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td style="font-weight: 600; color: var(--primary);">{{ student.student_id }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div style="width:32px; height:32px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:0.8rem; font-weight:bold;">
+                                            {{ student.user.first_name|first }}{{ student.user.last_name|first }}
+                                        </div>
+                                        <a href="{% url 'student_detail' student.pk %}" style="text-decoration:none; color:var(--text-dark); font-weight:600;">
+                                            {{ student.user.get_full_name }}
+                                        </a>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-light text-dark" style="font-weight:600;">{{ student.class_enrolled|default:"Not Assigned" }}</span></td>
+                                <td>
+                                    <a href="{% url 'student_detail' student.pk %}" class="btn btn-sm btn-outline-akkhor me-1">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="{% url 'student_update' student.pk %}" class="btn btn-sm btn-outline-akkhor me-1" style="color:#d97706; border-color:#d97706;">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <i class="fas fa-users mb-2" style="font-size:2rem; color:#cbd5e1;"></i>
+                                    <h6 class="text-muted">No students found.</h6>
+                                    {% if q or selected_class %}
+                                        <p style="font-size: 0.85rem; color: var(--text-muted);">Try adjusting your filters.</p>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Controls -->
+                {% if page_obj.has_other_pages %}
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #f1f5f9;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    
+                    {% with query_string="&q="|add:q|add:"&class="|add:selected_class %}
+                    <div style="display: flex; gap: 0.35rem;">
+                        {% if page_obj.has_previous %}
+                        <a href="?page=1{{ query_string }}" class="btn btn-sm btn-outline-akkhor px-3">&laquo; First</a>
+                        <a href="?page={{ page_obj.previous_page_number }}{{ query_string }}" class="btn btn-sm btn-outline-akkhor px-3">Prev</a>
+                        {% endif %}
+                        
+                        <span class="btn btn-sm btn-primary-akkhor px-3" style="cursor:default;">{{ page_obj.number }}</span>
+                        
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{{ query_string }}" class="btn btn-sm btn-outline-akkhor px-3">Next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}{{ query_string }}" class="btn btn-sm btn-outline-akkhor px-3">Last &raquo;</a>
+                        {% endif %}
+                    </div>
+                    {% endwith %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

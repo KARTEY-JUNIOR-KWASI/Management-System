@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Edit Resource — {{ resource.title }}{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 style="font-weight:800; margin:0;">Edit Resource</h2>
+      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">{{ resource.title }}</p>
+    </div>
+    <a href="{% url 'teacher_library' %}" class="btn btn-outline-akkhor">
+      <i class="fas fa-arrow-left me-1"></i> Back to Library
+    </a>
+  </div>
+
+  {% if messages %}
+    {% for m in messages %}
+      <div class="alert-akkhor alert-{{ m.tags }} fade-in mb-3"><i class="fas fa-circle-check"></i> {{ m }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <div style="display:grid; grid-template-columns:1fr 300px; gap:1.5rem; align-items:start;">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="card card-akkhor mb-4" style="border-radius:14px;">
+        <div class="card-body">
+          <h5 style="font-weight:700; font-size:0.9rem; margin-bottom:1.25rem; padding-bottom:0.5rem; border-bottom:1px solid #f0f3f8;">
+            <i class="fas fa-info-circle me-2 text-primary"></i>Resource Details
+          </h5>
+          <div class="mb-3">
+            <label class="form-label" style="font-size:0.78rem; font-weight:600;">Title <span class="text-danger">*</span></label>
+            <input type="text" name="title" class="form-control" value="{{ resource.title }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" style="font-size:0.78rem; font-weight:600;">Description</label>
+            <textarea name="description" class="form-control" rows="3">{{ resource.description }}</textarea>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Resource Type</label>
+              <select name="resource_type" class="form-control">
+                {% for key, label in resource_types %}
+                  <option value="{{ key }}" {% if resource.resource_type == key %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Subject</label>
+              <select name="subject_id" class="form-control">
+                <option value="">-- All Subjects --</option>
+                {% for s in subjects %}<option value="{{ s.id }}" {% if resource.subject_id == s.id %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Target Class</label>
+              <select name="class_id" class="form-control">
+                <option value="">-- All Classes --</option>
+                {% for cls in classes %}<option value="{{ cls.id }}" {% if resource.target_class_id == cls.id %}selected{% endif %}>{{ cls }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Visibility</label>
+              <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:8px; padding:0.65rem 1rem; display:flex; align-items:center; gap:0.75rem; margin-top:0.1rem;">
+                <input type="checkbox" name="is_published" id="is_published" {% if resource.is_published %}checked{% endif %} style="width:16px;height:16px;cursor:pointer;">
+                <label for="is_published" style="cursor:pointer; font-size:0.85rem; margin:0;">Published (visible to students)</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-akkhor mb-4" style="border-radius:14px;">
+        <div class="card-body">
+          <h5 style="font-weight:700; font-size:0.9rem; margin-bottom:1.25rem; padding-bottom:0.5rem; border-bottom:1px solid #f0f3f8;">
+            <i class="fas fa-paperclip me-2 text-primary"></i>Update File or Link
+          </h5>
+
+          {% if resource.file %}
+          <div style="background:#f0fdf4; border:1.5px solid #bbf7d0; border-radius:10px; padding:1rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.75rem;">
+            <i class="fas fa-check-circle" style="color:#16a34a; font-size:1.2rem;"></i>
+            <div>
+              <div style="font-size:0.8rem; font-weight:600; color:#15803d;">Current File</div>
+              <div style="font-size:0.75rem; color:#166534;">{{ resource.file.name }}</div>
+            </div>
+            <a href="{{ resource.file.url }}" target="_blank" class="btn btn-sm btn-outline-akkhor ms-auto" style="font-size:0.72rem;">Preview</a>
+          </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size:0.78rem; font-weight:600;">Replace File (optional)</label>
+            <input type="file" name="file" class="form-control">
+          </div>
+          <div>
+            <label class="form-label" style="font-size:0.78rem; font-weight:600;">External URL</label>
+            <div style="display:flex; border:1.5px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+              <span style="background:#f8fafc; border-right:1.5px solid #e2e8f0; padding:0.55rem 0.75rem; display:flex; align-items:center;">
+                <i class="fas fa-link" style="color:var(--text-muted);"></i>
+              </span>
+              <input type="url" name="external_url" class="form-control" value="{{ resource.external_url }}" placeholder="https://..." style="border:none; box-shadow:none;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-3">
+        <button type="submit" class="btn btn-primary-akkhor px-5">
+          <i class="fas fa-save me-1"></i> Save Changes
+        </button>
+        <a href="{% url 'teacher_library' %}" class="btn btn-outline-akkhor">Cancel</a>
+      </div>
+    </form>
+
+    <!-- Info card -->
+    <div class="card card-akkhor" style="border-radius:14px; border-left:4px solid var(--stat-orange);">
+      <div class="card-body">
+        <h6 style="font-weight:700; margin-bottom:1rem; color:var(--stat-orange);">
+          <i class="fas fa-info-circle me-1"></i> Resource Stats
+        </h6>
+        <div style="font-size:0.82rem; line-height:2;">
+          <div><strong>Views:</strong> {{ resource.view_count }}</div>
+          <div><strong>Created:</strong> {{ resource.created_at|date:"d M Y" }}</div>
+          <div><strong>Last Updated:</strong> {{ resource.updated_at|date:"d M Y" }}</div>
+          <div><strong>Status:</strong>
+            {% if resource.is_published %}
+              <span style="color:#16a34a; font-weight:600;">Published</span>
+            {% else %}
+              <span style="color:#dc2626; font-weight:600;">Draft</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

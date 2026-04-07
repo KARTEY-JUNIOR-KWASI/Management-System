@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}Upload Resource{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 style="font-weight:800; margin:0;">Upload Resource</h2>
+      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">Share learning material with your students</p>
+    </div>
+    <a href="{% url 'teacher_library' %}" class="btn btn-outline-akkhor">
+      <i class="fas fa-arrow-left me-1"></i> Back to Library
+    </a>
+  </div>
+
+  {% if messages %}
+    {% for m in messages %}
+      <div class="alert-akkhor alert-{{ m.tags }} fade-in mb-3"><i class="fas fa-exclamation-circle"></i> {{ m }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <div style="display:grid; grid-template-columns:1fr 340px; gap:1.5rem; align-items:start;">
+
+    <!-- Form -->
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Basic Info -->
+      <div class="card card-akkhor mb-4" style="border-radius:14px;">
+        <div class="card-body">
+          <h5 style="font-weight:700; font-size:0.9rem; margin-bottom:1.25rem; padding-bottom:0.5rem; border-bottom:1px solid #f0f3f8;">
+            <i class="fas fa-info-circle me-2 text-primary"></i>Resource Details
+          </h5>
+          <div class="mb-3">
+            <label class="form-label" style="font-size:0.78rem; font-weight:600;">Title <span class="text-danger">*</span></label>
+            <input type="text" name="title" class="form-control" placeholder="Give this resource a clear title..." required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" style="font-size:0.78rem; font-weight:600;">Description</label>
+            <textarea name="description" class="form-control" rows="3" placeholder="Briefly describe what this resource covers..."></textarea>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Resource Type</label>
+              <select name="resource_type" class="form-control">
+                {% for key, label in resource_types %}
+                  <option value="{{ key }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Subject</label>
+              <select name="subject_id" class="form-control">
+                <option value="">-- All Subjects --</option>
+                {% for s in subjects %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Target Class</label>
+              <select name="class_id" class="form-control">
+                <option value="">-- All Classes (Everyone) --</option>
+                {% for cls in classes %}<option value="{{ cls.id }}">{{ cls }}</option>{% endfor %}
+              </select>
+              <small class="text-muted">Leave blank to share with all students</small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" style="font-size:0.78rem; font-weight:600;">Visibility</label>
+              <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:8px; padding:0.65rem 1rem; display:flex; align-items:center; gap:0.75rem; margin-top:0.1rem;">
+                <input type="checkbox" name="is_published" id="is_published" checked style="width:16px; height:16px; cursor:pointer;">
+                <label for="is_published" style="cursor:pointer; font-size:0.85rem; margin:0;">Publish immediately (visible to students)</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- File or Link -->
+      <div class="card card-akkhor mb-4" style="border-radius:14px;">
+        <div class="card-body">
+          <h5 style="font-weight:700; font-size:0.9rem; margin-bottom:1.25rem; padding-bottom:0.5rem; border-bottom:1px solid #f0f3f8;">
+            <i class="fas fa-paperclip me-2 text-primary"></i>File or Link <span class="text-danger">*</span>
+          </h5>
+
+          <!-- Upload Zone -->
+          <div id="upload-zone" style="border:2px dashed #c7d2fe; border-radius:12px; padding:2.5rem; text-align:center; cursor:pointer; transition:border-color 0.2s; margin-bottom:1rem; background:#fafbff;"
+            onclick="document.getElementById('file-input').click()"
+            ondragover="this.style.borderColor='var(--primary)'; event.preventDefault();"
+            ondragleave="this.style.borderColor='#c7d2fe';"
+            ondrop="handleDrop(event)">
+            <i class="fas fa-cloud-upload-alt" style="font-size:2.5rem; color:#a5b4fc;"></i>
+            <p style="margin:0.75rem 0 0.25rem; font-weight:600; color:var(--text-dark);">Drag & drop or click to upload</p>
+            <p style="font-size:0.78rem; color:var(--text-muted);">PDF, Word, PowerPoint, Images, Videos, Spreadsheets (max 50MB)</p>
+            <div id="file-name" style="margin-top:0.5rem; font-weight:600; color:var(--primary);"></div>
+          </div>
+          <input type="file" name="file" id="file-input" style="display:none;" onchange="showFileName(this)">
+
+          <div style="display:flex; align-items:center; gap:1rem; margin:0.75rem 0;">
+            <hr style="flex:1; margin:0;"> <span style="font-size:0.8rem; color:var(--text-muted);">OR</span> <hr style="flex:1; margin:0;">
+          </div>
+
+          <div>
+            <label class="form-label" style="font-size:0.78rem; font-weight:600;">External URL (YouTube, Google Drive, etc.)</label>
+            <div style="display:flex; border:1.5px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+              <span style="background:#f8fafc; border-right:1.5px solid #e2e8f0; padding:0.55rem 0.75rem; display:flex; align-items:center;">
+                <i class="fas fa-link" style="color:var(--text-muted);"></i>
+              </span>
+              <input type="url" name="external_url" class="form-control" placeholder="https://..." style="border:none; box-shadow:none;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-3">
+        <button type="submit" class="btn btn-primary-akkhor px-5">
+          <i class="fas fa-cloud-upload-alt me-1"></i> Upload Resource
+        </button>
+        <a href="{% url 'teacher_library' %}" class="btn btn-outline-akkhor">Cancel</a>
+      </div>
+    </form>
+
+    <!-- Tips Sidebar -->
+    <div>
+      <div class="card card-akkhor" style="border-radius:14px; border-left:4px solid var(--primary);">
+        <div class="card-body">
+          <h6 style="font-weight:700; color:var(--primary); margin-bottom:1rem;"><i class="fas fa-lightbulb me-2"></i>Upload Tips</h6>
+          <ul style="font-size:0.82rem; color:var(--text-muted); padding-left:1.2rem; line-height:1.8;">
+            <li>Use clear, descriptive titles students can find easily</li>
+            <li>Choose the right type so students see the correct icon</li>
+            <li>Target a specific class to limit access</li>
+            <li>Save as <strong>Draft</strong> if not ready to publish</li>
+            <li>Use external links for YouTube videos or Google Docs</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card card-akkhor mt-3" style="border-radius:14px; background:#f0fdf4; border-color:#bbf7d0;">
+        <div class="card-body">
+          <h6 style="font-weight:700; color:#16a34a; margin-bottom:0.75rem;"><i class="fas fa-shield-check me-2"></i>Student Access</h6>
+          <p style="font-size:0.8rem; color:#15803d; margin:0;">
+            Students will see this resource in their Library portal as soon as you publish it. 
+            If you select a specific class, only students in that class will see it.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showFileName(input) {
+  const name = input.files[0]?.name || '';
+  document.getElementById('file-name').textContent = name ? '📄 ' + name : '';
+  if(name) document.getElementById('upload-zone').style.borderColor = 'var(--primary)';
+}
+function handleDrop(e) {
+  e.preventDefault();
+  const dt = e.dataTransfer;
+  const inp = document.getElementById('file-input');
+  inp.files = dt.files;
+  showFileName(inp);
+  document.getElementById('upload-zone').style.borderColor = 'var(--primary)';
+}
+</script>
+{% endblock %}

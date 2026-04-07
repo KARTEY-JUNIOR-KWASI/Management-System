@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Class Form{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 style="font-weight:800; margin:0; color:var(--text-dark);">
+                {% if form.instance.pk %}Update{% else %}Create{% endif %} Class
+            </h2>
+            <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">
+                Configure class details and assign a class teacher
+            </p>
+        </div>
+        <a href="{% url 'class_list' %}" class="btn btn-outline-akkhor">
+            <i class="fas fa-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <!-- Error Summary -->
+    {% if form.errors %}
+    <div class="reg-error-alert fade-in">
+        <i class="fas fa-circle-exclamation" style="color:#e74c3c; font-size:1.1rem; margin-top:0.1rem;"></i>
+        <div>
+            <strong style="font-size:0.85rem; color:#991b1b;">Please fix the following errors before saving:</strong>
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}<li>{{ field|capfirst }}: {{ error }}</li>{% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="reg-card">
+        <div class="reg-card-header">
+            <div class="card-icon-wrap" style="background:#eff3ff;">
+                <i class="fas fa-school" style="color:var(--primary);"></i>
+            </div>
+            <div>
+                <h5>Class Details</h5>
+                <p>Basic information for the class</p>
+            </div>
+        </div>
+        <div class="reg-card-body">
+            <form method="post" id="reg-form">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="field-group">
+                            <label>Class Name <span class="text-danger">*</span></label>
+                            {% render_field form.name class="form-control" placeholder="e.g. Form 1" %}
+                            {% if form.name.errors %}<div class="field-error">{{ form.name.errors|join:", " }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="field-group">
+                            <label>Section <span class="text-danger">*</span></label>
+                            {% render_field form.section class="form-control" placeholder="e.g. Science, Arts, A, B" %}
+                            {% if form.section.errors %}<div class="field-error">{{ form.section.errors|join:", " }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="field-group">
+                            <label>Grade Level <span class="text-danger">*</span></label>
+                            {% render_field form.grade class="form-control" placeholder="e.g. 1, 2, 9, 10" type="number" %}
+                            {% if form.grade.errors %}<div class="field-error">{{ form.grade.errors|join:", " }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="field-group">
+                            <label>Class Teacher</label>
+                            {% render_field form.class_teacher class="form-control form-select" %}
+                            {% if form.class_teacher.errors %}<div class="field-error">{{ form.class_teacher.errors|join:", " }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Submit Bar -->
+    <div class="reg-submit-bar">
+        <div class="note">
+            <i class="fas fa-info-circle" style="color:var(--primary);"></i>
+            Ensure details are correct before saving.
+        </div>
+        <div style="display:flex; gap:0.75rem;">
+            <a href="{% url 'class_list' %}" class="btn btn-outline-akkhor">Cancel</a>
+            <button type="submit" form="reg-form" class="btn btn-primary-akkhor px-5">
+                <i class="fas fa-save me-1"></i> Save Class
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

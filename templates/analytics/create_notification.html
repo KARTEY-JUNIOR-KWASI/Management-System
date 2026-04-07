@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Notification{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Analytics Menu</span>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:analytics_dashboard' %}">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'analytics:create_notification' %}">
+                            <i class="fas fa-bell"></i> Send Notification
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:generate_report' %}">
+                            <i class="fas fa-file-pdf"></i> Generate Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:notifications_list' %}">
+                            <i class="fas fa-inbox"></i> Notifications
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Create Notification</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'analytics:analytics_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Send Notification</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="notification_type" class="form-label">Notification Type</label>
+                                    <select class="form-select" id="notification_type" name="notification_type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="assignment">Assignment</option>
+                                        <option value="grade">Grade</option>
+                                        <option value="attendance">Attendance</option>
+                                        <option value="announcement">Announcement</option>
+                                        <option value="reminder">Reminder</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Title</label>
+                                    <input type="text" class="form-control" id="title" name="title"
+                                           placeholder="Enter notification title" required maxlength="200">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">Message</label>
+                                    <textarea class="form-control" id="message" name="message" rows="4"
+                                              placeholder="Enter notification message" required></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="priority" class="form-label">Priority Level</label>
+                                    <select class="form-select" id="priority" name="priority">
+                                        <option value="low">Low</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="high">High</option>
+                                        <option value="urgent">Urgent</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Recipients</label>
+                                    <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                                        <div class="mb-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllRecipients()">
+                                                Select All
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="clearAllRecipients()">
+                                                Clear All
+                                            </button>
+                                        </div>
+                                        {% for recipient in recipients %}
+                                        <div class="form-check">
+                                            <input class="form-check-input recipient-checkbox" type="checkbox"
+                                                   value="{{ recipient.user.id }}" id="recipient_{{ recipient.user.id }}" name="recipients">
+                                            <label class="form-check-label" for="recipient_{{ recipient.user.id }}">
+                                                {{ recipient.user.get_full_name }} ({{ recipient.get_role_display }})
+                                                {% if recipient.role == 'student' %}
+                                                    - {{ recipient.student.class_enrolled.name }}
+                                                {% endif %}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted">Selected: <span id="selected-count">0</span> recipients</small>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Send Notification
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Quick Templates -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Quick Templates</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadTemplate('assignment_reminder')">
+                                    <i class="fas fa-book"></i> Assignment Reminder
+                                </button>
+                                <button type="button" class="btn btn-outline-success btn-sm" onclick="loadTemplate('grade_alert')">
+                                    <i class="fas fa-graduation-cap"></i> Grade Alert
+                                </button>
+                                <button type="button" class="btn btn-outline-info btn-sm" onclick="loadTemplate('attendance_warning')">
+                                    <i class="fas fa-calendar-times"></i> Attendance Warning
+                                </button>
+                                <button type="button" class="btn btn-outline-warning btn-sm" onclick="loadTemplate('general_announcement')">
+                                    <i class="fas fa-bullhorn"></i> General Announcement
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Tips -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Tips</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0 small">
+                                <li class="mb-2"><i class="fas fa-lightbulb text-warning"></i> Keep messages clear and concise</li>
+                                <li class="mb-2"><i class="fas fa-clock text-info"></i> Use appropriate priority levels</li>
+                                <li class="mb-2"><i class="fas fa-users text-primary"></i> Target specific groups when possible</li>
+                                <li class="mb-0"><i class="fas fa-envelope text-success"></i> Urgent notifications trigger email alerts</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+const templates = {
+    assignment_reminder: {
+        title: 'Assignment Due Soon',
+        message: 'Dear Student,\n\nThis is a reminder that your assignment is due soon. Please make sure to submit it before the deadline to avoid penalties.\n\nBest regards,\nSchool Administration',
+        type: 'assignment',
+        priority: 'medium'
+    },
+    grade_alert: {
+        title: 'Grade Posted',
+        message: 'Dear Student,\n\nYour grades for the recent assessment have been posted. Please check your student dashboard to view your results.\n\nBest regards,\nSchool Administration',
+        type: 'grade',
+        priority: 'low'
+    },
+    attendance_warning: {
+        title: 'Attendance Warning',
+        message: 'Dear Student,\n\nYour attendance rate is below the required threshold. Please ensure regular attendance to maintain good academic standing.\n\nBest regards,\nSchool Administration',
+        type: 'attendance',
+        priority: 'high'
+    },
+    general_announcement: {
+        title: 'Important Announcement',
+        message: 'Dear Students and Staff,\n\n[Please enter your announcement here]\n\nBest regards,\nSchool Administration',
+        type: 'announcement',
+        priority: 'medium'
+    }
+};
+
+function loadTemplate(templateName) {
+    const template = templates[templateName];
+    if (template) {
+        document.getElementById('title').value = template.title;
+        document.getElementById('message').value = template.message;
+        document.getElementById('notification_type').value = template.type;
+        document.getElementById('priority').value = template.priority;
+    }
+}
+
+function selectAllRecipients() {
+    const checkboxes = document.querySelectorAll('.recipient-checkbox');
+    checkboxes.forEach(cb => cb.checked = true);
+    updateSelectedCount();
+}
+
+function clearAllRecipients() {
+    const checkboxes = document.querySelectorAll('.recipient-checkbox');
+    checkboxes.forEach(cb => cb.checked = false);
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const selected = document.querySelectorAll('.recipient-checkbox:checked').length;
+    document.getElementById('selected-count').textContent = selected;
+}
+
+// Update count on checkbox change
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('recipient-checkbox')) {
+        updateSelectedCount();
+    }
+});
+
+// Initialize count
+updateSelectedCount();
+</script>
+{% endblock %}

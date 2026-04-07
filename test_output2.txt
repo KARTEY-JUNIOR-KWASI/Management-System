@@ -1,0 +1,34 @@
+﻿python : Creating test 
+database for alias 
+'default'...
+At line:1 char:1
++ python manage.py 
+test > test_output.txt 
+2>&1
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo     
+         : 
+NotSpecified: (C    
+reating test d...as '  
+  default'...:String) 
+[    ], RemoteException
+    + 
+FullyQualifiedError    
+Id : NativeCommandErr  
+  or
+ 
+
+..FC:\Users\GALLOP SEA\
+OneDrive\Desktop\Manage
+ment System\admin_dashb
+oard\views.py:65: Unord
+eredObjectListWarning: 
+Pagination may yield 
+inconsistent results 
+with an unordered 
+object_list: <class 'st
+udents.models.Student'>
+ QuerySet.
+  paginator = Paginator
+(students_query, 25)

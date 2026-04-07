@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics Dashboard - Teacher{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Analytics Menu</span>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'analytics:analytics_dashboard' %}">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:create_notification' %}">
+                            <i class="fas fa-bell"></i> Send Notification
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:generate_report' %}">
+                            <i class="fas fa-file-pdf"></i> Generate Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:notifications_list' %}">
+                            <i class="fas fa-inbox"></i> Notifications
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Teacher Analytics Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group mr-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Class Performance Overview -->
+            <div class="row mb-4">
+                {% for class_data in class_performance %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{{ class_data.subject.name }}</h5>
+                            <small class="text-muted">{{ class_data.class.name }}</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="h4 text-primary">{{ class_data.student_count }}</div>
+                                    <small class="text-muted">Students</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h4 text-success">{{ class_data.avg_gpa|floatformat:1 }}</div>
+                                    <small class="text-muted">Avg GPA</small>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="h5 text-info">{{ class_data.attendance_rate|floatformat:1 }}%</div>
+                                    <small class="text-muted">Attendance</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h5 text-warning">{{ class_data.completion_rate|floatformat:1 }}%</div>
+                                    <small class="text-muted">Assignments</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'teachers:manage_grades' %}?subject={{ class_data.subject.id }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-graduation-cap"></i> Manage Grades
+                            </a>
+                            <a href="{% url 'teachers:manage_assignments' %}" class="btn btn-outline-secondary btn-sm ms-1">
+                                <i class="fas fa-book"></i> Assignments
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No classes assigned yet.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Student Insights -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Student Insights & Alerts</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if student_insights %}
+                                {% for insight in student_insights %}
+                                <div class="alert alert-{% if insight.severity == 'high' %}danger{% elif insight.severity == 'medium' %}warning{% else %}info{% endif %}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="alert-heading mb-1">
+                                                <i class="fas fa-{% if insight.type == 'performance_decline' %}chart-line-down{% elif insight.type == 'attendance_concern' %}calendar-times{% else %}lightbulb{% endif %}"></i>
+                                                {{ insight.student.user.get_full_name }}
+                                            </h6>
+                                            <p class="mb-0">{{ insight.message }}</p>
+                                        </div>
+                                        <a href="{% url 'analytics:student_performance_detail' insight.student.id %}" class="btn btn-sm btn-outline-primary">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle"></i> All students are performing well!
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <!-- Assignment Statistics -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Assignment Overview</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="h4 text-primary">{{ assignment_stats.total_assignments }}</div>
+                                    <small class="text-muted">Total</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h4 text-success">{{ assignment_stats.total_submissions }}</div>
+                                    <small class="text-muted">Submitted</small>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="mb-2">
+                                <small class="text-muted">Completion Rate</small>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         style="width: {{ assignment_stats.completion_rate }}%"
+                                         aria-valuenow="{{ assignment_stats.completion_rate }}"
+                                         aria-valuemin="0" aria-valuemax="100">
+                                        {{ assignment_stats.completion_rate|floatformat:1 }}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-0">
+                                <small class="text-muted">Average Grade</small>
+                                <div class="h5 text-warning">{{ assignment_stats.avg_grade|floatformat:1 }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'teachers:create_assignment' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> New Assignment
+                                </a>
+                                <a href="{% url 'analytics:create_notification' %}" class="btn btn-info">
+                                    <i class="fas fa-bell"></i> Notify Students
+                                </a>
+                                <a href="{% url 'analytics:generate_report' %}" class="btn btn-success">
+                                    <i class="fas fa-file-pdf"></i> Generate Report
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Notifications -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Recent Notifications</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_notifications %}
+                                <div class="list-group">
+                                    {% for notification in recent_notifications %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">{{ notification.title }}</h6>
+                                            <small>{{ notification.created_at|date:"M d, H:i" }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ notification.message }}</p>
+                                        <small class="text-{% if notification.priority == 'urgent' %}danger{% elif notification.priority == 'high' %}warning{% else %}muted{% endif %}">
+                                            Priority: {{ notification.priority|title }}
+                                        </small>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted mb-0">No recent notifications</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

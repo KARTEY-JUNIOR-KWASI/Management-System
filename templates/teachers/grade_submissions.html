@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Grade Submissions{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Grade Submissions</h2>
+        <a href="{% url 'manage_assignments' %}" class="btn btn-outline-akkhor">
+            <i class="fas fa-arrow-left me-1"></i> Back to Assignments
+        </a>
+    </div>
+
+    <div class="card card-akkhor mb-4 bg-primary text-white" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); border: none;">
+        <div class="card-body p-4 position-relative overflow-hidden">
+            <div class="row position-relative z-1">
+                <div class="col-md-8">
+                    <h4 class="fw-bold mb-3">{{ assignment.title }}</h4>
+                    <p class="mb-1 opacity-75"><i class="fas fa-book me-2"></i>{{ assignment.subject.name }} &bull; {{ assignment.class_assigned.name }} {{ assignment.class_assigned.section }}</p>
+                    <p class="mb-0 opacity-75"><i class="fas fa-calendar-alt me-2"></i>Due: {{ assignment.due_date|date:"F j, Y" }}</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <div class="bg-white text-dark p-3 rounded-3 d-inline-block shadow-sm text-start" style="max-width: 100%;">
+                        <span class="d-block text-uppercase text-muted small fw-bold mb-1">Description</span>
+                        <p class="mb-0 small">{{ assignment.description|truncatechars:90 }}</p>
+                    </div>
+                </div>
+            </div>
+            <i class="fas fa-graduation-cap position-absolute" style="font-size: 8rem; right: -20px; bottom: -20px; opacity: 0.1;"></i>
+        </div>
+    </div>
+
+    <div class="card card-akkhor">
+        <div class="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Student Submissions</h5>
+            <div class="d-flex gap-2">
+                <span class="badge bg-success rounded-pill px-3">{{ total_submitted }} Submitted</span>
+                <span class="badge bg-light text-dark border rounded-pill px-3">{{ total_students }} Total Students</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-4">Student</th>
+                            <th>Status</th>
+                            <th>Submission File</th>
+                            <th>Grade</th>
+                            <th>Feedback</th>
+                            <th class="px-4 text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in roster %}
+                        <tr>
+                            <td class="px-4">
+                                <div class="d-flex flex-column">
+                                    <strong class="text-dark">{{ row.student.user.get_full_name }}</strong>
+                                    <span class="font-monospace text-muted small">{{ row.student.student_id }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if row.has_submitted and row.submission.submitted_at %}
+                                    <span class="d-block small text-dark">{{ row.submission.submitted_at|date:"M d, Y H:i" }}</span>
+                                    {% if row.submission.submitted_at.date > assignment.due_date %}
+                                        <span class="badge badge-akkhor text-danger p-0 mt-1" style="background: none;">(Late)</span>
+                                    {% else %}
+                                        <span class="badge badge-akkhor text-success p-0 mt-1" style="background: none;">(On Time)</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge badge-akkhor text-secondary" style="background: rgba(108,117,125,0.1); border: 1px solid rgba(108,117,125,0.3);">Not submitted</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if row.has_submitted and row.submission.file %}
+                                    <a href="{{ row.submission.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2 rounded-pill">
+                                        <i class="fas fa-file-download me-1"></i> File
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted small fst-italic">No file</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if row.grade is not None %}
+                                    <span class="badge bg-success fs-6 rounded-pill px-3">{{ row.grade }}/100</span>
+                                {% else %}
+                                    <span class="badge bg-light text-muted border fs-6 rounded-pill px-3">Ungraded</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if row.feedback %}
+                                    <span class="text-muted small d-inline-block text-truncate" style="max-width: 150px;" title="{{ row.feedback }}">
+                                        {{ row.feedback }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted small">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 text-end">
+                                <button class="btn btn-sm btn-primary-akkhor rounded-pill px-3" onclick="gradeSubmission({{ row.student.id }}, '{{ row.student.user.get_full_name|escapejs }}', {{ row.grade|default:'null' }}, '{{ row.feedback|escapejs }}')">
+                                    <i class="fas fa-pen me-1"></i> Grade
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="fas fa-users text-muted mb-3" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                                <h6 class="text-muted mb-0">No students found in this class.</h6>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Grade Modal -->
+<div class="modal fade" id="gradeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="border-radius: 12px;">
+            <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
+                <h5 class="modal-title fw-bold text-dark">Grade Submission</h5>
+                <button type="button" class="btn-close bg-light rounded-circle p-2" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="gradeForm" method="post" class="akkhor-form">
+                {% csrf_token %}
+                <input type="hidden" name="student_id" id="studentId">
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label for="grade" class="form-label text-muted fw-bold text-uppercase small">Grade (out of 100)</label>
+                        <input type="number" class="form-control form-control-lg text-center fw-bold fs-3 text-primary" style="background: #f8f9fa;" id="grade" name="grade" min="0" max="100" step="0.01" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="feedback" class="form-label text-muted fw-bold text-uppercase small">Feedback Remarks</label>
+                        <textarea class="form-control" id="feedback" name="feedback" rows="4" placeholder="Enter constructive feedback for the student..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 px-4 pb-4 pt-0">
+                    <button type="button" class="btn btn-outline-akkhor px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-akkhor px-4 shadow-sm">Save Grade</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function gradeSubmission(studentId, studentName, currentGrade, currentFeedback) {
+    document.getElementById('studentId').value = studentId;
+    document.getElementById('grade').value = currentGrade || '';
+    document.getElementById('feedback').value = currentFeedback || '';
+    document.querySelector('.modal-title').textContent = 'Grading: ' + studentName;
+
+    const modal = new bootstrap.Modal(document.getElementById('gradeModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

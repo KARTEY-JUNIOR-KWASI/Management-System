@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row layout-spacing">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 style="font-weight: 800; margin: 0; color: var(--text-dark);">👤 Account Profile</h2>
+                <p style="color: var(--text-muted); margin: 0; font-size: 0.85rem;">Manage your personal settings and view your account details.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Form -->
+    <div class="col-xl-7 col-lg-7 col-md-12 mb-4">
+        <div class="card card-akkhor h-100">
+            <div class="card-header bg-white p-4 border-bottom">
+                <h5 class="fw-bold mb-0">Edit Profile</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data" class="akkhor-form">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    
+                    <div class="row text-center mb-4">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" alt="Profile" class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle shadow-sm bg-light d-flex justify-content-center align-items-center mx-auto" style="width: 120px; height: 120px;">
+                                        <i class="fas fa-user text-muted" style="font-size: 3rem;"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label class="btn btn-outline-akkhor btn-sm rounded-pill px-3">
+                                    <i class="fas fa-upload me-1"></i> Change Photo
+                                    <span style="display: none;">{{ form.profile_picture }}</span>
+                                </label>
+                                {{ form.profile_picture.errors }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold text-uppercase">First Name</label>
+                            {{ form.first_name }}
+                            {{ form.first_name.errors }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold text-uppercase">Last Name</label>
+                            {{ form.last_name }}
+                            {{ form.last_name.errors }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold text-uppercase">Email Address</label>
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-primary-akkhor px-4 rounded-pill">
+                            <i class="fas fa-save me-1"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Specific Info -->
+    <div class="col-xl-5 col-lg-5 col-md-12 mb-4">
+        <div class="card card-akkhor h-100">
+            <div class="card-header bg-white p-4 border-bottom">
+                <h5 class="fw-bold mb-0">Role Information</h5>
+            </div>
+            <div class="card-body p-4 bg-light">
+                
+                <div class="mb-4 text-center">
+                    <span class="badge bg-primary text-uppercase px-3 py-2 rounded-pill fs-6">{{ user.get_role_display }}</span>
+                </div>
+
+                {% if user.role == 'student' and student_profile %}
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
+                            <span class="fw-bold text-uppercase col-5">Student ID</span>
+                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.student_id }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
+                            <span class="fw-bold text-uppercase col-5">Class</span>
+                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.class_enrolled.name|default:"Unassigned" }} {{ student_profile.class_enrolled.section|default:"" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
+                            <span class="fw-bold text-uppercase col-5">Gender</span>
+                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.gender|title }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
+                            <span class="fw-bold text-uppercase col-5">Date of Birth</span>
+                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.date_of_birth|date:"M d, Y"|default:"-" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
+                            <span class="fw-bold text-uppercase col-5">Parents</span>
+                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.parents_names|default:"-" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
+                            <span class="fw-bold text-uppercase col-5">Emg. Contact</span>
+                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.emergency_contact_name|default:"-" }}<br>{{ student_profile.emergency_contact_phone|default:"" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
+                            <span class="fw-bold text-uppercase col-5">Status</span>
+                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.status|title }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
+                            <span class="fw-bold text-uppercase col-5">Adm. Date</span>
+                            <span class="text-dark fw-medium text-end col-7">{{ student_profile.enrollment_date|date:"b d, Y" }}</span>
+                        </li>
+                    </ul>
+
+                {% elif user.role == 'teacher' and teacher_profile %}
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
+                            <span class="fw-bold text-uppercase col-5">Teacher ID</span>
+                            <span class="text-dark fw-medium text-end col-7">{{ teacher_profile.teacher_id }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
+                            <span class="fw-bold text-uppercase col-5">Qualification</span>
+                            <span class="text-dark fw-medium text-end col-7">{{ teacher_profile.qualification|default:"-" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small">
+                            <span class="fw-bold text-uppercase col-5">Specialization</span>
+                            <span class="text-dark fw-medium text-end col-7">{{ teacher_profile.specialization|default:"-" }}</span>
+                        </li>
+                        <li class="list-group-item bg-transparent px-0 text-muted small mt-2">
+                            <span class="fw-bold text-uppercase d-block mb-1">Assigned Subjects</span>
+                            <div>
+                                {% for subj in teacher_profile.subjects.all %}
+                                    <span class="badge bg-secondary mb-1">{{ subj.name }}</span>
+                                {% empty %}
+                                    <span class="fst-italic">None assigned</span>
+                                {% endfor %}
+                            </div>
+                        </li>
+                        <li class="list-group-item bg-transparent px-0 d-flex justify-content-between text-muted small border-top mt-2 pt-3">
+                            <span class="fw-bold text-uppercase col-5">Emg. Contact</span>
+                            <span class="text-dark fw-medium text-end col-7">{{ teacher_profile.emergency_contact_name|default:"-" }} ({{ teacher_profile.emergency_contact_relationship|default:"" }})<br>{{ teacher_profile.emergency_contact_phone|default:"" }}</span>
+                        </li>
+                    </ul>
+                {% else %}
+                    <div class="text-center text-muted p-4">
+                        <i class="fas fa-id-card mb-2" style="font-size: 2rem; opacity:0.3;"></i>
+                        <p class="mb-0">Administrative Account</p>
+                    </div>
+                {% endif %}
+            </div>
+            {% if user.role != 'admin' %}
+            <div class="card-footer bg-white border-top text-center p-3">
+                <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Contact an administrator to update role information.</small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Style the form inputs for Akkhor dynamically
+    document.querySelectorAll('.akkhor-form input[type="text"], .akkhor-form input[type="email"]').forEach(input => {
+        input.classList.add('form-control');
+    });
+</script>
+{% endblock %}

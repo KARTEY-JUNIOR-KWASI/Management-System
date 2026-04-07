@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="School Management System — manage students, teachers, grades, attendance, and more.">
+  <title>{% block title %}School Management System{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+{% if user.is_authenticated %}
+
+  <!-- ══════════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════════ -->
+  <aside class="sms-sidebar" id="smsSidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+      <div class="logo-text">Edu<span>MS</span></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+
+      {% if user.role == 'admin' %}
+        <p class="sidebar-section-label">Main</p>
+
+        <div class="sidebar-item">
+          <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+            <i class="fas fa-th-large"></i> Dashboard
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <div class="sidebar-link" id="toggle-students" onclick="toggleSubmenu('sub-students', this)">
+            <i class="fas fa-user-graduate"></i> Students
+            <i class="fas fa-chevron-right chevron"></i>
+          </div>
+          <div class="sidebar-submenu" id="sub-students">
+            <a href="{% url 'student_list' %}" class="sidebar-link">All Students</a>
+            <a href="{% url 'student_create' %}" class="sidebar-link">Add Student</a>
+          </div>
+        </div>
+
+        <div class="sidebar-item">
+          <div class="sidebar-link" id="toggle-teachers" onclick="toggleSubmenu('sub-teachers', this)">
+            <i class="fas fa-chalkboard-teacher"></i> Teachers
+            <i class="fas fa-chevron-right chevron"></i>
+          </div>
+          <div class="sidebar-submenu" id="sub-teachers">
+            <a href="{% url 'teacher_list' %}" class="sidebar-link">All Teachers</a>
+            <a href="{% url 'teacher_create' %}" class="sidebar-link">Add Teacher</a>
+          </div>
+        </div>
+
+        <div class="sidebar-item">
+          <a href="{% url 'class_list' %}" class="sidebar-link">
+            <i class="fas fa-school"></i> Classes
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <a href="{% url 'subject_list' %}" class="sidebar-link">
+            <i class="fas fa-book"></i> Subjects
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <a href="{% url 'manage_timetable' %}" class="sidebar-link">
+            <i class="fas fa-calendar-alt"></i> Timetables
+          </a>
+        </div>
+
+        <p class="sidebar-section-label">Analytics</p>
+
+        <div class="sidebar-item">
+          <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-link">
+            <i class="fas fa-chart-line"></i> Analytics
+          </a>
+        </div>
+
+        <p class="sidebar-section-label">Account</p>
+
+        <div class="sidebar-item">
+          <a href="{% url 'profile' %}" class="sidebar-link">
+            <i class="fas fa-user-circle"></i> Profile
+          </a>
+        </div>
+
+      {% elif user.role == 'teacher' %}
+        <p class="sidebar-section-label">Main</p>
+
+        <div class="sidebar-item">
+          <a href="{% url 'teacher_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
+            <i class="fas fa-th-large"></i> Dashboard
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <a href="{% url 'teacher_timetable' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_timetable' %}active{% endif %}">
+            <i class="fas fa-calendar-alt"></i> My Timetable
+          </a>
+        </div>
+
+        <p class="sidebar-section-label">Manage</p>
+
+        <div class="sidebar-item">
+          <a href="{% url 'mark_attendance' %}" class="sidebar-link">
+            <i class="fas fa-calendar-check"></i> Attendance
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <a href="{% url 'manage_grades' %}" class="sidebar-link">
+            <i class="fas fa-graduation-cap"></i> Grades
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <div class="sidebar-link" onclick="toggleSubmenu('sub-assignments', this)">
+            <i class="fas fa-tasks"></i> Assignments
+            <i class="fas fa-chevron-right chevron"></i>
+          </div>
+          <div class="sidebar-submenu" id="sub-assignments">
+            <a href="{% url 'create_assignment' %}" class="sidebar-link">Create New</a>
+            <a href="{% url 'manage_assignments' %}" class="sidebar-link">Manage Assignments</a>
+          </div>
+        </div>
+
+        <p class="sidebar-section-label">Reports</p>
+
+        <div class="sidebar-item">
+          <a href="{% url 'attendance_report' %}" class="sidebar-link">
+            <i class="fas fa-chart-bar"></i> Attendance Report
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <a href="{% url 'grade_report' %}" class="sidebar-link">
+            <i class="fas fa-chart-line"></i> Grade Report
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-link">
+            <i class="fas fa-brain"></i> Analytics
+          </a>
+        </div>
+
+        <p class="sidebar-section-label">Library</p>
+
+        <div class="sidebar-item">
+          <div class="sidebar-link" onclick="toggleSubmenu('sub-library-t', this)">
+            <i class="fas fa-book-open"></i> Library
+            <i class="fas fa-chevron-right chevron"></i>
+          </div>
+          <div class="sidebar-submenu" id="sub-library-t">
+            <a href="{% url 'teacher_library' %}" class="sidebar-link">My Resources</a>
+            <a href="{% url 'upload_resource' %}" class="sidebar-link">Upload Resource</a>
+          </div>
+        </div>
+
+        <p class="sidebar-section-label">Account</p>
+
+        <div class="sidebar-item">
+          <a href="{% url 'profile' %}" class="sidebar-link">
+            <i class="fas fa-user-circle"></i> Profile
+          </a>
+        </div>
+
+      {% elif user.role == 'student' %}
+        <p class="sidebar-section-label">Main</p>
+
+        <div class="sidebar-item">
+          <a href="{% url 'student_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+            <i class="fas fa-th-large"></i> Dashboard
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <a href="{% url 'student_timetable' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_timetable' %}active{% endif %}">
+            <i class="fas fa-calendar-alt"></i> My Timetable
+          </a>
+        </div>
+
+        <p class="sidebar-section-label">My Academics</p>
+
+        <div class="sidebar-item">
+          <a href="{% url 'view_grades' %}" class="sidebar-link">
+            <i class="fas fa-graduation-cap"></i> My Grades
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <a href="{% url 'view_attendance' %}" class="sidebar-link">
+            <i class="fas fa-calendar-check"></i> Attendance
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <a href="{% url 'view_assignments' %}" class="sidebar-link">
+            <i class="fas fa-book-open"></i> Assignments
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <a href="{% url 'student_library' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_library' or request.resolver_match.url_name == 'view_resource' %}active{% endif %}">
+            <i class="fas fa-book-reader"></i> Library
+          </a>
+        </div>
+
+        <div class="sidebar-item">
+          <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-link">
+            <i class="fas fa-chart-line"></i> My Analytics
+          </a>
+        </div>
+
+        <p class="sidebar-section-label">Account</p>
+
+        <div class="sidebar-item">
+          <a href="{% url 'profile' %}" class="sidebar-link">
+            <i class="fas fa-user-circle"></i> Profile
+          </a>
+        </div>
+
+      {% endif %}
+
+      <!-- Logout always visible -->
+      <div style="margin-top:1rem;">
+        <a href="{% url 'account_logout' %}" class="sidebar-link" style="color:#e17;opacity:0.75;">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+
+    </nav>
+  </aside>
+
+  <!-- ══════════════════════════════════════
+       MAIN WRAPPER
+  ══════════════════════════════════════ -->
+  <div class="sms-main-wrapper">
+
+    <!-- Topbar -->
+    <header class="sms-topbar">
+      <button class="topbar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <span class="topbar-school-name">Welcome to <span>School</span> Management System</span>
+
+      <!-- Search -->
+      <div class="topbar-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search here...">
+      </div>
+
+      <!-- Icons -->
+      <div class="topbar-icons">
+        <div class="topbar-icon-wrapper" style="position:relative;">
+          <button class="topbar-icon-btn" title="Notifications" onclick="document.getElementById('notifDropdown').classList.toggle('show')">
+            <i class="fas fa-bell"></i>
+            {% if unread_notifications_count > 0 %}
+            <span class="topbar-badge">{{ unread_notifications_count }}</span>
+            {% endif %}
+          </button>
+          <div class="topbar-dropdown" id="notifDropdown" style="width: 300px; right: 0; left: auto; padding: 0;">
+            <div style="padding: 1rem; border-bottom: 1px solid #e2e8f0;">
+              <h6 style="margin:0; font-weight:700;">Notifications</h6>
+            </div>
+            <div style="max-height: 300px; overflow-y: auto;">
+              {% for num in unread_notifications %}
+                <a href="{% url 'analytics:notifications_list' %}" style="display:block; padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; text-decoration: none; color: inherit;">
+                  <div style="font-weight: 600; font-size: 0.85rem;">{{ num.title }}</div>
+                  <div style="font-size: 0.75rem; color: #64748b; margin-top:0.25rem;">{{ num.message|truncatechars:40 }}</div>
+                  <div style="font-size: 0.7rem; color: #94a3b8; margin-top:0.25rem;">{{ num.created_at|timesince }} ago</div>
+                </a>
+              {% empty %}
+                <div style="padding: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.85rem;">
+                  No new notifications
+                </div>
+              {% endfor %}
+            </div>
+            <div style="padding: 0.5rem; text-align: center; border-top: 1px solid #e2e8f0; background: #f8fafc;">
+              <a href="{% url 'analytics:notifications_list' %}" style="font-size: 0.8rem; font-weight: 600; color: var(--primary-color); text-decoration: none;">View All</a>
+            </div>
+          </div>
+        </div>
+        <button class="topbar-icon-btn" title="Messages">
+          <i class="fas fa-envelope"></i>
+        </button>
+      </div>
+
+      <!-- User -->
+      <div class="topbar-user" id="topbarUser" onclick="toggleUserDropdown()">
+        <div class="topbar-avatar">
+          {{ user.get_full_name|default:user.username|slice:":2"|upper }}
+        </div>
+        <div class="topbar-user-info">
+          <div class="topbar-user-name">{{ user.get_full_name|default:user.username|truncatechars:14 }}</div>
+          <div class="topbar-user-role">{{ user.role|capfirst }}</div>
+        </div>
+        <i class="fas fa-chevron-down" style="font-size:0.65rem; color:#aab4be; margin-left:0.3rem;"></i>
+
+        <div class="topbar-dropdown" id="topbarDropdown">
+          <a href="{% url 'profile' %}"><i class="fas fa-user"></i> Profile</a>
+          <hr>
+          <form method="POST" action="{% url 'account_logout' %}" id="logout-form" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-link logout-btn">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <!-- Flash Messages -->
+    {% if messages %}
+    <div style="padding:0.75rem 1.5rem 0;">
+      {% for message in messages %}
+        <div class="alert-akkhor alert-{{ message.tags }} fade-in" role="alert">
+          {% if message.tags == 'success' %}<i class="fas fa-circle-check"></i>
+          {% elif message.tags == 'error' or message.tags == 'danger' %}<i class="fas fa-circle-exclamation"></i>
+          {% elif message.tags == 'warning' %}<i class="fas fa-triangle-exclamation"></i>
+          {% else %}<i class="fas fa-circle-info"></i>{% endif %}
+          {{ message }}
+          <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Page Content -->
+    <main class="sms-content">
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer style="padding:0.85rem 1.5rem; border-top:1px solid #e4eaf0; background:#fff; font-size:0.75rem; color:#aab4be; text-align:center;">
+      © 2026 EduSystem School Management. All rights reserved.
+    </footer>
+
+  </div><!-- end .sms-main-wrapper -->
+
+{% else %}
+  <!-- Not authenticated — render page without sidebar -->
+  {% block noauth_content %}{% endblock %}
+{% endif %}
+
+<!-- Scripts -->
+<script>
+  // Sidebar submenu toggle
+  function toggleSubmenu(id, el) {
+    const sub = document.getElementById(id);
+    if (!sub) return;
+    const isOpen = sub.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.sidebar-submenu').forEach(s => s.classList.remove('open'));
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('open'));
+    if (!isOpen) {
+      sub.classList.add('open');
+      el.classList.add('open');
+    }
+  }
+
+  // Mobile sidebar toggle
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('smsSidebar');
+  if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+  }
+
+  // User dropdown toggle
+  function toggleUserDropdown() {
+    const d = document.getElementById('topbarDropdown');
+    if (d) d.classList.toggle('open');
+  }
+  document.addEventListener('click', (e) => {
+    const d = document.getElementById('topbarDropdown');
+    const u = document.getElementById('topbarUser');
+    if (d && u && !u.contains(e.target)) d.classList.remove('open');
+  });
+
+  // Close sidebar on outside click (mobile)
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth < 900) {
+      if (sidebar && !sidebar.contains(e.target) && sidebarToggle && !sidebarToggle.contains(e.target)) {
+        sidebar.classList.remove('open');
+      }
+    }
+  });
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics Dashboard - Student{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Analytics Menu</span>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'analytics:analytics_dashboard' %}">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:generate_report' %}">
+                            <i class="fas fa-file-pdf"></i> My Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:notifications_list' %}">
+                            <i class="fas fa-inbox"></i> Notifications
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">My Performance Analytics</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group mr-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Overview Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">{{ performance_data.gpa|floatformat:1 }}</h5>
+                                    <p class="card-text">Current GPA</p>
+                                </div>
+                                <i class="fas fa-graduation-cap fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-success">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">{{ performance_data.attendance_rate|floatformat:1 }}%</h5>
+                                    <p class="card-text">Attendance Rate</p>
+                                </div>
+                                <i class="fas fa-calendar-check fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-info">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">{{ performance_data.assignment_completion_rate|floatformat:1 }}%</h5>
+                                    <p class="card-text">Assignment Completion</p>
+                                </div>
+                                <i class="fas fa-book fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-warning">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="card-title">{{ performance_data.completed_assignments }}/{{ performance_data.total_assignments }}</h5>
+                                    <p class="card-text">Assignments Done</p>
+                                </div>
+                                <i class="fas fa-tasks fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Performance -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Subject-wise Performance</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if performance_data.subject_performance %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Subject</th>
+                                                <th>Average Score</th>
+                                                <th>Grade Points</th>
+                                                <th>Performance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for subject in performance_data.subject_performance %}
+                                            <tr>
+                                                <td>{{ subject.subject.name }}</td>
+                                                <td>{{ subject.average_score|floatformat:1 }}</td>
+                                                <td>{{ subject.grade_points|floatformat:1 }}</td>
+                                                <td>
+                                                    {% if subject.grade_points >= 3.5 %}
+                                                        <span class="badge bg-success">Excellent</span>
+                                                    {% elif subject.grade_points >= 3.0 %}
+                                                        <span class="badge bg-primary">Good</span>
+                                                    {% elif subject.grade_points >= 2.5 %}
+                                                        <span class="badge bg-warning">Average</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">Needs Improvement</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> No performance data available yet.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <!-- GPA Breakdown -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">GPA Breakdown</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="gpaChart" width="200" height="200"></canvas>
+                            <div class="mt-3 text-center">
+                                <small class="text-muted">Overall: {{ performance_data.overall_percentage|floatformat:1 }}%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grade Predictions -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Grade Predictions</h5>
+                            <small class="text-muted">Based on your current performance and attendance patterns</small>
+                        </div>
+                        <div class="card-body">
+                            {% if predictions %}
+                                <div class="row">
+                                    {% for prediction in predictions %}
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title">{{ prediction.subject.name }}</h6>
+                                                <div class="row text-center">
+                                                    <div class="col-6">
+                                                        <div class="h5 text-primary">{{ prediction.current_average|floatformat:1 }}</div>
+                                                        <small class="text-muted">Current</small>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="h5 text-success">{{ prediction.predicted_score|floatformat:1 }}</div>
+                                                        <small class="text-muted">Predicted</small>
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <div class="mb-2">
+                                                    <small class="text-muted">Confidence: {{ prediction.confidence|floatformat:"1%" }}</small>
+                                                    <div class="progress" style="height: 6px;">
+                                                        <div class="progress-bar bg-info" role="progressbar"
+                                                             style="width: {{ prediction.confidence|mul:100 }}%"
+                                                             aria-valuenow="{{ prediction.confidence|mul:100 }}"
+                                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                                {% if prediction.attendance_impact != 0 %}
+                                                <small class="text-{% if prediction.attendance_impact > 0 %}success{% else %}danger{% endif %}">
+                                                    Attendance Impact: {{ prediction.attendance_impact|floatformat:1 }}
+                                                </small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> Not enough data for predictions yet. Complete more assignments and attend classes regularly.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Insights -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">AI Learning Insights</h5>
+                            <small class="text-muted">Personalized recommendations based on your performance patterns</small>
+                        </div>
+                        <div class="card-body">
+                            {% if insights %}
+                                <div class="row">
+                                    {% for insight in insights %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card border-info">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-start">
+                                                    <i class="fas fa-lightbulb text-info fa-2x me-3"></i>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="card-title">{{ insight.title }}</h6>
+                                                        <p class="card-text">{{ insight.description }}</p>
+                                                        <small class="text-muted">
+                                                            Confidence: {{ insight.confidence_score|floatformat:"1%" }}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> Keep using the system! AI insights will appear as we learn more about your performance patterns.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Notifications -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Recent Notifications</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_notifications %}
+                                <div class="list-group">
+                                    {% for notification in recent_notifications %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">{{ notification.title }}</h6>
+                                            <small>{{ notification.created_at|date:"M d, H:i" }}</small>
+                                        </div>
+                                        <p class="mb-1">{{ notification.message }}</p>
+                                        <small class="text-{% if notification.priority == 'urgent' %}danger{% elif notification.priority == 'high' %}warning{% else %}muted{% endif %}">
+                                            Priority: {{ notification.priority|title }}
+                                        </small>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted mb-0">No recent notifications</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// GPA Breakdown Chart
+const ctx = document.getElementById('gpaChart').getContext('2d');
+const subjectData = {{ performance_data.subject_performance|safe }};
+
+const labels = subjectData.map(item => item.subject.name.substring(0, 10) + '...');
+const scores = subjectData.map(item => item.average_score);
+
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: labels,
+        datasets: [{
+            data: scores,
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.8)',
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(255, 205, 86, 0.8)',
+                'rgba(75, 192, 192, 0.8)',
+                'rgba(153, 102, 255, 0.8)',
+                'rgba(255, 159, 64, 0.8)',
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

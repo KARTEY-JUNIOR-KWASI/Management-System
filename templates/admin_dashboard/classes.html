@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Classes{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 style="font-weight:800; margin:0; color:var(--text-dark);">Manage Classes</h2>
+            <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">View and manage all classes in the system.</p>
+        </div>
+        <a href="{% url 'class_create' %}" class="btn btn-primary-akkhor">
+            <i class="fas fa-plus me-1"></i> Add New Class
+        </a>
+    </div>
+
+    <div class="reg-card">
+        <div class="reg-card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <div class="card-icon-wrap" style="background:#eff3ff;">
+                    <i class="fas fa-school" style="color:var(--primary);"></i>
+                </div>
+                <div>
+                    <h5 style="margin:0; font-weight:700; font-size:0.95rem;">Class List</h5>
+                </div>
+            </div>
+        </div>
+        <div class="reg-card-body p-0">
+            <div class="table-responsive">
+                <table class="table-akkhor">
+                    <thead>
+                        <tr>
+                            <th>Class Name</th>
+                            <th>Grade</th>
+                            <th>Class Teacher</th>
+                            <th>Students</th>
+                            <th class="text-end" style="padding-right:1.5rem;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for class in classes %}
+                        <tr>
+                            <td>
+                                <div style="font-weight:600; color:var(--text-dark);">{{ class.name }} {{ class.section }}</div>
+                            </td>
+                            <td><span class="badge badge-akkhor badge-info">Grade {{ class.grade }}</span></td>
+                            <td>
+                                <div style="font-size:0.85rem; font-weight:500;">
+                                    {{ class.class_teacher.get_full_name|default:"<span class='text-muted'>Not Assigned</span>" }}
+                                </div>
+                            </td>
+                            <td><span style="font-weight:600; color:var(--text-medium);">{{ class.student_set.count }}</span></td>
+                            <td class="text-end" style="padding-right:1.5rem;">
+                                <a href="{% url 'class_update' class.pk %}" class="card-action-btn d-inline-flex border-0 bg-light text-muted me-1" style="width:28px; height:28px; font-size:0.8rem;">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'class_delete' class.pk %}" class="card-action-btn d-inline-flex border-0 bg-light text-danger" style="width:28px; height:28px; font-size:0.8rem;">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="fas fa-school fa-3x text-muted mb-3" style="opacity:0.4;"></i>
+                                <p class="text-muted mb-0">No classes found.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination Controls -->
+            {% if page_obj.has_other_pages %}
+            <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
+                <span class="text-muted-sm">Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                <div class="d-flex gap-2">
+                    {% if page_obj.has_previous %}
+                    <a href="?page=1" class="btn btn-sm btn-outline-akkhor">&laquo; First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-outline-akkhor">Previous</a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-outline-akkhor">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm btn-outline-akkhor">Last &raquo;</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

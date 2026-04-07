@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-chalkboard-teacher me-2"></i>Teacher Details</h2>
+            <p class="text-muted mb-0">Comprehensive teacher profile and teaching overview.</p>
+        </div>
+        <div>
+            <a href="{% url 'teacher_update' teacher.pk %}" class="btn btn-warning me-2">
+                <i class="fas fa-edit"></i> Edit Teacher
+            </a>
+            <a href="{% url 'teacher_delete' teacher.pk %}" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete Teacher
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Personal Information -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-id-card me-2"></i>Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Full Name</strong>
+                            <p class="mb-0">{{ teacher.user.get_full_name }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Username</strong>
+                            <p class="mb-0">{{ teacher.user.username }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Email</strong>
+                            <p class="mb-0">{{ teacher.user.email }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Employee ID</strong>
+                            <p class="mb-0">{{ teacher.employee_id }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Department</strong>
+                            <p class="mb-0">{{ teacher.department }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Gender</strong>
+                            <p class="mb-0">{{ teacher.user.get_gender_display|default:'Not Specified' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Phone</strong>
+                            <p class="mb-0">{{ teacher.user.phone|default:'N/A' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Address</strong>
+                            <p class="mb-0">{{ teacher.user.address|default:'N/A' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Date of Birth</strong>
+                            <p class="mb-0">{{ teacher.user.date_of_birth|date:"M d, Y"|default:'N/A' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center" style="width: 90px; height: 90px; font-size: 32px;">
+                            {{ teacher.user.first_name|slice:":1" }}{{ teacher.user.last_name|slice:":1" }}
+                        </div>
+                    </div>
+                    <h4 class="mb-1">{{ teacher.user.get_full_name }}</h4>
+                    <p class="text-muted mb-4">{{ teacher.user.role|capfirst }}</p>
+                    <div class="text-start">
+                        <p class="mb-2"><strong>Department:</strong> {{ teacher.department }}</p>
+                        <p class="mb-2"><strong>Employee ID:</strong> {{ teacher.employee_id }}</p>
+                        <p class="mb-0"><strong>Classes Taught:</strong> {{ classes_taught|length }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <a href="{% url 'teacher_list' %}" class="btn btn-outline-secondary w-100 mb-2">
+                        <i class="fas fa-arrow-left"></i> Back to Teachers
+                    </a>
+                    <a href="{% url 'teacher_update' teacher.pk %}" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-edit"></i> Edit Teacher
+                    </a>
+                    <a href="{% url 'teacher_delete' teacher.pk %}" class="btn btn-danger w-100">
+                        <i class="fas fa-trash"></i> Delete Teacher
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teaching Statistics -->
+    <div class="row g-4 mt-4">
+        <div class="col-lg-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="text-primary mb-2">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                    <h3 class="mb-1">{{ students_taught }}</h3>
+                    <p class="text-muted mb-0">Students Taught</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="text-success mb-2">
+                        <i class="fas fa-book fa-2x"></i>
+                    </div>
+                    <h3 class="mb-1">{{ total_assignments }}</h3>
+                    <p class="text-muted mb-0">Total Assignments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="text-info mb-2">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                    <h3 class="mb-1">{{ submitted_assignments }}</h3>
+                    <p class="text-muted mb-0">Submissions Received</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-graduation-cap fa-2x"></i>
+                    </div>
+                    <h3 class="mb-1">{{ subjects_taught|length }}</h3>
+                    <p class="text-muted mb-0">Subjects Taught</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classes and Subjects -->
+    <div class="row g-4 mt-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-school me-2"></i>Classes Taught</h5>
+                </div>
+                <div class="card-body">
+                    {% if classes_taught %}
+                        <div class="row">
+                            {% for class_obj in classes_taught %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">{{ class_obj.name }}</h6>
+                                        <p class="text-muted mb-0">Section {{ class_obj.section }}</p>
+                                        <small class="text-muted">{{ class_obj.academic_year }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-school fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No classes assigned yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-book-open me-2"></i>Subjects Taught</h5>
+                </div>
+                <div class="card-body">
+                    {% if subjects_taught %}
+                        <div class="row">
+                            {% for subject in subjects_taught %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">{{ subject.name }}</h6>
+                                        <p class="text-muted mb-0">{{ subject.code }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No subjects assigned yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Assignments -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0"><i class="fas fa-tasks me-2"></i>Recent Assignments</h5>
+        </div>
+        <div class="card-body">
+            {% if assignments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Assignment</th>
+                                <th>Subject</th>
+                                <th>Class</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in assignments %}
+                            <tr>
+                                <td>{{ assignment.title }}</td>
+                                <td>{{ assignment.subject.name }}</td>
+                                <td>{{ assignment.class_assigned.name }}</td>
+                                <td>{{ assignment.due_date|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if assignment.due_date >= today %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Past Due</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No assignments created yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Submissions -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0"><i class="fas fa-file-upload me-2"></i>Recent Submissions</h5>
+        </div>
+        <div class="card-body">
+            {% if recent_submissions %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Assignment</th>
+                                <th>Submitted</th>
+                                <th>Score</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for submission in recent_submissions %}
+                            <tr>
+                                <td>{{ submission.student.user.get_full_name }}</td>
+                                <td>{{ submission.assignment.title }}</td>
+                                <td>{{ submission.submitted_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    {% if submission.score %}
+                                        {{ submission.score }}/{{ submission.assignment.max_score }}
+                                    {% else %}
+                                        Pending
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if submission.submitted_at <= submission.assignment.due_date %}
+                                        <span class="badge bg-success">On Time</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Late</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-file-upload fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No submissions received yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

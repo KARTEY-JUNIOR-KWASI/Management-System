@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}View Assignments - {{ student.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="sms-breadcrumb mb-4">
+  <span>Home</span><span class="sep">›</span><span class="current">My Assignments</span>
+</div>
+
+<div class="container-fluid fade-in pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 style="font-weight: 800; margin: 0; color: var(--text-dark);">My Assignments</h2>
+            <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">View and submit assignments</p>
+        </div>
+        <button type="button" class="btn btn-outline-akkhor btn-sm rounded-pill px-3" onclick="location.reload()">
+            <i class="fas fa-sync-alt me-1"></i> Refresh
+        </button>
+    </div>
+
+    <!-- Assignments List -->
+    <div class="row g-4">
+        {% for assignment in assignments %}
+        <div class="col-lg-4 col-md-6">
+            <div class="reg-card h-100 d-flex flex-column m-0 position-relative overflow-hidden
+                {% if assignment.status == 'overdue' %}border-danger border-2
+                {% elif assignment.status == 'submitted' %}border-success border-2
+                {% else %}border-warning border-2{% endif %}" style="transition:all 0.2s ease;">
+                
+                <div class="reg-card-header d-flex align-items-center gap-3">
+                    <div class="card-icon-wrap" style="background:#eff3ff;">
+                        <i class="fas fa-clipboard-list" style="color:var(--primary);"></i>
+                    </div>
+                    <div>
+                        <h5 style="margin:0; font-weight:700; color:var(--text-dark);">{{ assignment.title }}</h5>
+                        <p style="margin:0; font-size:0.75rem; color:var(--primary); font-weight:700; text-transform:uppercase;">{{ assignment.subject.name }}</p>
+                    </div>
+                </div>
+                
+                <div class="reg-card-body flex-grow-1">
+                    <p class="text-muted small mb-4" style="line-height:1.5;">{{ assignment.description|truncatechars:90 }}</p>
+                    
+                    <div class="d-flex flex-column gap-2 mb-3">
+                        <div class="d-flex align-items-center text-muted small">
+                            <i class="fas fa-user-circle fs-5 me-2 text-primary opacity-50"></i> 
+                            <span style="font-weight:600;">{{ assignment.teacher.user.get_full_name }}</span>
+                        </div>
+                        <div class="d-flex align-items-center text-muted small">
+                            <i class="fas fa-calendar-alt fs-5 me-2 text-primary opacity-50"></i> 
+                            <span>Due: <strong class="text-dark">{{ assignment.due_date|date:"M d, Y" }}</strong> at {{ assignment.due_date|time:"g:i A" }}</span>
+                        </div>
+                    </div>
+
+                    {% if assignment.file %}
+                    <a href="{{ assignment.file.url }}" target="_blank" class="btn btn-sm text-primary bg-light rounded-pill px-3 py-1 mt-2 mb-2 d-inline-flex align-items-center" style="font-weight: 600;">
+                        <i class="fas fa-file-download me-2"></i> Download Material
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <div class="bg-white border-top p-4 d-flex justify-content-between align-items-center mt-auto">
+                    {% if assignment.status == 'submitted' %}
+                        <span class="badge badge-akkhor text-success" style="background: rgba(40,167,69,0.1);">
+                            <i class="fas fa-check-circle me-1"></i> Submitted
+                        </span>
+                        {% if assignment.submission.grade %}
+                        <span class="badge bg-primary rounded-pill px-3 py-2 fw-bold text-white shadow-sm">
+                            Grade: {{ assignment.submission.grade }}/{{ assignment.max_score }}
+                        </span>
+                        {% endif %}
+                    {% elif assignment.status == 'overdue' %}
+                        <span class="badge badge-akkhor text-danger" style="background: rgba(220,53,69,0.1);">
+                            <i class="fas fa-exclamation-triangle me-1"></i> Overdue
+                        </span>
+                    {% else %}
+                        <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-primary-akkhor btn-sm w-100 rounded-pill shadow-sm">
+                            <i class="fas fa-cloud-upload-alt me-2"></i> Submit
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="reg-card">
+                <div class="reg-card-body text-center py-5">
+                    <div class="avatar-ring mb-3" style="width:80px; height:80px; font-size:2rem; background:#f3f6fb; color:var(--text-muted); margin:0 auto; display:flex; align-items:center; justify-content:center; border-radius:50%;">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <h5 style="color:var(--text-dark); font-weight:700;">All caught up!</h5>
+                    <p style="color:var(--text-muted);">No active assignments found for your enrolled classes.</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

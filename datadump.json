@@ -1,0 +1,670 @@
+[
+{
+  "model": "sites.site",
+  "fields": {
+    "domain": "example.com",
+    "name": "example.com"
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$gcJRpmErFBXaftSp5HCYDu$OWuWdzxHvRumzfzw8JSPq5PH2G14bW10Iop8qU7srbU=",
+    "last_login": "2026-04-05T02:49:54.673Z",
+    "is_superuser": false,
+    "username": "karteyjunior",
+    "first_name": "kartey",
+    "last_name": "junioor",
+    "email": "karteyjunior@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-05T02:49:52.372Z",
+    "role": "student",
+    "gender": null,
+    "phone": "0256227881",
+    "address": "",
+    "date_of_birth": "2026-04-08",
+    "profile_picture": "profiles/image_1.jpg",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$JBPa71eBzkzfGQp6xf8Xc5$zp2NpNtOUstPZ/SKrfAFkFpMMERKCSUTwr7CroK1mwY=",
+    "last_login": "2026-04-05T04:08:24.155Z",
+    "is_superuser": false,
+    "username": "cnsghanaltd998",
+    "first_name": "",
+    "last_name": "",
+    "email": "cnsghanaltd998@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-05T04:08:20.505Z",
+    "role": "student",
+    "gender": null,
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$B4u9QFv8HiePUKtME9QKdz$i+Hdv0pMDO7iQmjrxNY9TgN2xbtDxquiUis58Y3ZucI=",
+    "last_login": "2026-04-06T00:32:03.623Z",
+    "is_superuser": false,
+    "username": "nifacultymanagementventures",
+    "first_name": "",
+    "last_name": "",
+    "email": "nifacultymanagementventures@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-06T00:31:57.703Z",
+    "role": "student",
+    "gender": null,
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$d49MPgTEYzb8a0TGk4r0MA$baFsnhTdh8W8A8qemZuxxw4/bpuR4QiPzspaFYDT3ow=",
+    "last_login": "2026-04-06T01:18:06.528Z",
+    "is_superuser": false,
+    "username": "juni",
+    "first_name": "",
+    "last_name": "",
+    "email": "juni@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-06T01:18:04.573Z",
+    "role": "student",
+    "gender": null,
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$VagSTOU9RCKjt1FJFp7eYP$kUEY1a8bTrQnlNAkRcuon10XiFsoZ5Z0KzLtpGNjjVk=",
+    "last_login": "2026-04-06T21:29:03.331Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@example.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-04-06T01:54:00.488Z",
+    "role": "admin",
+    "gender": null,
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$8JpXcOhJbSS4aRAjxRCvNt$5T7iFNzK4rVQnuCUSSxK/vxpU5g7uUUoyphLh68bx/w=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "john",
+    "first_name": "KAR",
+    "last_name": "SMITH",
+    "email": "karteyjunior@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-06T02:27:24.973Z",
+    "role": "teacher",
+    "gender": null,
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$BQgIT3x7W86Gb2aqMUhBTM$2eJaarlK/qPiW00BTq4SlJG/FIOrKXKYt1HISsahFN4=",
+    "last_login": "2026-04-06T03:02:55.898Z",
+    "is_superuser": true,
+    "username": "admin_test",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@test.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-04-06T02:59:41.085Z",
+    "role": "admin",
+    "gender": null,
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$dDrLf8vZVmcg7YjL1xAIyx$Em59MCGDk9aYdgY13fs3NpKGDnhNd5QYnXXJn8DrSfc=",
+    "last_login": "2026-04-06T03:11:32.970Z",
+    "is_superuser": false,
+    "username": "kartey",
+    "first_name": "",
+    "last_name": "",
+    "email": "kartey@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-06T03:11:29.242Z",
+    "role": "teacher",
+    "gender": "male",
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$RzFvMOGG6wtJTDE544amkR$tURprL+2ZWYNfx0b/gjfu1UX7H/VOqPQI81Esj3dM/4=",
+    "last_login": "2026-04-06T21:52:27.092Z",
+    "is_superuser": true,
+    "username": "admin@edusystem.com",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@edusystem.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-04-06T03:38:33.697Z",
+    "role": "admin",
+    "gender": null,
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$HBsLDOl0dNKTmIErFAyvWv$wiuJ2IDAsVAOX8FmlIih+xd5u+OGv5tHlQgl02vcsiY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "STU29048",
+    "first_name": "KAR",
+    "last_name": "SMITH",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-06T03:47:23.234Z",
+    "role": "student",
+    "gender": null,
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$Zxfge0prBT7o9Yn3L2VoAl$eYBb4gt8uC6bMzDKsGkT0mViwBb+4kZXVKeFcNkMZ8Y=",
+    "last_login": "2026-04-06T22:32:48.549Z",
+    "is_superuser": false,
+    "username": "STU22816",
+    "first_name": "IFEADZIKA",
+    "last_name": "CHRISTINE AMAKA",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-06T04:08:32.848Z",
+    "role": "student",
+    "gender": null,
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$rsKJEOYmP7xnhE17qjsL9o$MsYXZPcKH3i1ZN8XmSXfYvzyfo3XM4uPYOWw2zVsXHs=",
+    "last_login": "2026-04-06T22:00:57.428Z",
+    "is_superuser": false,
+    "username": "TCH28207",
+    "first_name": "EMMA",
+    "last_name": "SOGA",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-06T04:11:55.021Z",
+    "role": "teacher",
+    "gender": null,
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "profiles/9x2hp.jpg",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$fhmMiyzZ9IkhdPZqB5ap3Q$ihk07stu/TrCmmmLvjdFEHFVSwQalA4EuuRKSGfgqXk=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "tempadmin",
+    "first_name": "",
+    "last_name": "",
+    "email": "temp@admin.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-04-06T21:00:09.248Z",
+    "role": "admin",
+    "gender": null,
+    "phone": "",
+    "address": "",
+    "date_of_birth": null,
+    "profile_picture": "",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.class",
+  "pk": 1,
+  "fields": {
+    "name": "CLASS 5",
+    "section": "1",
+    "grade": "2",
+    "class_teacher": [
+      "john"
+    ]
+  }
+},
+{
+  "model": "core.class",
+  "pk": 2,
+  "fields": {
+    "name": "CLASS 6",
+    "section": "2",
+    "grade": "3",
+    "class_teacher": [
+      "john"
+    ]
+  }
+},
+{
+  "model": "core.subject",
+  "pk": 1,
+  "fields": {
+    "name": "ENGLISH",
+    "code": "ENG101",
+    "description": "Learning basic knowledge in communication skills"
+  }
+},
+{
+  "model": "core.subject",
+  "pk": 2,
+  "fields": {
+    "name": "MATHEMATICS",
+    "code": "MATH101",
+    "description": "BASIC KNOWLEDGE IN CALCULATION"
+  }
+},
+{
+  "model": "core.timetable",
+  "pk": 1,
+  "fields": {
+    "class_assigned": 1,
+    "subject": 1,
+    "teacher": [
+      "TCH28207"
+    ],
+    "day": "monday",
+    "start_time": "11:00:00",
+    "end_time": "14:00:00"
+  }
+},
+{
+  "model": "core.timetable",
+  "pk": 2,
+  "fields": {
+    "class_assigned": 1,
+    "subject": 2,
+    "teacher": [
+      "john"
+    ],
+    "day": "tuesday",
+    "start_time": "11:00:00",
+    "end_time": "14:00:00"
+  }
+},
+{
+  "model": "students.student",
+  "pk": 2,
+  "fields": {
+    "user": [
+      "cnsghanaltd998"
+    ],
+    "student_id": "STUD00003",
+    "class_enrolled": null,
+    "enrollment_date": "2026-04-05",
+    "age": null,
+    "gender": "",
+    "status": "active",
+    "hobbies": "",
+    "parent_name": "",
+    "parent_phone": "",
+    "parent_email": "",
+    "parent_relationship": "",
+    "emergency_contact_name": "",
+    "emergency_contact_phone": "",
+    "emergency_contact_relationship": ""
+  }
+},
+{
+  "model": "students.student",
+  "pk": 3,
+  "fields": {
+    "user": [
+      "nifacultymanagementventures"
+    ],
+    "student_id": "STUD00004",
+    "class_enrolled": null,
+    "enrollment_date": "2026-04-06",
+    "age": null,
+    "gender": "",
+    "status": "active",
+    "hobbies": "",
+    "parent_name": "",
+    "parent_phone": "",
+    "parent_email": "",
+    "parent_relationship": "",
+    "emergency_contact_name": "",
+    "emergency_contact_phone": "",
+    "emergency_contact_relationship": ""
+  }
+},
+{
+  "model": "students.student",
+  "pk": 4,
+  "fields": {
+    "user": [
+      "juni"
+    ],
+    "student_id": "STUD00005",
+    "class_enrolled": null,
+    "enrollment_date": "2026-04-06",
+    "age": null,
+    "gender": "",
+    "status": "active",
+    "hobbies": "",
+    "parent_name": "",
+    "parent_phone": "",
+    "parent_email": "",
+    "parent_relationship": "",
+    "emergency_contact_name": "",
+    "emergency_contact_phone": "",
+    "emergency_contact_relationship": ""
+  }
+},
+{
+  "model": "students.student",
+  "pk": 5,
+  "fields": {
+    "user": [
+      "admin"
+    ],
+    "student_id": "STUD00006",
+    "class_enrolled": null,
+    "enrollment_date": "2026-04-06",
+    "age": null,
+    "gender": "",
+    "status": "active",
+    "hobbies": "",
+    "parent_name": "",
+    "parent_phone": "",
+    "parent_email": "",
+    "parent_relationship": "",
+    "emergency_contact_name": "",
+    "emergency_contact_phone": "",
+    "emergency_contact_relationship": ""
+  }
+},
+{
+  "model": "students.student",
+  "pk": 6,
+  "fields": {
+    "user": [
+      "kartey"
+    ],
+    "student_id": "STUD00009",
+    "class_enrolled": null,
+    "enrollment_date": "2026-04-06",
+    "age": null,
+    "gender": "",
+    "status": "active",
+    "hobbies": "",
+    "parent_name": "",
+    "parent_phone": "",
+    "parent_email": "",
+    "parent_relationship": "",
+    "emergency_contact_name": "",
+    "emergency_contact_phone": "",
+    "emergency_contact_relationship": ""
+  }
+},
+{
+  "model": "students.student",
+  "pk": 7,
+  "fields": {
+    "user": [
+      "STU29048"
+    ],
+    "student_id": "STUD00011",
+    "class_enrolled": null,
+    "enrollment_date": "2026-04-06",
+    "age": null,
+    "gender": "",
+    "status": "active",
+    "hobbies": "",
+    "parent_name": "",
+    "parent_phone": "",
+    "parent_email": "",
+    "parent_relationship": "",
+    "emergency_contact_name": "",
+    "emergency_contact_phone": "",
+    "emergency_contact_relationship": ""
+  }
+},
+{
+  "model": "students.student",
+  "pk": 8,
+  "fields": {
+    "user": [
+      "STU22816"
+    ],
+    "student_id": "STU22816",
+    "class_enrolled": 1,
+    "enrollment_date": "2026-04-06",
+    "age": null,
+    "gender": "",
+    "status": "active",
+    "hobbies": "",
+    "parent_name": "",
+    "parent_phone": "",
+    "parent_email": "",
+    "parent_relationship": "",
+    "emergency_contact_name": "",
+    "emergency_contact_phone": "",
+    "emergency_contact_relationship": ""
+  }
+},
+{
+  "model": "teachers.teacher",
+  "pk": 1,
+  "fields": {
+    "user": [
+      "john"
+    ],
+    "teacher_id": "TCHR00007",
+    "hire_date": "2026-04-06",
+    "qualification": "",
+    "specialization": "",
+    "emergency_contact_name": "",
+    "emergency_contact_phone": "",
+    "emergency_contact_relationship": "",
+    "subjects": []
+  }
+},
+{
+  "model": "teachers.teacher",
+  "pk": 2,
+  "fields": {
+    "user": [
+      "kartey"
+    ],
+    "teacher_id": "TCHR00009",
+    "hire_date": "2026-04-06",
+    "qualification": "",
+    "specialization": "",
+    "emergency_contact_name": "",
+    "emergency_contact_phone": "",
+    "emergency_contact_relationship": "",
+    "subjects": []
+  }
+},
+{
+  "model": "teachers.teacher",
+  "pk": 3,
+  "fields": {
+    "user": [
+      "TCH28207"
+    ],
+    "teacher_id": "TCH28207",
+    "hire_date": "2026-04-06",
+    "qualification": "diploma",
+    "specialization": "Mathematics",
+    "emergency_contact_name": "Kartey Kwasi Junior",
+    "emergency_contact_phone": "025622781",
+    "emergency_contact_relationship": "Friend",
+    "subjects": []
+  }
+},
+{
+  "model": "library.resource",
+  "pk": 1,
+  "fields": {
+    "title": "math",
+    "description": "greter than",
+    "resource_type": "document",
+    "file": "library/resources/BELLO_TRIBUTE.pdf",
+    "external_url": "",
+    "subject": null,
+    "uploaded_by": [
+      "TCH28207"
+    ],
+    "created_at": "2026-04-06T17:46:07.647Z",
+    "updated_at": "2026-04-06T17:46:07.647Z",
+    "is_published": true,
+    "target_class": 1,
+    "view_count": 1
+  }
+},
+{
+  "model": "account.emailaddress",
+  "pk": 1,
+  "fields": {
+    "user": [
+      "karteyjunior"
+    ],
+    "email": "karteyjunior@gmail.com",
+    "verified": false,
+    "primary": true
+  }
+},
+{
+  "model": "account.emailaddress",
+  "pk": 3,
+  "fields": {
+    "user": [
+      "cnsghanaltd998"
+    ],
+    "email": "cnsghanaltd998@gmail.com",
+    "verified": false,
+    "primary": true
+  }
+},
+{
+  "model": "account.emailaddress",
+  "pk": 4,
+  "fields": {
+    "user": [
+      "nifacultymanagementventures"
+    ],
+    "email": "nifacultymanagementventures@gmail.com",
+    "verified": false,
+    "primary": true
+  }
+},
+{
+  "model": "account.emailaddress",
+  "pk": 5,
+  "fields": {
+    "user": [
+      "juni"
+    ],
+    "email": "juni@gmail.com",
+    "verified": false,
+    "primary": true
+  }
+},
+{
+  "model": "account.emailaddress",
+  "pk": 6,
+  "fields": {
+    "user": [
+      "kartey"
+    ],
+    "email": "kartey@gmail.com",
+    "verified": false,
+    "primary": true
+  }
+}
+]

@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate Reports{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Analytics Menu</span>
+                </h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:analytics_dashboard' %}">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:create_notification' %}">
+                            <i class="fas fa-bell"></i> Send Notification
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'analytics:generate_report' %}">
+                            <i class="fas fa-file-pdf"></i> Generate Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'analytics:notifications_list' %}">
+                            <i class="fas fa-inbox"></i> Notifications
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Generate Reports</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{% url 'analytics:analytics_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Report Generator</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="report_type" class="form-label">Report Type</label>
+                                    <select class="form-select" id="report_type" name="report_type" required>
+                                        <option value="">Select Report Type</option>
+                                        <option value="progress">Progress Report</option>
+                                        <option value="attendance">Attendance Report</option>
+                                        <option value="performance">Performance Analysis</option>
+                                        <option value="summary">Monthly Summary</option>
+                                    </select>
+                                    <small class="text-muted">
+                                        <strong>Progress Report:</strong> Detailed student performance over a period<br>
+                                        <strong>Attendance Report:</strong> Attendance records and statistics<br>
+                                        <strong>Performance Analysis:</strong> Comprehensive performance insights<br>
+                                        <strong>Monthly Summary:</strong> Overview of monthly activities
+                                    </small>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="start_date" class="form-label">Start Date</label>
+                                            <input type="date" class="form-control" id="start_date" name="start_date"
+                                                   value="{{ last_month|date:'Y-m-d' }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="end_date" class="form-label">End Date</label>
+                                            <input type="date" class="form-control" id="end_date" name="end_date"
+                                                   value="{{ today|date:'Y-m-d' }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Report Generation:</strong> Reports will be generated as PDF files and downloaded automatically.
+                                    Processing may take a few moments for detailed reports.
+                                </div>
+
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-file-pdf"></i> Generate Report
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Recent Reports -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Recent Reports</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-secondary">
+                                <i class="fas fa-info-circle"></i> Recent reports history will be displayed here.
+                                This feature tracks generated reports for audit and reference purposes.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Report Types Info -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Report Types</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="accordion" id="reportTypesAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#progress">
+                                            Progress Reports
+                                        </button>
+                                    </h2>
+                                    <div id="progress" class="accordion-collapse collapse show" data-bs-parent="#reportTypesAccordion">
+                                        <div class="accordion-body small">
+                                            Detailed student progress reports including grades, attendance, and assignment completion.
+                                            Perfect for parent-teacher conferences and student reviews.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#attendance">
+                                            Attendance Reports
+                                        </button>
+                                    </h2>
+                                    <div id="attendance" class="accordion-collapse collapse" data-bs-parent="#reportTypesAccordion">
+                                        <div class="accordion-body small">
+                                            Comprehensive attendance tracking with statistics, patterns, and trends.
+                                            Helps identify attendance issues and monitor student regularity.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#performance">
+                                            Performance Analysis
+                                        </button>
+                                    </h2>
+                                    <div id="performance" class="accordion-collapse collapse" data-bs-parent="#reportTypesAccordion">
+                                        <div class="accordion-body small">
+                                            Advanced analytics with grade predictions, learning insights, and personalized recommendations.
+                                            Uses AI to identify patterns and suggest improvements.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#summary">
+                                            Monthly Summary
+                                        </button>
+                                    </h2>
+                                    <div id="summary" class="accordion-collapse collapse" data-bs-parent="#reportTypesAccordion">
+                                        <div class="accordion-body small">
+                                            High-level overview of monthly activities, achievements, and key metrics.
+                                            Ideal for administrative reporting and stakeholder updates.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Quick Generate</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="quickReport('progress', 30)">
+                                    <i class="fas fa-calendar-alt"></i> Last 30 Days Progress
+                                </button>
+                                <button type="button" class="btn btn-outline-success btn-sm" onclick="quickReport('attendance', 30)">
+                                    <i class="fas fa-calendar-check"></i> Monthly Attendance
+                                </button>
+                                <button type="button" class="btn btn-outline-info btn-sm" onclick="quickReport('performance', 90)">
+                                    <i class="fas fa-chart-line"></i> Quarterly Analysis
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report Tips -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Tips</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0 small">
+                                <li class="mb-2"><i class="fas fa-clock text-info"></i> Reports may take time to generate</li>
+                                <li class="mb-2"><i class="fas fa-save text-success"></i> PDFs are automatically downloaded</li>
+                                <li class="mb-2"><i class="fas fa-calendar text-primary"></i> Choose appropriate date ranges</li>
+                                <li class="mb-0"><i class="fas fa-share text-warning"></i> Reports can be shared with parents</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+function quickReport(reportType, daysBack) {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - daysBack);
+
+    document.getElementById('report_type').value = reportType;
+    document.getElementById('start_date').value = startDate.toISOString().split('T')[0];
+    document.getElementById('end_date').value = endDate.toISOString().split('T')[0];
+
+    // Scroll to form
+    document.querySelector('form').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Date validation
+document.getElementById('start_date').addEventListener('change', validateDates);
+document.getElementById('end_date').addEventListener('change', validateDates);
+
+function validateDates() {
+    const startDate = new Date(document.getElementById('start_date').value);
+    const endDate = new Date(document.getElementById('end_date').value);
+
+    if (startDate > endDate) {
+        alert('Start date cannot be after end date');
+        document.getElementById('start_date').value = document.getElementById('end_date').value;
+    }
+}
+</script>
+{% endblock %}

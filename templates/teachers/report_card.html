@@ -1,0 +1,228 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Card — {{ student.user.get_full_name }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: #f0f4f8; color: #2d3748; }
+
+    .page { max-width: 800px; margin: 2rem auto; background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,0.1); border-radius: 12px; overflow: hidden; }
+
+    /* Header */
+    .header { background: linear-gradient(135deg, #1a3a6b 0%, #2563eb 100%); color: #fff; padding: 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .school-brand { font-size: 1.8rem; font-weight: 700; }
+    .school-brand span { color: #93c5fd; }
+    .school-subtitle { font-size: 0.8rem; opacity: 0.8; margin-top: 0.25rem; }
+    .report-badge { background: rgba(255,255,255,0.2); border-radius: 8px; padding: 0.5rem 1rem; text-align: center; }
+    .report-badge .label { font-size: 0.7rem; opacity:0.8; }
+    .report-badge .value { font-size: 1rem; font-weight: 700; }
+
+    /* Student Info */
+    .student-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; padding: 1.5rem 2rem; background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
+    .info-item { display: flex; flex-direction: column; }
+    .info-label { font-size: 0.68rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .info-value { font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-top: 0.15rem; }
+
+    /* Grade Summary */
+    .summary-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 1.5rem 2rem; }
+    .summary-card { text-align: center; padding: 1rem; border-radius: 10px; }
+    .summary-card.grade-card { background: #eff6ff; border: 2px solid #bfdbfe; }
+    .summary-card.att-card { background: #f0fdf4; border: 2px solid #bbf7d0; }
+    .summary-card.avg-card { background: #fff7ed; border: 2px solid #fed7aa; }
+    .card-label { font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+    .card-value { font-size: 2rem; font-weight: 700; color: #1e293b; margin-top: 0.25rem; }
+    .card-sub { font-size: 0.75rem; color: #64748b; }
+
+    /* Subjects table */
+    .section { padding: 0 2rem 1.5rem; }
+    .section-title { font-size: 0.85rem; font-weight: 700; color: #1a3a6b; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: #1a3a6b; color: #fff; }
+    thead th { padding: 0.6rem 0.8rem; font-size: 0.75rem; font-weight: 600; text-align: left; }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody td { padding: 0.55rem 0.8rem; font-size: 0.82rem; border-bottom: 1px solid #e2e8f0; }
+    .subject-name { font-weight: 600; color: #1e293b; }
+
+    .badge-grade { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 700; font-size: 0.85rem; }
+    .A { background: #d1fae5; color: #065f46; }
+    .B { background: #dbeafe; color: #1e40af; }
+    .C { background: #fef3c7; color: #92400e; }
+    .D { background: #ffe4cc; color: #9a3412; }
+    .F { background: #fee2e2; color: #991b1b; }
+
+    .progress-wrap { display: flex; align-items: center; gap: 0.5rem; }
+    .progress-bar { flex: 1; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; }
+
+    /* Footer */
+    .footer { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 1.5rem 2rem; border-top: 2px solid #e2e8f0; margin-top: 0.5rem; }
+    .sign-line { border-top: 1px dashed #94a3b8; padding-top: 0.3rem; font-size: 0.72rem; color: #64748b; text-align: center; margin-top: 2rem; }
+
+    .print-btn { display: flex; justify-content: center; gap: 1rem; padding: 1.5rem; background: #f8fafc; }
+    .btn-print { background: #1a3a6b; color: #fff; border: none; padding: 0.65rem 2rem; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+    .btn-back { background: #fff; color: #1a3a6b; border: 2px solid #1a3a6b; padding: 0.65rem 2rem; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: 100%; margin: 0; box-shadow: none; border-radius: 0; }
+      .print-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <!-- School Header -->
+  <div class="header">
+    <div>
+      <div class="school-brand">Edu<span>MS</span></div>
+      <div class="school-subtitle">School Management System — Official Report Card</div>
+    </div>
+    <div class="report-badge">
+      <div class="label">Academic Year</div>
+      <div class="value">2025 / 2026</div>
+    </div>
+  </div>
+
+  <!-- Student Info -->
+  <div class="student-info">
+    <div class="info-item">
+      <span class="info-label">Student Name</span>
+      <span class="info-value">{{ student.user.get_full_name }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Student ID</span>
+      <span class="info-value" style="font-family:monospace;">{{ student.student_id }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Class</span>
+      <span class="info-value">{{ student.class_enrolled }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Enrollment Date</span>
+      <span class="info-value">{{ student.enrollment_date }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Class Teacher</span>
+      <span class="info-value">{{ student.class_enrolled.class_teacher.get_full_name|default:"N/A" }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Generated On</span>
+      <span class="info-value">{% now "d M Y" %}</span>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="summary-card grade-card">
+      <div class="card-label">Overall Grade</div>
+      <div class="card-value">{{ overall_grade }}</div>
+      <div class="card-sub">{{ overall_avg }}% Average</div>
+    </div>
+    <div class="summary-card avg-card">
+      <div class="card-label">Overall Average</div>
+      <div class="card-value">{{ overall_avg }}%</div>
+      <div class="card-sub">Across all subjects</div>
+    </div>
+    <div class="summary-card att-card">
+      <div class="card-label">Attendance</div>
+      <div class="card-value">{{ att_pct }}%</div>
+      <div class="card-sub">{{ att_present }} / {{ att_total }} days</div>
+    </div>
+  </div>
+
+  <!-- Academic Results -->
+  <div class="section">
+    <div class="section-title">📚 Academic Results</div>
+    {% if subject_results %}
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Exam Type</th>
+          <th>Score</th>
+          <th>Max Score</th>
+          <th>Percentage</th>
+          <th>Grade</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for subj_name, data in subject_results.items %}
+          {% for r in data.results %}
+          <tr>
+            {% if forloop.first %}
+            <td class="subject-name" rowspan="{{ data.results|length }}">{{ subj_name }}</td>
+            {% endif %}
+            <td style="text-transform:capitalize;">{{ r.exam_type }}</td>
+            <td style="font-weight:600;">{{ r.score }}</td>
+            <td style="color:#64748b;">{{ r.max_score }}</td>
+            <td>
+              <div class="progress-wrap">
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width:{{ r.percentage }}%; background:{% if r.percentage >= 70 %}#10b981{% elif r.percentage >= 50 %}#f59e0b{% else %}#ef4444{% endif %};"></div>
+                </div>
+                <span style="font-size:0.78rem; font-weight:600;">{{ r.percentage }}%</span>
+              </div>
+            </td>
+            <td>
+              {% if r.percentage >= 90 %}<span class="badge-grade A">A</span>
+              {% elif r.percentage >= 80 %}<span class="badge-grade B">B</span>
+              {% elif r.percentage >= 70 %}<span class="badge-grade C">C</span>
+              {% elif r.percentage >= 60 %}<span class="badge-grade D">D</span>
+              {% else %}<span class="badge-grade F">F</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          <!-- Subject average row -->
+          <tr style="background:#eff6ff;">
+            <td colspan="4" style="text-align:right; font-size:0.75rem; color:#64748b;">{{ subj_name }} Average</td>
+            <td colspan="2" style="font-weight:700; color:#1a3a6b;">{{ data.average }}%</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p style="color:#94a3b8; text-align:center; padding:2rem;">No grade records available yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- Teacher Remarks -->
+  <div class="section">
+    <div class="section-title">📝 Teacher Remarks</div>
+    <div style="background:#f8fafc; border-radius:8px; padding:1rem; min-height:60px; color:#94a3b8; font-size:0.85rem; font-style:italic;">
+      {% if overall_avg >= 90 %}
+        Excellent performance! Keep up the outstanding work.
+      {% elif overall_avg >= 75 %}
+        Good performance. Continue working hard to achieve excellence.
+      {% elif overall_avg >= 60 %}
+        Satisfactory performance. There is room for improvement — please put in more effort.
+      {% else %}
+        Needs significant improvement. We encourage the student to seek extra help and study more consistently.
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Signatures -->
+  <div class="footer">
+    <div>
+      <div class="sign-line">Class Teacher: {{ teacher.user.get_full_name }}</div>
+    </div>
+    <div>
+      <div class="sign-line">Principal / Head of School</div>
+    </div>
+  </div>
+</div>
+
+<!-- Print/Back Buttons -->
+<div class="print-btn">
+  <a href="javascript:history.back()" class="btn-back">← Back</a>
+  <button class="btn-print" onclick="window.print()">🖨 Print Report Card</button>
+</div>
+
+</body>
+</html>

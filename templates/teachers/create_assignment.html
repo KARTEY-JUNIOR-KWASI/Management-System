@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Create Assignment{% endblock %}
+{% block content %}
+<div class="container-fluid pb-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 style="font-weight:800; margin:0; color:var(--text-dark);">
+        Create Assignment
+      </h2>
+      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">
+        Publish a new assignment for your students
+      </p>
+    </div>
+    <a href="{% url 'manage_assignments' %}" class="btn btn-outline-akkhor">
+      <i class="fas fa-arrow-left me-1"></i> Back to Assignments
+    </a>
+  </div>
+
+  {% if messages %}
+    {% for m in messages %}
+      <div class="alert-akkhor alert-{{ m.tags }} fade-in mb-3">
+        <i class="fas fa-{% if m.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i> {{ m }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="reg-card">
+    <div class="reg-card-header">
+      <div class="card-icon-wrap" style="background:#f0fdf4;">
+        <i class="fas fa-tasks" style="color:#16a34a;"></i>
+      </div>
+      <div>
+        <h5>Assignment Details</h5>
+        <p>Set a title, due date, and instructions</p>
+      </div>
+    </div>
+    <div class="reg-card-body">
+      <form method="post" enctype="multipart/form-data" id="reg-form">
+        {% csrf_token %}
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <div class="field-group">
+              <label>Assignment Title <span class="text-danger">*</span></label>
+              <input type="text" name="title" class="form-control" placeholder="e.g. Chapter 3 Exercise" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-group">
+              <label>Due Date <span class="text-danger">*</span></label>
+              <input type="date" name="due_date" class="form-control" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <div class="field-group">
+              <label>Subject <span class="text-danger">*</span></label>
+              <select name="subject_id" class="form-control form-select" required>
+                <option value="">-- Select Subject --</option>
+                {% for subj in teacher_subjects %}
+                  <option value="{{ subj.id }}">{{ subj.name }}</option>
+                {% endfor %}
+              </select>
+              {% if not teacher_subjects %}
+                <div class="field-error">No subjects assigned to you. Ask admin to assign subjects.</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-group">
+              <label>Class <span class="text-danger">*</span></label>
+              <select name="class_id" class="form-control form-select" required>
+                <option value="">-- Select Class --</option>
+                {% for cls in teacher_classes %}
+                  <option value="{{ cls.id }}">{{ cls }}</option>
+                {% endfor %}
+              </select>
+              {% if not teacher_classes %}
+                <div class="field-error">No classes available. Ask admin to create classes.</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group mb-3">
+          <label>Description / Instructions <span class="text-danger">*</span></label>
+          <textarea name="description" class="form-control" rows="5" placeholder="Provide detailed instructions for students..." required></textarea>
+        </div>
+
+        <div class="field-group">
+          <label>Attachment <span style="color:var(--text-muted); font-size:0.8rem;">(Optional)</span></label>
+          <input type="file" name="file" class="form-control" style="padding:0.4rem 0.85rem;">
+          <div class="field-hint">Upload worksheets, reference documents, or materials.</div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="reg-submit-bar">
+    <div class="note">
+      <i class="fas fa-info-circle" style="color:var(--primary);"></i>
+      Students will see this published assignment immediately.
+    </div>
+    <div style="display:flex; gap:0.75rem;">
+      <a href="{% url 'manage_assignments' %}" class="btn btn-outline-akkhor">Cancel</a>
+      <button type="submit" form="reg-form" class="btn btn-primary-akkhor px-5">
+        <i class="fas fa-paper-plane me-1"></i> Publish Assignment
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}

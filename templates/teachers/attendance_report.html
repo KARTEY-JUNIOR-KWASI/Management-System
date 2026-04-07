@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}Attendance Report{% endblock %}
+{% block content %}
+<div class="container-fluid pb-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 style="font-weight:800; margin:0; color:var(--text-dark);">Attendance Report</h2>
+      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">Overall attendance summary per student</p>
+    </div>
+    <a href="{% url 'mark_attendance' %}" class="btn btn-outline-akkhor">
+      <i class="fas fa-edit me-1"></i> Mark Attendance
+    </a>
+  </div>
+
+  <!-- Filter -->
+  <div class="reg-card mb-4" style="border-top: 4px solid var(--primary);">
+    <div class="reg-card-body">
+      <h5 style="font-weight:700; color:var(--primary); margin-bottom:1.25rem;"><i class="fas fa-filter me-2"></i>Select Class</h5>
+      <form method="get">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-6">
+            <div class="field-group">
+              <label>Select Class</label>
+              <select name="class_id" class="form-control form-select">
+                <option value="">-- Select Class --</option>
+                {% for cls in teacher_classes %}
+                  <option value="{{ cls.id }}" {% if selected_class.id == cls.id %}selected{% endif %}>{{ cls }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <button type="submit" class="btn btn-primary-akkhor w-100" style="padding:0.6rem 1rem;">
+              <i class="fas fa-search me-1"></i> Load Report
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if attendance_data %}
+  <!-- Summary Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="reg-card m-0" style="border-left:4px solid var(--stat-green);">
+        <div class="reg-card-body py-3 d-flex align-items-center justify-content-between">
+          <div>
+            <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Total Present</div>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--stat-green);">{{ total_present }}</div>
+          </div>
+          <i class="fas fa-check-circle" style="font-size:2rem; color:var(--stat-green); opacity:0.2;"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="reg-card m-0" style="border-left:4px solid var(--stat-red);">
+        <div class="reg-card-body py-3 d-flex align-items-center justify-content-between">
+          <div>
+            <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Total Absent</div>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--stat-red);">{{ total_absent }}</div>
+          </div>
+          <i class="fas fa-times-circle" style="font-size:2rem; color:var(--stat-red); opacity:0.2;"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="reg-card m-0" style="border-left:4px solid var(--stat-orange);">
+        <div class="reg-card-body py-3 d-flex align-items-center justify-content-between">
+          <div>
+            <div style="font-size:0.8rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Total Late</div>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--stat-orange);">{{ total_late }}</div>
+          </div>
+          <i class="fas fa-clock" style="font-size:2rem; color:var(--stat-orange); opacity:0.2;"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reg-card">
+    <div class="reg-card-header">
+      <div class="card-icon-wrap" style="background:#eff3ff;">
+        <i class="fas fa-list-alt" style="color:var(--primary);"></i>
+      </div>
+      <div>
+        <h5 style="margin:0; font-weight:700;">{{ selected_class }} — Student Attendance Summary</h5>
+      </div>
+    </div>
+    <div class="reg-card-body">
+      <div class="table-responsive border rounded-3 overflow-hidden">
+        <table class="table-akkhor m-0">
+          <thead>
+            <tr>
+              <th style="width:50px;">#</th>
+              <th>Student</th>
+              <th>Present</th>
+              <th>Absent</th>
+              <th>Late</th>
+              <th>Attendance %</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in attendance_data %}
+            <tr>
+              <td style="color:var(--text-muted); font-size:0.8rem;">{{ forloop.counter }}</td>
+              <td>
+                <div style="font-weight:600; color:var(--text-dark);">{{ row.student.user.get_full_name }}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">{{ row.student.student_id }}</div>
+              </td>
+              <td><span style="color:var(--stat-green); font-weight:600;">{{ row.present }}</span></td>
+              <td><span style="color:var(--stat-red); font-weight:600;">{{ row.absent }}</span></td>
+              <td><span style="color:var(--stat-orange); font-weight:600;">{{ row.late }}</span></td>
+              <td>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <div style="flex:1; background:#e9ecef; border-radius:4px; height:8px; max-width:100px;">
+                    <div style="width:{{ row.percentage }}%; background:{% if row.percentage >= 75 %}var(--stat-green){% elif row.percentage >= 50 %}var(--stat-orange){% else %}var(--stat-red){% endif %}; height:8px; border-radius:4px;"></div>
+                  </div>
+                  <span style="font-weight:600;{% if row.percentage < 75 %} color:var(--stat-red);{% endif %}">{{ row.percentage }}%</span>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% elif selected_class %}
+    <div class="reg-card">
+      <div class="reg-card-body text-center py-5">
+        <div class="avatar-ring mb-3" style="width:80px; height:80px; font-size:2rem; background:#f3f6fb; color:var(--text-muted); margin:0 auto; display:flex; align-items:center; justify-content:center; border-radius:50%;">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <h5 style="color:var(--text-dark); font-weight:700;">No Attendance Records</h5>
+        <p style="color:var(--text-muted);">There are no attendance records for {{ selected_class }} yet.</p>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

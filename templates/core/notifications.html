@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="row layout-spacing">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 style="font-weight: 800; margin: 0; color: var(--text-dark);">🔔 Notification Center</h2>
+                <p style="color: var(--text-muted); margin: 0; font-size: 0.85rem;">Stay updated with school announcements and academic updates.</p>
+            </div>
+            {% if unread_notifications_count > 0 %}
+            <button class="btn btn-outline-akkhor rounded-pill px-4" onclick="markAllAsRead()">
+                <i class="fas fa-check-double me-1"></i> Mark All as Read
+            </button>
+            {% endif %}
+        </div>
+
+        <div class="card card-akkhor">
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="notificationsList">
+                    {% for notification in notifications %}
+                        <div class="list-group-item p-4 border-bottom-0 {% if not notification.is_read %}bg-light-primary{% endif %}" id="notif-{{ notification.id }}" style="border-left: 4px solid {% if not notification.is_read %}var(--primary-color){% else %}transparent{% endif %}; transition: all 0.3s ease;">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex gap-3">
+                                    <div class="notif-icon-circle bg-white shadow-sm d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; border-radius: 12px;">
+                                        <i class="fas fa-bell {% if not notification.is_read %}text-primary{% else %}text-muted{% endif %}"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold {% if not notification.is_read %}text-dark{% else %}text-muted{% endif %}">{{ notification.title }}</h6>
+                                        <p class="mb-2 text-muted" style="font-size: 0.9rem; line-height: 1.5;">{{ notification.message }}</p>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <span class="small text-muted"><i class="far fa-clock me-1"></i>{{ notification.created_at|timesince }} ago</span>
+                                            <span class="small text-muted"><i class="far fa-user me-1"></i>From: {{ notification.sender.get_full_name|default:notification.sender.username }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if not notification.is_read %}
+                                    <button class="btn btn-sm btn-light rounded-pill px-3" onclick="markAsRead({{ notification.id }})">
+                                        Mark as Read
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-bell-slash text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+                            <h5 class="text-muted fw-bold">No notifications found</h5>
+                            <p class="text-muted small">You're all caught up!</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-light-primary {
+        background-color: rgba(67, 97, 238, 0.03) !important;
+    }
+    .list-group-item:hover {
+        background-color: #f8fafc !important;
+    }
+</style>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function markAsRead(id) {
+    fetch(`/notifications/${id}/read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const item = document.getElementById(`notif-${id}`);
+            item.classList.remove('bg-light-primary');
+            item.style.borderLeftColor = 'transparent';
+            const btn = item.querySelector('button');
+            if (btn) btn.remove();
+            
+            // Update the topbar count if it exists
+            const badge = document.querySelector('.topbar-badge');
+            if (badge) {
+                let count = parseInt(badge.textContent);
+                if (count > 1) {
+                    badge.textContent = count - 1;
+                } else {
+                    badge.remove();
+                }
+            }
+        }
+    });
+}
+
+function markAllAsRead() {
+    fetch('/notifications/read-all/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}

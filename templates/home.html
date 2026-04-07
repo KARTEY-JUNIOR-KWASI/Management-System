@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}EduSystem — School Management Platform{% endblock %}
+
+{% block noauth_content %}
+<div class="landing-page">
+
+  <!-- Hero -->
+  <section class="landing-hero">
+    <div class="hero-logo">Edu<span>MS</span></div>
+    <h1>The Complete School<br>Management Platform</h1>
+    <p>Manage students, teachers, grades, attendance and analytics — all in one powerful and easy-to-use system.</p>
+
+    {% if not user.is_authenticated %}
+    <div class="hero-btns">
+      <a href="{% url 'account_login' %}" class="hero-btn-primary">
+        <i class="fas fa-sign-in-alt"></i> Log In to Your Portal
+      </a>
+    </div>
+    {% else %}
+    <div class="hero-btns">
+      {% if user.role == 'admin' %}
+        <a href="{% url 'admin_dashboard' %}" class="hero-btn-primary"><i class="fas fa-th-large"></i> Go to Dashboard</a>
+      {% elif user.role == 'teacher' %}
+        <a href="{% url 'teacher_dashboard' %}" class="hero-btn-primary"><i class="fas fa-th-large"></i> Go to Dashboard</a>
+      {% elif user.role == 'student' %}
+        <a href="{% url 'student_dashboard' %}" class="hero-btn-primary"><i class="fas fa-th-large"></i> Go to Dashboard</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- Stats strip -->
+  <div class="stats-strip">
+    <div class="stats-strip-inner">
+      <div>
+        <div class="strip-stat-num">500+</div>
+        <div class="strip-stat-label">Students Enrolled</div>
+      </div>
+      <div>
+        <div class="strip-stat-num">50+</div>
+        <div class="strip-stat-label">Teachers</div>
+      </div>
+      <div>
+        <div class="strip-stat-num">30+</div>
+        <div class="strip-stat-label">Subjects</div>
+      </div>
+      <div>
+        <div class="strip-stat-num">98%</div>
+        <div class="strip-stat-label">Uptime</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portal Access Info (replaces role signup cards) -->
+  {% if not user.is_authenticated %}
+  <section class="landing-section">
+    <h2>Access Your Portal</h2>
+    <p style="text-align:center; color:var(--text-muted); margin-bottom:2rem; font-size:0.95rem;">
+      All accounts are created by the school administrator. Contact your school admin to receive your login credentials.
+    </p>
+    <div class="landing-cards">
+
+      <div class="landing-card student-card">
+        <div class="card-icon"><i class="fas fa-user-graduate"></i></div>
+        <h3>Student Portal</h3>
+        <p>Access your grades, attendance, assignments, and personal analytics in one place.</p>
+        <ul>
+          <li>View grades &amp; GPA</li>
+          <li>Track attendance records</li>
+          <li>Submit assignments</li>
+          <li>Personal analytics</li>
+        </ul>
+        <a href="{% url 'account_login' %}" class="btn-akkhor btn-success-akkhor" style="width:100%; justify-content:center;">
+          <i class="fas fa-sign-in-alt"></i> Student Login
+        </a>
+        <p style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin-top:0.75rem;">
+          Use your <strong>Student ID</strong> and password provided by admin
+        </p>
+      </div>
+
+      <div class="landing-card teacher-card">
+        <div class="card-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <h3>Teacher Portal</h3>
+        <p>Manage your classes, grade students, track attendance, and create assignments.</p>
+        <ul>
+          <li>Manage class assignments</li>
+          <li>Mark &amp; report attendance</li>
+          <li>Grade submissions</li>
+          <li>Monitor student progress</li>
+        </ul>
+        <a href="{% url 'account_login' %}" class="btn-akkhor btn-primary-akkhor" style="width:100%; justify-content:center;">
+          <i class="fas fa-sign-in-alt"></i> Teacher Login
+        </a>
+        <p style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin-top:0.75rem;">
+          Use your <strong>Teacher ID</strong> and password provided by admin
+        </p>
+      </div>
+
+      <div class="landing-card admin-card">
+        <div class="card-icon"><i class="fas fa-shield-halved"></i></div>
+        <h3>Admin Panel</h3>
+        <p>Full control over your school — users, classes, subjects, and analytics.</p>
+        <ul>
+          <li>Manage all users &amp; roles</li>
+          <li>Oversee classes &amp; subjects</li>
+          <li>School-wide analytics</li>
+          <li>Complete system control</li>
+        </ul>
+        <a href="{% url 'account_login' %}" class="btn-akkhor btn-outline-akkhor" style="width:100%; justify-content:center;">
+          <i class="fas fa-sign-in-alt"></i> Admin Login
+        </a>
+        <p style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin-top:0.75rem;">
+          Use your admin <strong>email</strong> and password
+        </p>
+      </div>
+
+    </div>
+  </section>
+  {% endif %}
+
+  <footer class="landing-footer">
+    © 2026 EduSystem School Management Platform. All rights reserved.
+  </footer>
+
+</div>
+{% endblock noauth_content %}
