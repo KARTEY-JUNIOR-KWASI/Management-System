@@ -1,6 +1,5 @@
-from django.db import models
 from django.db.models import Avg, Count, Q, F, ExpressionWrapper, FloatField, Case, When
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Cast
 
 
 class StudentQuerySet(models.QuerySet):
@@ -22,11 +21,12 @@ class StudentQuerySet(models.QuerySet):
                 output_field=FloatField()
             ),
             # GPA Stats: AVG( (score/max_score) * 4.0 )
+            # Fix: Explicitly cast Decimals to Float for PostgreSQL compatibility
             annotated_gpa=Coalesce(
                 Avg(
                     Case(
                         When(results__max_score__gt=0, then=ExpressionWrapper(
-                            F('results__score') * 4.0 / F('results__max_score'),
+                            Cast(F('results__score'), FloatField()) * 4.0 / Cast(F('results__max_score'), FloatField()),
                             output_field=FloatField()
                         )),
                         default=0.0,
