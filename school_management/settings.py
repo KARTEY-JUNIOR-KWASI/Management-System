@@ -28,14 +28,17 @@ load_dotenv(BASE_DIR / '.env')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY:
-    from django.core.management.utils import get_random_secret_key
-    SECRET_KEY = get_random_secret_key()
-    print("WARNING: Using a randomly generated SECRET_KEY. Set SECRET_KEY environment variable for production.")
+    if DEBUG:
+        from django.core.management.utils import get_random_secret_key
+        SECRET_KEY = get_random_secret_key()
+        print("WARNING: Using a randomly generated SECRET_KEY for development safety.")
+    else:
+        raise ValueError("CRITICAL: SECRET_KEY environment variable is not set in production mode.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -224,6 +227,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = 'account_login'
 
 ACCOUNT_LOGIN_METHODS = {'email', 'username'}
 ACCOUNT_EMAIL_VERIFICATION = 'none'
@@ -238,19 +242,7 @@ REST_FRAMEWORK = {
     ]
 }
 
-# Caching
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    }
-}
-
-# Cache settings for database queries (in seconds)
-CACHE_MIDDLEWARE_ALIAS = 'default'
-CACHE_MIDDLEWARE_SECONDS = 300  # 5 minutes
-CACHE_MIDDLEWARE_KEY_PREFIX = 'school_management'
-
-# Institutional Communication Settings
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# 🛠️ Institutional Communication Settings
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 DEFAULT_FROM_EMAIL = 'noreply@edums.edu'
 SERVER_EMAIL = 'admin@edums.edu'

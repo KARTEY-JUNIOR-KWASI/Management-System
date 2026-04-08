@@ -122,25 +122,47 @@ def mark_attendance(request):
             selected_class = get_object_or_404(Class, id=class_id)
             students = Student.objects.filter(class_enrolled=selected_class).select_related('user')
 
+            # Fetch existing records in one query (Optimization)
+            existing_records = {
+                r.student_id: r for r in Attendance.objects.filter(
+                    class_attended=selected_class, date=selected_date, student__in=students
+                )
+            }
+
+            to_create = []
+            to_update = []
             sms_sent = 0
+
             for student in students:
                 status = request.POST.get(f'status_{student.id}', 'absent')
-                Attendance.objects.update_or_create(
-                    student=student,
-                    class_attended=selected_class,
-                    date=selected_date,
-                    defaults={'status': status, 'marked_by': request.user}
-                )
-                # 📱 SMS Hook: notify when student is marked as absent (Critical) or present (Routine)
+                record = existing_records.get(student.id)
+                
+                if record:
+                    if record.status != status:
+                        record.status = status
+                        record.marked_by = request.user
+                        to_update.append(record)
+                else:
+                    to_create.append(Attendance(
+                        student=student,
+                        class_attended=selected_class,
+                        date=selected_date,
+                        status=status,
+                        marked_by=request.user
+                    ))
+
+                # SMS alerts (Keep for critical status)
                 if status == 'absent':
-                    sent = send_absence_sms(student)
-                    if sent:
+                    if send_absence_sms(student):
                         sms_sent += 1
                 elif status == 'present':
-                    # Optional: present notification (currently enabled as per previous logic)
                     send_attendance_sms(student)
-                    # We only count absolute alerts in the success message for now
-                    if status == 'absent': sms_sent += 1
+
+            # Execution of bulk operations
+            if to_create:
+                Attendance.objects.bulk_create(to_create)
+            if to_update:
+                Attendance.objects.bulk_update(to_update, ['status', 'marked_by'])
 
             sms_note = f" {sms_sent} URGENT absence alert(s) sent to parents." if sms_sent > 0 else ""
             messages.success(request, f'Attendance saved for {selected_class} on {selected_date}!{sms_note}')
@@ -237,36 +259,48 @@ def manage_grades(request):
     students = []
 
     if request.method == 'POST':
-        if 'save_grades' in request.POST:
-            class_id = request.POST.get('class_id')
-            subject_id = request.POST.get('subject_id')
-            exam_type = request.POST.get('exam_type')
-            max_score = request.POST.get('max_score', 100)
+            # Fetch existing results in one query
+            existing_results = {
+                r.student_id: r for r in Result.objects.filter(
+                    student__in=students, subject=selected_subject, exam_type=exam_type
+                )
+            }
 
-            selected_class = get_object_or_404(Class, id=class_id)
-            selected_subject = get_object_or_404(Subject, id=subject_id)
-            students = Student.objects.filter(class_enrolled=selected_class).select_related('user')
-
+            to_create = []
+            to_update = []
             saved = 0
+
             for student in students:
                 score_key = f'score_{student.id}'
                 score = request.POST.get(score_key)
                 if score and score.strip():
                     try:
                         score_val = float(score)
-                        Result.objects.update_or_create(
-                            student=student,
-                            subject=selected_subject,
-                            exam_type=exam_type,
-                            defaults={
-                                'score': score_val,
-                                'max_score': float(max_score),
-                                'teacher': request.user,
-                            }
-                        )
+                        record = existing_results.get(student.id)
+                        
+                        if record:
+                            if float(record.score) != score_val or float(record.max_score) != float(max_score):
+                                record.score = score_val
+                                record.max_score = float(max_score)
+                                record.teacher = request.user
+                                to_update.append(record)
+                        else:
+                            to_create.append(Result(
+                                student=student,
+                                subject=selected_subject,
+                                exam_type=exam_type,
+                                score=score_val,
+                                max_score=float(max_score),
+                                teacher=request.user
+                            ))
                         saved += 1
                     except ValueError:
                         pass
+
+            if to_create:
+                Result.objects.bulk_create(to_create)
+            if to_update:
+                Result.objects.bulk_update(to_update, ['score', 'max_score', 'teacher'])
 
             messages.success(request, f'Grades saved for {saved} student(s) in {selected_subject} — {exam_type}!')
             return redirect('manage_grades')
@@ -362,46 +396,24 @@ def grade_report(request):
 @teacher_required
 def create_assignment(request):
     teacher = _get_or_create_teacher(request.user)
-    teacher_classes = _get_teacher_classes(request.user)
-    teacher_subjects = teacher.subjects.all()
 
     if request.method == 'POST':
-        title = request.POST.get('title', '').strip()
-        description = request.POST.get('description', '').strip()
-        subject_id = request.POST.get('subject_id')
-        class_id = request.POST.get('class_id')
-        due_date = request.POST.get('due_date')
-        uploaded_file = request.FILES.get('file')
-
-        errors = []
-        if not title: errors.append('Title is required.')
-        if not description: errors.append('Description is required.')
-        if not subject_id: errors.append('Please select a subject.')
-        if not class_id: errors.append('Please select a class.')
-        if not due_date: errors.append('Due date is required.')
-
-        if not errors:
-            subject = get_object_or_404(Subject, id=subject_id)
-            cls = get_object_or_404(Class, id=class_id)
-
-            assignment = Assignment.objects.create(
-                title=title,
-                description=description,
-                subject=subject,
-                class_assigned=cls,
-                teacher=request.user,
-                due_date=due_date,
-                file=uploaded_file,
-            )
-            messages.success(request, f'Assignment "{title}" created successfully!')
+        form = AssignmentForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            assignment = form.save(commit=False)
+            assignment.teacher = request.user
+            assignment.save()
+            messages.success(request, f'Assignment "{assignment.title}" created successfully!')
             return redirect('manage_assignments')
         else:
-            for err in errors:
-                messages.error(request, err)
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field.capitalize()}: {error}")
+    else:
+        form = AssignmentForm(user=request.user)
 
     context = {
-        'teacher_classes': teacher_classes,
-        'teacher_subjects': teacher_subjects,
+        'form': form,
     }
     return render(request, 'teachers/create_assignment.html', context)
 
@@ -449,26 +461,43 @@ def grade_submissions(request, assignment_id):
         })
 
     if request.method == 'POST':
-        # Batch Grading Logic
+        # Batch Grading Logic - Optimized to avoid N+1
         student_ids = request.POST.getlist('student_ids')
-        for sid in student_ids:
+        
+        # Pre-fetch students and existing submissions
+        students_to_grade = Student.objects.filter(id__in=student_ids)
+        existing_subs = {s.student_id: s for s in Submission.objects.filter(assignment=assignment, student__in=students_to_grade)}
+        
+        to_create = []
+        to_update = []
+        
+        for student in students_to_grade:
+            sid = str(student.id)
             grade = request.POST.get(f'grade_{sid}')
             feedback = request.POST.get(f'feedback_{sid}', '')
             
             if grade:
                 try:
-                    student = Student.objects.get(id=sid)
-                    # Find or create submission for grading
-                    submission, created = Submission.objects.get_or_create(
-                        assignment=assignment,
-                        student=student,
-                        defaults={'feedback': feedback}
-                    )
-                    submission.grade = grade
-                    submission.feedback = feedback
-                    submission.save()
-                except Student.DoesNotExist:
+                    score_val = float(grade)
+                    sub = existing_subs.get(student.id)
+                    if sub:
+                        sub.grade = score_val
+                        sub.feedback = feedback
+                        to_update.append(sub)
+                    else:
+                        to_create.append(Submission(
+                            assignment=assignment,
+                            student=student,
+                            grade=score_val,
+                            feedback=feedback
+                        ))
+                except ValueError:
                     continue
+        
+        if to_create:
+            Submission.objects.bulk_create(to_create)
+        if to_update:
+            Submission.objects.bulk_update(to_update, ['grade', 'feedback'])
         
         messages.success(request, f'Successfully updated grades for the roster.')
         return redirect('grade_submissions', assignment_id=assignment.id)

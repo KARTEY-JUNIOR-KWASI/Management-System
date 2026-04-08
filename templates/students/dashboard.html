@@ -229,8 +229,8 @@
         
         // Prepare data for Grade Predictions Chart
         const labels = [{% for prediction in predictions %}"{{ prediction.subject.name|truncatechars:10|escapejs }}",{% endfor %}];
-        const currentData = [{% for prediction in predictions %}{{ prediction.current_average|stringformat:".1f"|default:0 }},{% endfor %}];
-        const predictedData = [{% for prediction in predictions %}{{ prediction.predicted_score|stringformat:".1f"|default:0 }},{% endfor %}];
+        const currentData = [{% for prediction in predictions %}{{ prediction.current_average|default:0|floatformat:1 }},{% endfor %}];
+        const predictedData = [{% for prediction in predictions %}{{ prediction.predicted_score|default:0|floatformat:1 }},{% endfor %}];
 
         new Chart(ctx, {
             type: 'bar',

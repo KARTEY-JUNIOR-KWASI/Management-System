@@ -38,18 +38,19 @@
     <div class="reg-card-body">
       <form method="post" enctype="multipart/form-data" id="reg-form">
         {% csrf_token %}
+        {% load widget_tweaks %}
 
         <div class="row g-3 mb-3">
           <div class="col-md-6">
             <div class="field-group">
-              <label>Assignment Title <span class="text-danger">*</span></label>
-              <input type="text" name="title" class="form-control" placeholder="e.g. Chapter 3 Exercise" required>
+              <label>{{ form.title.label }} <span class="text-danger">*</span></label>
+              {% render_field form.title class="form-control" placeholder="e.g. Chapter 3 Exercise" %}
             </div>
           </div>
           <div class="col-md-6">
             <div class="field-group">
-              <label>Due Date <span class="text-danger">*</span></label>
-              <input type="date" name="due_date" class="form-control" required>
+              <label>{{ form.due_date.label }} <span class="text-danger">*</span></label>
+              {% render_field form.due_date class="form-control" %}
             </div>
           </div>
         </div>
@@ -57,14 +58,9 @@
         <div class="row g-3 mb-3">
           <div class="col-md-6">
             <div class="field-group">
-              <label>Subject <span class="text-danger">*</span></label>
-              <select name="subject_id" class="form-control form-select" required>
-                <option value="">-- Select Subject --</option>
-                {% for subj in teacher_subjects %}
-                  <option value="{{ subj.id }}">{{ subj.name }}</option>
-                {% endfor %}
-              </select>
-              {% if not teacher_subjects %}
+              <label>{{ form.subject.label }} <span class="text-danger">*</span></label>
+              {% render_field form.subject class="form-control form-select" %}
+              {% if not form.subject.field.queryset %}
                 <div class="field-error">No subjects assigned to you. Ask admin to assign subjects.</div>
               {% endif %}
             </div>
@@ -72,13 +68,8 @@
           <div class="col-md-6">
             <div class="field-group">
               <label>Class <span class="text-danger">*</span></label>
-              <select name="class_id" class="form-control form-select" required>
-                <option value="">-- Select Class --</option>
-                {% for cls in teacher_classes %}
-                  <option value="{{ cls.id }}">{{ cls }}</option>
-                {% endfor %}
-              </select>
-              {% if not teacher_classes %}
+              {% render_field form.class_assigned class="form-control form-select" %}
+              {% if not form.class_assigned.field.queryset %}
                 <div class="field-error">No classes available. Ask admin to create classes.</div>
               {% endif %}
             </div>
@@ -86,13 +77,13 @@
         </div>
 
         <div class="field-group mb-3">
-          <label>Description / Instructions <span class="text-danger">*</span></label>
-          <textarea name="description" class="form-control" rows="5" placeholder="Provide detailed instructions for students..." required></textarea>
+          <label>{{ form.description.label }} <span class="text-danger">*</span></label>
+          {% render_field form.description class="form-control" rows="5" placeholder="Provide detailed instructions for students..." %}
         </div>
 
         <div class="field-group">
           <label>Attachment <span style="color:var(--text-muted); font-size:0.8rem;">(Optional)</span></label>
-          <input type="file" name="file" class="form-control" style="padding:0.4rem 0.85rem;">
+          {% render_field form.file class="form-control" style="padding:0.4rem 0.85rem;" %}
           <div class="field-hint">Upload worksheets, reference documents, or materials.</div>
         </div>
       </form>

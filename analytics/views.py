@@ -34,6 +34,7 @@ def _redirect_wrong_role(request, role):
     return redirect('home')
 
 
+
 def _get_or_create_student(user):
     from students.models import Student
     student, created = Student.objects.get_or_create(
@@ -54,16 +55,6 @@ def _get_or_create_teacher(user):
     )
     return teacher
 
-
-def _get_or_create_student(user):
-    student, created = Student.objects.get_or_create(
-        user=user,
-        defaults={
-            'student_id': f'STD{user.id:05d}',
-        }
-    )
-    return student
-
 @login_required
 def analytics_dashboard(request):
     """Smart analytics dashboard with insights and predictions"""
@@ -80,6 +71,10 @@ def analytics_dashboard(request):
 @cache_page(60 * 15)  # Cache for 15 minutes
 def admin_analytics_dashboard(request):
     """Admin dashboard with system-wide analytics"""
+    if request.user.role != 'admin':
+        messages.error(request, 'Access Denied: Administrative privileges required.')
+        return redirect('home')
+    
     # Generate system analytics if not exists for today
     today = date.today()
     system_analytics, created = SystemAnalytics.objects.get_or_create(
@@ -182,23 +177,25 @@ def create_notification(request):
         priority = request.POST.get('priority', 'medium')
         recipients = request.POST.getlist('recipients')
 
-        recipient_objects = []
-        for recipient_id in recipients:
-            recipient = get_object_or_404(User, id=recipient_id)
-            Notification.objects.create(
+        # Bulk optimization: Fetch all recipients in one query and use bulk_create
+        recipients_qs = User.objects.filter(id__in=recipients)
+        
+        notification_objs = [
+            Notification(
                 recipient=recipient,
                 notification_type=notification_type,
                 title=title,
                 message=message,
                 priority=priority
-            )
-            recipient_objects.append(recipient)
+            ) for recipient in recipients_qs
+        ]
+        
+        Notification.objects.bulk_create(notification_objs)
 
         # Send email notifications if configured
-        # Pass the actual User objects so helper can access .email attribute
-        _send_email_notifications(title, message, recipient_objects)
+        _send_email_notifications(title, message, recipients)
 
-        messages.success(request, f'Notification sent to {len(recipients)} recipients!')
+        messages.success(request, f'Notification sent to {len(notification_objs)} recipients!')
         return redirect('analytics:analytics_dashboard')
 
     # Get potential recipients based on user role

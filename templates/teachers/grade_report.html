@@ -99,15 +99,15 @@
               <td style="font-weight:600;">{{ row.results|length }}</td>
               <td>
                 <div style="display:flex; align-items:center; gap:0.5rem;">
-                    <div style="height:8px; border-radius:4px; width: 0%;" class="js-progress {% if row.average >= 70 %}stat-bg-green{% elif row.average >= 50 %}stat-bg-orange{% else %}stat-bg-red{% endif %}" data-width="{{ row.average|default:0 }}"></div>
+                    <div style="width:{{ row.average|default:0 }}%; background:{% if row.average >= 70 %}var(--stat-green){% elif row.average >= 50 %}var(--stat-orange){% else %}var(--stat-red){% endif %}; height:8px; border-radius:4px;"></div>
                   </div>
                   <span style="font-weight:700; font-size:0.9rem; color:var(--text-dark);">{{ row.average }}%</span>
                 </div>
               </td>
               <td>
-                  <span class="badge {% if row.grade_letter == 'A' %}bg-grade-a{% elif row.grade_letter == 'B' %}bg-grade-b{% elif row.grade_letter == 'C' %}bg-grade-c{% elif row.grade_letter == 'D' %}bg-grade-d{% else %}bg-grade-f{% endif %}" style="font-size:0.9rem; font-weight:700; padding:0.4rem 0.75rem; border-radius:6px;">
-                    {{ row.grade_letter }}
-                  </span>
+                  <span class="badge" style="font-size:0.9rem; font-weight:700; background:{% if row.grade_letter == 'A' %}#dcfce7{% elif row.grade_letter == 'B' %}#dbeafe{% elif row.grade_letter == 'C' %}#fef9c3{% elif row.grade_letter == 'D' %}#ffedd5{% else %}#fee2e2{% endif %}; color:{% if row.grade_letter == 'A' %}#166534{% elif row.grade_letter == 'B' %}#1e40af{% elif row.grade_letter == 'C' %}#854d0e{% elif row.grade_letter == 'D' %}#9a3412{% else %}#991b1b{% endif %}; padding:0.4rem 0.75rem; border-radius:6px;">
+                  {{ row.grade_letter|default:"N/A" }}
+                </span>
               </td>
               <td>
                 <a href="{% url 'student_report_card' row.student.id %}" class="btn btn-sm btn-outline-akkhor" target="_blank">

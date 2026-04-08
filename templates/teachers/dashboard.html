@@ -259,8 +259,8 @@
 
         // Prepare data from class_performance context
         const labels = [{% for cp in class_performance %}"{{ cp.class.name|escapejs }}",{% endfor %}];
-        const gpaData = [{% for cp in class_performance %}{{ cp.avg_gpa|stringformat:".1f"|default:0 }},{% endfor %}];
-        const attendanceData = [{% for cp in class_performance %}{{ cp.attendance_rate|stringformat:".1f"|default:0 }},{% endfor %}];
+        const gpaData = [{% for cp in class_performance %}{{ cp.avg_gpa|default:0|floatformat:1 }},{% endfor %}];
+        const attendanceData = [{% for cp in class_performance %}{{ cp.attendance_rate|default:0|floatformat:1 }},{% endfor %}];
 
         new Chart(ctx, {
             type: 'line',

@@ -8,8 +8,11 @@ from .middleware import get_current_user, get_current_ip
 from .utils import NotificationService
 
 def log_action(user, action, resource_type, resource_id, description):
+    # Ensure AnonymousUser is not assigned to the ForeignKey
+    final_user = user if user and user.is_authenticated else None
+    
     AuditLog.objects.create(
-        user=user,
+        user=final_user,
         action=action,
         resource_type=resource_type,
         resource_id=str(resource_id),

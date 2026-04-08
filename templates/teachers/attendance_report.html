@@ -121,10 +121,10 @@
               <td><span style="color:var(--stat-orange); font-weight:600;">{{ row.late }}</span></td>
               <td>
                 <div class="progress" style="height: 8px;">
-                  <div class="progress-bar {% if row.percentage < 75 %}bg-danger{% elif row.percentage < 90 %}bg-warning{% else %}bg-success{% endif %}" 
+                  <div class="progress-bar {% if row.percentage|default:0 < 75 %}bg-danger{% elif row.percentage|default:0 < 90 %}bg-warning{% else %}bg-success{% endif %}" 
                        role="progressbar" 
-                       style="width: {{ row.percentage }}%"
-                       aria-valuenow="{{ row.percentage }}" 
+                       style="width: {{ row.percentage|default:0 }}%"
+                       aria-valuenow="{{ row.percentage|default:0 }}" 
                        aria-valuemin="0" 
                        aria-valuemax="100"></div>
                 </div>
