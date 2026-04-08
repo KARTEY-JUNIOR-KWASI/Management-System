@@ -215,17 +215,19 @@
             {% csrf_token %}
 
             {% for field in form %}
-                <div class="auth-input-group">
-                    <i class="fas {% if field.name == 'login' %}fa-user-astronaut{% else %}fa-key-skeleton{% endif %}">
-                        {% if field.name == 'login' %}<i class="fas fa-fingerprint"></i>{% else %}<i class="fas fa-shield-halved"></i>{% endif %}
-                    </i>
-                    {% render_field field class="portal-field" placeholder=field.label %}
-                    {% if field.errors %}
-                        {% for error in field.errors %}
-                            <div class="text-danger extra-small mt-2 px-1 fw-bold"><i class="fas fa-circle-exclamation me-1"></i> {{ error }}</div>
-                        {% endfor %}
-                    {% endif %}
-                </div>
+                {% if field.name != 'remember' %}
+                    <div class="auth-input-group">
+                        <i class="fas {% if field.name == 'login' %}fa-user-astronaut{% else %}fa-key-skeleton{% endif %}">
+                            {% if field.name == 'login' %}<i class="fas fa-fingerprint"></i>{% else %}<i class="fas fa-shield-halved"></i>{% endif %}
+                        </i>
+                        {% render_field field class="portal-field" placeholder=field.label %}
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <div class="text-danger extra-small mt-2 px-1 fw-bold"><i class="fas fa-circle-exclamation me-1"></i> {{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% endif %}
             {% endfor %}
 
             {% if form.non_field_errors %}
