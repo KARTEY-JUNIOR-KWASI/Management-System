@@ -4,115 +4,114 @@
 
 {% block content %}
 <div class="row layout-spacing">
-    <div class="col-12">
+    <div class="col-12 mb-4 animate-fade-up">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 style="font-weight: 800; margin: 0; color: var(--text-dark);">🧑‍🎓 Manage Students</h2>
-                <p style="color: var(--text-muted); margin: 0; font-size: 0.85rem;">Total {{ total_students }} student{{ total_students|pluralize }} registered.</p>
+                <h2 class="fw-800 mb-0" style="letter-spacing: -1px; color: var(--text-dark);"><span class="me-2">🧑‍🎓</span> Manage Students</h2>
+                <p class="text-muted small mb-0 fw-medium">Operational registry of institutional entities ({{ total_students }} active).</p>
             </div>
-            <a href="{% url 'student_create' %}" class="btn btn-primary-akkhor px-4">
-                <i class="fas fa-plus me-1"></i> Add Student
+            <a href="{% url 'student_create' %}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-lg">
+                <i class="fas fa-plus me-2"></i> Enroll Student
             </a>
         </div>
 
-        <!-- Search and Filter Bar -->
-        <div class="card card-akkhor mb-4" style="border-radius: 12px;">
-            <div class="card-body py-3">
-                <form method="get" class="d-flex gap-3 flex-wrap align-items-end">
-                    <div style="flex:1; min-width: 250px;">
-                        <label style="font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem; display: block; color: var(--text-muted);">Search</label>
-                        <div class="input-group">
-                            <span class="input-group-text" style="background: transparent; border-right: none; color: var(--text-muted);">
-                                <i class="fas fa-search"></i>
-                            </span>
-                            <input type="text" name="q" class="form-control" placeholder="Search by name or ID..." value="{{ q }}" style="border-left: none; box-shadow: none;">
-                        </div>
+        <!-- Search & Filter Protocol -->
+        <div class="nexus-glass-card p-4 mb-4">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label extra-small fw-800 text-uppercase opa-7" style="letter-spacing: 1px; color: var(--text-muted);">Search Registry</label>
+                    <div class="input-group nexus-glass-card shadow-none overflow-hidden" style="background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.05);">
+                        <span class="input-group-text bg-transparent border-0 opa-5"><i class="fas fa-search"></i></span>
+                        <input type="text" name="q" class="form-control border-0 bg-transparent px-2" placeholder="Scan by name or ID..." value="{{ q }}">
                     </div>
-                    <div style="min-width: 200px;">
-                        <label style="font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem; display: block; color: var(--text-muted);">Filter by Class</label>
-                        <select name="class" class="form-control">
-                            <option value="">All Classes</option>
-                            {% for c in classes %}
-                                <option value="{{ c.id }}" {% if selected_class == c.id|stringformat:"s" %}selected{% endif %}>{{ c }}</option>
-                            {% endfor %}
-                        </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label extra-small fw-800 text-uppercase opa-7" style="letter-spacing: 1px; color: var(--text-muted);">Class Sector</label>
+                    <select name="class" class="form-select nexus-glass-card shadow-none border-0 px-3 fw-medium" style="background: rgba(0,0,0,0.02); border-color: rgba(0,0,0,0.05); height: 45px; font-size: 0.85rem;">
+                        <option value="">All Sectors</option>
+                        {% for c in classes %}
+                            <option value="{{ c.id }}" {% if selected_class == c.id|stringformat:"s" %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-dark rounded-pill flex-grow-1 fw-bold" style="height: 45px; background: #0f172a;">
+                            Apply Filter <i class="fas fa-filter ms-2 scale-9"></i>
+                        </button>
+                        {% if q or selected_class %}
+                            <a href="{% url 'student_list' %}" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center shadow-none p-0" style="width: 45px; height: 45px;"><i class="fas fa-undo"></i></a>
+                        {% endif %}
                     </div>
-                    <button type="submit" class="btn btn-primary-akkhor" style="height: 40px; padding: 0 1.5rem;">Filter</button>
-                    {% if q or selected_class %}
-                        <a href="{% url 'student_list' %}" class="btn btn-outline-akkhor" style="height: 40px; padding: 0 1.5rem;">Clear</a>
-                    {% endif %}
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
 
-        <div class="card card-akkhor">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover akkhor-table">
-                        <thead>
-                            <tr>
-                                <th>Student ID</th>
-                                <th>Name</th>
-                                <th>Class</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for student in students %}
-                            <tr>
-                                <td style="font-weight: 600; color: var(--primary);">{{ student.student_id }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div style="width:32px; height:32px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:0.8rem; font-weight:bold;">
-                                            {{ student.user.first_name|first }}{{ student.user.last_name|first }}
-                                        </div>
-                                        <a href="{% url 'student_detail' student.pk %}" style="text-decoration:none; color:var(--text-dark); font-weight:600;">
-                                            {{ student.user.get_full_name }}
-                                        </a>
+    <div class="col-12 animate-fade-up delay-1">
+        <div class="nexus-glass-card overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                    <thead class="bg-light bg-opacity-50">
+                        <tr>
+                            <th class="ps-4 py-4 small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Entity Identification</th>
+                            <th class="py-4 small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Sector Entry</th>
+                            <th class="pe-4 py-4 text-end">Direct Commands</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr class="animate-fade-in border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="p-avatar" style="background: var(--p-nexus-primary);">
+                                        {{ student.user.first_name|slice:":1" }}{{ student.user.last_name|slice:":1" }}
                                     </div>
-                                </td>
-                                <td><span class="badge bg-light text-dark" style="font-weight:600;">{{ student.class_enrolled|default:"Not Assigned" }}</span></td>
-                                <td>
-                                    <a href="{% url 'student_detail' student.pk %}" class="btn btn-sm btn-outline-akkhor me-1">
-                                        <i class="fas fa-eye"></i> View
+                                    <div>
+                                        <div class="fw-800 text-dark small mb-1" style="letter-spacing: -0.2px;">{{ student.user.get_full_name }}</div>
+                                        <div class="extra-small text-primary fw-bold">{{ student.student_id|default:"ID-PENDING" }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge border bg-light text-dark rounded-pill px-3 extra-small fw-bold">
+                                    <i class="fas fa-layer-group me-1 opa-5"></i> {{ student.class_enrolled.name|default:"UNASSIGNED" }}
+                                </span>
+                            </td>
+                            <td class="pe-4 text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{% url 'student_detail' student.pk %}" class="btn btn-sm btn-icon nexus-glass-card shadow-none" style="width: 38px; height: 38px;" title="View Dossier">
+                                        <i class="fas fa-eye text-primary"></i>
                                     </a>
-                                    <a href="{% url 'student_update' student.pk %}" class="btn btn-sm btn-outline-akkhor me-1" style="color:#d97706; border-color:#d97706;">
-                                        <i class="fas fa-edit"></i> Edit
+                                    <a href="{% url 'student_update' student.pk %}" class="btn btn-sm btn-icon nexus-glass-card shadow-none" style="width: 38px; height: 38px;" title="Modify Record">
+                                        <i class="fas fa-edit text-warning"></i>
                                     </a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center py-4">
-                                    <i class="fas fa-users mb-2" style="font-size:2rem; color:#cbd5e1;"></i>
-                                    <h6 class="text-muted">No students found.</h6>
-                                    {% if q or selected_class %}
-                                        <p style="font-size: 0.85rem; color: var(--text-muted);">Try adjusting your filters.</p>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="p-5 text-center text-muted fw-medium opa-5">Protocol execution yielded 0 results.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-                <!-- Pagination Controls -->
+                <!-- Pagination Protocol -->
                 {% if page_obj.has_other_pages %}
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #f1f5f9;">
-                    <span style="font-size: 0.8rem; color: var(--text-muted);">Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                <div class="d-flex justify-content-between align-items-center mt-5 p-4 border-top" style="background: rgba(0,0,0,0.01);">
+                    <span class="extra-small text-muted fw-bold text-uppercase" style="letter-spacing: 1px;">Sector {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
                     
                     {% with query_string="&q="|add:q|add:"&class="|add:selected_class %}
-                    <div style="display: flex; gap: 0.35rem;">
+                    <div class="d-flex gap-2">
                         {% if page_obj.has_previous %}
-                        <a href="?page=1{{ query_string }}" class="btn btn-sm btn-outline-akkhor px-3">&laquo; First</a>
-                        <a href="?page={{ page_obj.previous_page_number }}{{ query_string }}" class="btn btn-sm btn-outline-akkhor px-3">Prev</a>
+                        <a href="?page=1{{ query_string }}" class="btn btn-sm nexus-glass-card shadow-none px-3 py-2 text-primary extra-small fw-bold">First</a>
+                        <a href="?page={{ page_obj.previous_page_number }}{{ query_string }}" class="btn btn-sm nexus-glass-card shadow-none px-3 py-2 text-primary extra-small fw-bold">Prev</a>
                         {% endif %}
                         
-                        <span class="btn btn-sm btn-primary-akkhor px-3" style="cursor:default;">{{ page_obj.number }}</span>
+                        <span class="btn btn-sm btn-primary rounded-pill px-4 extra-small fw-bold shadow-sm" style="cursor:default;">{{ page_obj.number }}</span>
                         
                         {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}{{ query_string }}" class="btn btn-sm btn-outline-akkhor px-3">Next</a>
-                        <a href="?page={{ page_obj.paginator.num_pages }}{{ query_string }}" class="btn btn-sm btn-outline-akkhor px-3">Last &raquo;</a>
+                        <a href="?page={{ page_obj.next_page_number }}{{ query_string }}" class="btn btn-sm nexus-glass-card shadow-none px-3 py-2 text-primary extra-small fw-bold">Next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}{{ query_string }}" class="btn btn-sm nexus-glass-card shadow-none px-3 py-2 text-primary extra-small fw-bold">Last</a>
                         {% endif %}
                     </div>
                     {% endwith %}

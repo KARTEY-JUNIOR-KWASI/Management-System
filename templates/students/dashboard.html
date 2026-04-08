@@ -45,47 +45,55 @@
 
     <!-- Stat Cards Row -->
     <div class="row mb-5">
-        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
-            <div class="premium-stat-card">
-                <div>
-                    <div class="premium-stat-icon p-icon-primary">
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up">
+            <div class="nexus-glass-card h-100 p-4" style="background: rgba(255,255,255,0.85);">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-avatar-lg" style="background: var(--p-nexus-primary);">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
-                    <div class="premium-stat-value">{{ gpa|floatformat:2 }}</div>
-                    <div class="premium-stat-label">Current GPA</div>
+                    <div>
+                        <div class="fw-800 h3 mb-0">{{ gpa|floatformat:2 }}</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Academic Index</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
+            <div class="nexus-glass-card h-100 p-4" style="background: rgba(255,255,255,0.85);">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-avatar-lg" style="background: var(--p-nexus-success);">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <div class="fw-800 h3 mb-0">{{ attendance_percentage|floatformat:1 }}%</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Presence Meta</div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-2">
-            <div class="premium-stat-card">
-                <div>
-                    <div class="premium-stat-icon p-icon-success">
-                        <i class="fas fa-calendar-check"></i>
+            <div class="nexus-glass-card h-100 p-4" style="background: rgba(255,255,255,0.85);">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-avatar-lg" style="background: var(--p-nexus-warning);">
+                        <i class="fas fa-microchip"></i>
                     </div>
-                    <div class="premium-stat-value">{{ attendance_percentage|floatformat:1 }}%</div>
-                    <div class="premium-stat-label">Attendance Rate</div>
+                    <div>
+                        <div class="fw-800 h3 mb-0">{{ performance_data.assignment_completion_rate|floatformat:0 }}%</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Execution Rate</div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-3">
-            <div class="premium-stat-card">
-                <div>
-                    <div class="premium-stat-icon p-icon-info">
-                        <i class="fas fa-tasks"></i>
+            <div class="nexus-glass-card h-100 p-4" style="background: rgba(255,255,255,0.85);">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-avatar-lg" style="background: var(--p-nexus-dark);">
+                        <i class="fas fa-brain"></i>
                     </div>
-                    <div class="premium-stat-value">{{ performance_data.assignment_completion_rate|floatformat:0 }}%</div>
-                    <div class="premium-stat-label">Assignment Completion</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-4">
-            <div class="premium-stat-card">
-                <div>
-                    <div class="premium-stat-icon p-icon-warning">
-                        <i class="fas fa-lightbulb"></i>
+                    <div>
+                        <div class="fw-800 h3 mb-0">{{ insights.count }}</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Neural Insights</div>
                     </div>
-                    <div class="premium-stat-value">{{ insights.count }}</div>
-                    <div class="premium-stat-label">AI Insights</div>
                 </div>
             </div>
         </div>
@@ -94,27 +102,27 @@
     <div class="row mb-5">
         <!-- AI Learning Insights -->
         <div class="col-lg-8 mb-4 animate-fade-up delay-1">
-            <div class="premium-table-container h-100">
+            <div class="nexus-glass-card h-100 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-                    <h5 class="fw-bold m-0"><i class="fas fa-brain text-primary me-2"></i> AI Learning Insights</h5>
-                    <span class="text-muted small">Powered by Academic Performance Data</span>
+                    <h5 class="fw-800 m-0" style="letter-spacing: -0.5px;"><i class="fas fa-atom text-primary me-2 animate-spin-slow"></i> AI Neural Diagnostics</h5>
+                    <span class="text-muted extra-small fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Operational Analysis</span>
                 </div>
 
                 {% if insights %}
                 <div class="row g-3">
-                    {% for insight in insights %}
+                    {% for insight in insight_data %}
                     <div class="col-12">
-                        <div class="insight-card border-start border-4 border-info">
-                            <div class="d-flex gap-3 align-items-center">
-                                <div class="premium-stat-icon p-icon-warning m-0" style="width:48px; height:48px;">
-                                    <i class="fas fa-bolt" style="font-size: 1rem;"></i>
+                        <div class="nexus-glass-card p-4 border-0 mb-3" style="background: rgba(67, 97, 238, 0.03);">
+                            <div class="d-flex gap-4 align-items-center">
+                                <div class="p-avatar-lg shadow-none" style="background: rgba(255,255,255,0.8); color: var(--p-nexus-primary);">
+                                    <i class="fas fa-bolt"></i>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-start mb-1">
-                                        <h6 class="fw-bold text-dark mb-0">{{ insight.title }}</h6>
-                                        <span class="p-badge p-badge-medium" style="font-size: 0.65rem;">CONFIDENCE: {{ insight.confidence_score|floatformat:"0%" }}</span>
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="fw-800 text-dark mb-0" style="letter-spacing: -0.2px;">{{ insight.title }}</h6>
+                                        <span class="badge border bg-white text-primary extra-small rounded-pill px-3 fw-bold">PROBABILITY: {{ insight.confidence_score|floatformat:"0%" }}</span>
                                     </div>
-                                    <p class="text-muted small mb-0">{{ insight.description }}</p>
+                                    <p class="text-muted small mb-0 fw-medium opa-7">{{ insight.description }}</p>
                                 </div>
                             </div>
                         </div>
@@ -122,9 +130,9 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="text-center py-5">
-                    <i class="fas fa-microchip text-muted fs-1 mb-3 opacity-25"></i>
-                    <p class="text-muted small">Our AI is still analyzing your performance. Check back after several more assignments!</p>
+                <div class="text-center py-5 opa-5">
+                    <i class="fas fa-satellite-dish fs-1 mb-3"></i>
+                    <p class="small fw-bold">Scanning academic environment... check back at next synchronization.</p>
                 </div>
                 {% endif %}
             </div>
@@ -149,35 +157,35 @@
     <!-- Upcoming Assignments & Standing -->
     <div class="row mb-5">
         <div class="col-lg-7 mb-4 animate-fade-up delay-1">
-            <div class="premium-table-container">
+            <div class="nexus-glass-card p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold m-0">Upcoming Assignments</h5>
-                    <a href="{% url 'view_assignments' %}" class="small fw-bold text-primary text-decoration-none">View All Portal</a>
+                    <h5 class="fw-800 m-0" style="letter-spacing: -0.5px;">Upcoming Tasks</h5>
+                    <a href="{% url 'view_assignments' %}" class="btn btn-sm btn-glass text-primary fw-bold extra-small border-0 px-3">View Registry</a>
                 </div>
                 <div class="table-responsive">
-                    <table class="premium-table">
-                        <thead>
+                    <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                        <thead class="bg-light bg-opacity-20">
                             <tr>
-                                <th>Assignment</th>
-                                <th>Subject</th>
-                                <th>Due Date</th>
-                                <th class="text-end">Action</th>
+                                <th class="ps-0 py-3 small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Objective</th>
+                                <th class="py-3 small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Sector</th>
+                                <th class="py-3 small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Deadline</th>
+                                <th class="text-end">Command</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for assignment in upcoming_assignments %}
-                            <tr>
-                                <td><div class="fw-bold text-dark small">{{ assignment.title }}</div></td>
-                                <td><span class="badge-akkhor badge-primary">{{ assignment.subject.name }}</span></td>
-                                <td class="small">{{ assignment.due_date|date:"M d, Y" }}</td>
-                                <td class="text-end">
-                                    <a href="{% url 'submit_assignment' assignment.id %}" class="p-btn-icon ms-auto">
-                                        <i class="fas fa-upload"></i>
+                            <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+                                <td class="ps-0 py-3"><div class="fw-800 text-dark small">{{ assignment.title }}</div></td>
+                                <td><span class="badge border bg-light text-dark rounded-pill px-3 extra-small fw-bold">{{ assignment.subject.name }}</span></td>
+                                <td class="small text-muted fw-medium">{{ assignment.due_date|date:"M d, Y" }}</td>
+                                <td class="text-end pe-0">
+                                    <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-sm btn-icon nexus-glass-card shadow-none" style="width: 34px; height: 34px;">
+                                        <i class="fas fa-upload text-primary" style="font-size: 0.8rem;"></i>
                                     </a>
                                 </td>
                             </tr>
                             {% empty %}
-                            <tr><td colspan="4" class="text-center py-4 text-muted small">No upcoming deadlines detected.</td></tr>
+                            <tr><td colspan="4" class="text-center py-5 text-muted opa-5 fw-medium">No pending objectives found.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>

@@ -54,47 +54,55 @@
 
     <!-- Stat Cards Row -->
     <div class="row mb-5">
-        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
-            <div class="premium-stat-card">
-                <div>
-                    <div class="premium-stat-icon p-icon-primary">
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up">
+            <div class="nexus-glass-card h-100 p-4" style="background: rgba(255,255,255,0.8);">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="p-avatar-lg" style="background: var(--p-nexus-primary);">
                         <i class="fas fa-users"></i>
                     </div>
-                    <div class="premium-stat-value">{{ total_students }}</div>
-                    <div class="premium-stat-label">Active Students</div>
+                    <div>
+                        <div class="fw-800 h3 mb-0">{{ total_students }}</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Enrolled Entities</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
+            <div class="nexus-glass-card h-100 p-4" style="background: rgba(255,255,255,0.8);">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="p-avatar-lg" style="background: var(--p-nexus-success);">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div>
+                        <div class="fw-800 h3 mb-0">{{ assignment_stats.completion_rate|floatformat:0 }}%</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Submission Rate</div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-2">
-            <div class="premium-stat-card">
-                <div>
-                    <div class="premium-stat-icon p-icon-success">
-                        <i class="fas fa-tasks"></i>
+            <div class="nexus-glass-card h-100 p-4 border-danger border-opacity-25" style="background: rgba(255,255,255,0.8);">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="p-avatar-lg animate-pulse" style="background: var(--p-nexus-danger);">
+                        <i class="fas fa-biohazard"></i>
                     </div>
-                    <div class="premium-stat-value">{{ assignment_stats.completion_rate|floatformat:0 }}%</div>
-                    <div class="premium-stat-label">Completion Rate</div>
+                    <div>
+                        <div class="fw-800 h3 mb-0 text-danger">{{ total_at_risk }}</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Critical Alerts</div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-3">
-            <div class="premium-stat-card">
-                <div>
-                    <div class="premium-stat-icon p-icon-danger">
-                        <i class="fas fa-exclamation-triangle"></i>
+            <div class="nexus-glass-card h-100 p-4" style="background: rgba(255,255,255,0.8);">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="p-avatar-lg" style="background: var(--p-nexus-warning);">
+                        <i class="fas fa-microscope"></i>
                     </div>
-                    <div class="premium-stat-value">{{ total_at_risk }}</div>
-                    <div class="premium-stat-label">Priority Alerts</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-4">
-            <div class="premium-stat-card">
-                <div>
-                    <div class="premium-stat-icon p-icon-warning">
-                        <i class="fas fa-book"></i>
+                    <div>
+                        <div class="fw-800 h3 mb-0">{{ teacher.subjects.count }}</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Research Areas</div>
                     </div>
-                    <div class="premium-stat-value">{{ teacher.subjects.count }}</div>
-                    <div class="premium-stat-label">Teaching Areas</div>
                 </div>
             </div>
         </div>
@@ -116,37 +124,40 @@
 
         <!-- At-Risk Alert Sidebar -->
         <div class="col-lg-4 mb-4 animate-fade-up delay-2">
-            <div class="premium-table-container h-100">
-                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-                    <h5 class="fw-bold m-0 text-danger"><i class="fas fa-fire me-2"></i> Critical Intervention</h5>
-                    <span class="p-badge p-badge-critical">{{ total_at_risk }}</span>
+            <div class="nexus-glass-card h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-800 m-0 text-danger" style="letter-spacing: -0.5px;"><i class="fas fa-dna me-2"></i> Genetic Diagnosis</h5>
+                    <span class="badge bg-danger rounded-pill px-3">{{ total_at_risk }} Units</span>
                 </div>
 
-                <div class="list-group list-group-flush">
+                <div class="list-group list-group-flush" style="max-height: 380px; overflow-y: auto;">
                     {% for risk in at_risk_students %}
-                    <div class="list-group-item border-0 px-2 py-3 mb-2 rounded-3 hover-lift-lite" style="background:rgba(239, 68, 68, 0.02);">
+                    <div class="list-group-item border-0 p-3 mb-2 nexus-glass-card" style="background: rgba(239, 68, 68, 0.03);">
                         <div class="d-flex gap-3 align-items-center">
-                            <div class="topbar-avatar" style="width:42px; height:42px; background:var(--primary); font-size:0.85rem;">
-                                {{ risk.student.user.get_full_name|slice:":2"|upper }}
+                            <div class="p-avatar" style="background: var(--p-nexus-danger);">
+                                {{ risk.student.user.first_name|slice:":1" }}{{ risk.student.user.last_name|slice:":1" }}
                             </div>
                             <div class="flex-grow-1">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <h6 class="fw-bold m-0 small">{{ risk.student.user.get_full_name }}</h6>
-                                    <span class="p-badge p-badge-{% if risk.risk_level == 'critical' %}critical{% else %}high{% endif %}" style="padding: 0.2rem 0.6rem; font-size: 0.65rem;">{{ risk.risk_level|upper }}</span>
+                                    <h6 class="fw-800 m-0 small" style="letter-spacing: -0.2px;">{{ risk.student.user.get_full_name }}</h6>
+                                    <span class="extra-small fw-800 text-danger text-uppercase">{{ risk.risk_level }}</span>
                                 </div>
-                                <p class="text-muted mb-0" style="font-size:0.75rem;">
-                                    {{ risk.risk_factors|join:", " }}
+                                <p class="text-muted mb-0 opa-7" style="font-size:0.7rem; font-weight: 500;">
+                                    {{ risk.risk_factors|join:" • " }}
                                 </p>
                             </div>
+                            <a href="{% url 'student_detail' risk.student.id %}" class="btn btn-sm btn-icon border-0 shadow-none"><i class="fas fa-chevron-right opa-5"></i></a>
                         </div>
                     </div>
                     {% empty %}
-                    <div class="p-5 text-center text-muted">
-                        <i class="fas fa-check-circle text-success fs-1 mb-3"></i>
-                        <p class="m-0 small">No students identified for urgent intervention.</p>
+                    <div class="p-5 text-center text-muted opa-5">
+                        <i class="fas fa-shield-check fs-1 mb-3"></i>
+                        <p class="m-0 small fw-bold">No operational anomalies detected.</p>
                     </div>
                     {% endfor %}
                 </div>
+            </div>
+        </div>
                 
                 {% if at_risk_students %}
                 <div class="mt-4 pt-3 border-top text-center">
