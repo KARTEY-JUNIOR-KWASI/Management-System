@@ -87,7 +87,7 @@ def student_list(request):
         'selected_class': class_id,
         'total_students': students_query.count()
     }
-    return render(request, 'admin_dashboard/student_list.html', context)
+    return render(request, 'admin_dashboard/students.html', context)
 
 @admin_required
 def create_notice(request):
