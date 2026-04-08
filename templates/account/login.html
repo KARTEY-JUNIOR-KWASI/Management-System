@@ -214,21 +214,27 @@
         <form method="post" class="auth-form">
             {% csrf_token %}
 
-            {% for field in form %}
-                {% if field.name != 'remember' %}
-                    <div class="auth-input-group">
-                        <i class="fas {% if field.name == 'login' %}fa-user-astronaut{% else %}fa-key-skeleton{% endif %}">
-                            {% if field.name == 'login' %}<i class="fas fa-fingerprint"></i>{% else %}<i class="fas fa-shield-halved"></i>{% endif %}
-                        </i>
-                        {% render_field field class="portal-field" placeholder=field.label %}
-                        {% if field.errors %}
-                            {% for error in field.errors %}
-                                <div class="text-danger extra-small mt-2 px-1 fw-bold"><i class="fas fa-circle-exclamation me-1"></i> {{ error }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
+            <!-- Unlock Login -->
+            <div class="auth-input-group">
+                <i class="fas fa-fingerprint"></i>
+                {% render_field form.login class="portal-field" placeholder="AUTHORIZED IDENTITY" %}
+                {% if form.login.errors %}
+                    {% for error in form.login.errors %}
+                        <div class="text-danger extra-small mt-2 px-1 fw-bold"><i class="fas fa-circle-exclamation me-1"></i> {{ error }}</div>
+                    {% endfor %}
                 {% endif %}
-            {% endfor %}
+            </div>
+
+            <!-- Unlock Password -->
+            <div class="auth-input-group">
+                <i class="fas fa-shield-halved"></i>
+                {% render_field form.password class="portal-field" placeholder="SECURITY KEY" %}
+                {% if form.password.errors %}
+                    {% for error in form.password.errors %}
+                        <div class="text-danger extra-small mt-2 px-1 fw-bold"><i class="fas fa-circle-exclamation me-1"></i> {{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
 
             {% if form.non_field_errors %}
                 <div class="p-3 bg-danger-soft text-danger small rounded-4 mb-4 border border-danger opacity-75">
