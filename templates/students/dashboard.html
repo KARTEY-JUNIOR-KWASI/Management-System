@@ -211,7 +211,7 @@
                                 <span class="text-muted">{{ subj.current_average|floatformat:0 }}%</span>
                             </div>
                             <div class="progress" style="height: 6px; border-radius: 3px; background: #f1f5f9;">
-                                <div class="progress-bar bg-primary" style="width: {{ subj.current_average }}%; border-radius: 3px;"></div>
+                                <div class="progress-bar bg-primary" style="width: {{ subj.current_average|default:0 }}%; border-radius: 3px;"></div>
                             </div>
                         </div>
                         {% endfor %}
@@ -228,9 +228,9 @@
         const ctx = document.getElementById('predictionChart').getContext('2d');
         
         // Prepare data for Grade Predictions Chart
-        const labels = [{% for prediction in predictions %}"{{ prediction.subject.name|truncatechars:10 }}",{% endfor %}];
-        const currentData = [{% for prediction in predictions %}{{ prediction.current_average|floatformat:1 }},{% endfor %}];
-        const predictedData = [{% for prediction in predictions %}{{ prediction.predicted_score|floatformat:1 }},{% endfor %}];
+        const labels = [{% for prediction in predictions %}"{{ prediction.subject.name|truncatechars:10|escapejs }}",{% endfor %}];
+        const currentData = [{% for prediction in predictions %}{{ prediction.current_average|stringformat:".1f"|default:0 }},{% endfor %}];
+        const predictedData = [{% for prediction in predictions %}{{ prediction.predicted_score|stringformat:".1f"|default:0 }},{% endfor %}];
 
         new Chart(ctx, {
             type: 'bar',

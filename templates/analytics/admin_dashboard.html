@@ -224,11 +224,12 @@
 <script>
 function exportAnalytics() {
     const data = {
-        total_students: {{ system_analytics.total_students }},
-        total_teachers: {{ system_analytics.total_teachers }},
-        attendance_rate: {{ system_analytics.overall_attendance_rate }},
-        average_gpa: {{ system_analytics.average_gpa }},
-        students_at_risk: {{ total_at_risk }},
+        total_students: {{ system_analytics.total_students|default:0 }},
+        total_teachers: {{ system_analytics.total_teachers|default:0 }},
+        attendance_rate: {{ system_analytics.overall_attendance_rate|default:0 }},
+        average_gpa: {{ system_analytics.average_gpa|default:0 }},
+        performance_score: {{ performance_score|default:0 }},
+        students_at_risk: {{ total_at_risk|default:0 }},
         exported_at: new Date().toISOString()
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
@@ -242,7 +243,7 @@ function exportAnalytics() {
 // Performance Trends Chart — Refined Configuration
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('performanceChart').getContext('2d');
-    const performanceData = {{ performance_trend|safe }};
+    const performanceData = {{ performance_trend|safe|default:'[]' }};
     
     // Create modern gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, 400);

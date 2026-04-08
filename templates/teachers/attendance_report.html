@@ -1,5 +1,13 @@
 {% extends 'base.html' %}
-{% block title %}Attendance Report{% endblock %}
+{% block title %}Attendance Report - EduMS{% endblock %}
+{% block extra_head %}
+<style>
+  .bg-stat-green { background: var(--stat-green) !important; }
+  .bg-stat-orange { background: var(--stat-orange) !important; }
+  .bg-stat-red { background: var(--stat-red) !important; }
+  .text-stat-red { color: var(--stat-red) !important; }
+</style>
+{% endblock %}
 {% block content %}
 <div class="container-fluid pb-5">
 
@@ -112,11 +120,13 @@
               <td><span style="color:var(--stat-red); font-weight:600;">{{ row.absent }}</span></td>
               <td><span style="color:var(--stat-orange); font-weight:600;">{{ row.late }}</span></td>
               <td>
-                <div style="display:flex; align-items:center; gap:0.5rem;">
-                  <div style="flex:1; background:#e9ecef; border-radius:4px; height:8px; max-width:100px;">
-                    <div style="width:{{ row.percentage }}%; background:{% if row.percentage >= 75 %}var(--stat-green){% elif row.percentage >= 50 %}var(--stat-orange){% else %}var(--stat-red){% endif %}; height:8px; border-radius:4px;"></div>
-                  </div>
-                  <span style="font-weight:600;{% if row.percentage < 75 %} color:var(--stat-red);{% endif %}">{{ row.percentage }}%</span>
+                <div class="progress" style="height: 8px;">
+                  <div class="progress-bar {% if row.percentage < 75 %}bg-danger{% elif row.percentage < 90 %}bg-warning{% else %}bg-success{% endif %}" 
+                       role="progressbar" 
+                       style="width: {{ row.percentage }}%"
+                       aria-valuenow="{{ row.percentage }}" 
+                       aria-valuemin="0" 
+                       aria-valuemax="100"></div>
                 </div>
               </td>
             </tr>

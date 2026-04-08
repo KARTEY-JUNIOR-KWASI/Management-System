@@ -328,9 +328,8 @@ def _calculate_system_analytics():
         'attendance_trend': attendance_trend,
         'average_gpa': average_gpa,
         'assignment_completion_rate': assignment_completion_rate,
-        'total_at_risk': len(at_risk_students),
+        'students_at_risk': len(at_risk_students),
         'critical_cases': len([s for s in at_risk_students if s['risk_level'] == 'critical']),
-        'at_risk_list': at_risk_students[:10],
     }
 
 def _calculate_performance_trend():

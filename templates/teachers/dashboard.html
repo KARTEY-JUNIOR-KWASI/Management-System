@@ -258,9 +258,9 @@
         gradSuccess.addColorStop(1, 'rgba(111, 177, 63, 0.0)');
 
         // Prepare data from class_performance context
-        const labels = [{% for cp in class_performance %}"{{ cp.class.name }}",{% endfor %}];
-        const gpaData = [{% for cp in class_performance %}{{ cp.avg_gpa|floatformat:1 }},{% endfor %}];
-        const attendanceData = [{% for cp in class_performance %}{{ cp.attendance_rate|floatformat:1 }},{% endfor %}];
+        const labels = [{% for cp in class_performance %}"{{ cp.class.name|escapejs }}",{% endfor %}];
+        const gpaData = [{% for cp in class_performance %}{{ cp.avg_gpa|stringformat:".1f"|default:0 }},{% endfor %}];
+        const attendanceData = [{% for cp in class_performance %}{{ cp.attendance_rate|stringformat:".1f"|default:0 }},{% endfor %}];
 
         new Chart(ctx, {
             type: 'line',

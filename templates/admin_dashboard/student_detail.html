@@ -191,7 +191,7 @@
                         <span class="badge bg-primary">{{ data.average|floatformat:1 }}%</span>
                     </div>
                     <div class="progress mt-2" style="height: 8px;">
-                        <div class="progress-bar" role="progressbar" style="width: {{ data.average }}%"></div>
+                        <div class="progress-bar" role="progressbar" style="width: {{ data.average|default:0 }}%"></div>
                     </div>
                     <small class="text-muted">{{ data.scores|length }} assessments</small>
                 </div>
@@ -325,7 +325,7 @@
                                         <span class="badge bg-warning">Late</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ record.marked_by.get_full_name if record.marked_by else 'System' }}</td>
+                                <td>{% if record.marked_by %}{{ record.marked_by.get_full_name }}{% else %}System{% endif %}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
