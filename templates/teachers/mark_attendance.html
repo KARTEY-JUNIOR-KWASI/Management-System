@@ -1,152 +1,158 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load teacher_tags %}
-{% block title %}Mark Attendance{% endblock %}
+
+{% block title %}Attendance Protocol — Institutional Synchronization{% endblock %}
+
 {% block content %}
-<div class="container-fluid pb-5">
-
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 style="font-weight:800; margin:0; color:var(--text-dark);">Mark Attendance</h2>
-      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">Select a class and date to mark student attendance</p>
-    </div>
-    <a href="{% url 'attendance_report' %}" class="btn btn-outline-akkhor">
-      <i class="fas fa-chart-bar me-1"></i> View Report
-    </a>
-  </div>
-
-  {% if messages %}
-    {% for m in messages %}
-      <div class="alert-akkhor alert-{{ m.tags }} fade-in mb-3"><i class="fas fa-circle-check"></i> {{ m }}</div>
-    {% endfor %}
-  {% endif %}
-
-  <!-- Step 1: Select Class & Date -->
-  <div class="reg-card mb-4" style="border-top: 4px solid var(--primary);">
-    <div class="reg-card-body">
-      <h5 style="font-weight:700; color:var(--primary); margin-bottom:1.25rem;"><i class="fas fa-filter me-2"></i>Select Class & Date</h5>
-      <form method="post" id="load-form">
-        {% csrf_token %}
-        <div class="row g-3 align-items-end">
-          <div class="col-md-4">
-            <div class="field-group">
-              <label>Class</label>
-              <select name="class_id" class="form-control form-select" required id="class-select">
-                <option value="">-- Select Class --</option>
-                {% for cls in teacher_classes %}
-                  <option value="{{ cls.id }}" {% if selected_class.id == cls.id %}selected{% endif %}>{{ cls }}</option>
-                {% endfor %}
-              </select>
+<div class="row layout-spacing animate-fade-up">
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-800 mb-0" style="letter-spacing: -1.5px; color: var(--text-dark);"><span class="me-2">📡</span> Attendance Synchronization</h2>
+                <p class="text-muted small mb-0 fw-medium">Operational presence registry and bio-metric synchronization hub.</p>
             </div>
-          </div>
-          <div class="col-md-4">
-            <div class="field-group">
-              <label>Date</label>
-              <input type="date" name="date" class="form-control" value="{{ selected_date|default:today }}" required>
+            <a href="{% url 'attendance_report' %}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-none extra-small">
+                <i class="fas fa-chart-line me-2"></i> Analytical Reports
+            </a>
+        </div>
+
+        {% if messages %}
+            {% for m in messages %}
+                <div class="nexus-glass-card p-3 mb-4 border-start border-4 border-success d-flex align-items-center gap-3 animate-fade-in" style="background: rgba(16, 185, 129, 0.05);">
+                    <div class="p-avatar-sm" style="background: var(--p-nexus-success);"><i class="fas fa-check"></i></div>
+                    <div class="fw-bold small text-success">{{ m }}</div>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Step 1: Protocol Initialization -->
+        <div class="nexus-glass-card p-4 mb-4">
+            <h5 class="fw-800 mb-4 extra-small text-uppercase opa-7" style="letter-spacing: 1px;"><i class="fas fa-satellite-dish me-2"></i> Protocol Initialization</h5>
+            <form method="post" id="load-form">
+                {% csrf_token %}
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7" style="color: var(--text-muted);"><i class="fas fa-layer-group me-1"></i> Sector Designation</label>
+                        <select name="class_id" class="form-select nexus-input-terminal shadow-none px-3 fw-medium" style="height: 50px; font-size: 0.85rem;" required id="class-select">
+                            <option value="">-- Scan Sectors --</option>
+                            {% for cls in teacher_classes %}
+                                <option value="{{ cls.id }}" {% if selected_class.id == cls.id %}selected{% endif %}>{{ cls }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7" style="color: var(--text-muted);"><i class="fas fa-calendar-alt me-1"></i> Temporal Marker</label>
+                        <input type="date" name="date" class="form-control nexus-input-terminal shadow-none px-3 fw-medium" style="height: 50px; font-size: 0.85rem;" value="{{ selected_date|default:today }}" required>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" name="load_class" class="btn btn-dark rounded-pill w-100 fw-bold shadow-lg" style="height: 50px; background: #0f172a;">
+                            Initiate Scan <i class="fas fa-fingerprint ms-2 scale-9"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Step 2: Entity Synchronization -->
+    {% if students %}
+    <div class="nexus-glass-card overflow-hidden animate-fade-up delay-1">
+        <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-avatar shadow-none" style="background: var(--p-nexus-primary);">
+                    <i class="fas fa-users-viewfinder"></i>
+                </div>
+                <div>
+                    <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">{{ selected_class }}</h5>
+                    <p class="text-muted extra-small mb-0 fw-medium">Active synchronization for <span class="text-dark fw-bold">{{ selected_date }}</span></p>
+                </div>
             </div>
-          </div>
-          <div class="col-md-4">
-            <button type="submit" name="load_class" class="btn btn-primary-akkhor w-100" style="padding:0.6rem 1rem;">
-              <i class="fas fa-users me-1"></i> Load Students
-            </button>
-          </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold extra-small" onclick="markAll('present')">✓ All Present</button>
+                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold extra-small" onclick="markAll('absent')">✗ All Absent</button>
+            </div>
         </div>
-      </form>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="class_id" value="{{ selected_class.id }}">
+            <input type="hidden" name="date" value="{{ selected_date }}">
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                    <thead>
+                        <tr class="bg-light bg-opacity-50">
+                            <th class="ps-4 py-3 extra-small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Entity</th>
+                            <th class="py-3 extra-small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">ID Protocol</th>
+                            <th class="py-3 extra-small text-uppercase text-muted fw-800" style="letter-spacing: 1px; width: 300px;">Presence Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="p-avatar-sm" style="background: var(--p-nexus-dark);">
+                                        {{ student.user.first_name|first }}{{ student.user.last_name|first }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-800 text-dark small">{{ student.user.get_full_name|default:student.user.username }}</div>
+                                        <div class="extra-small text-muted fw-medium opa-7">Academic Entity</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge border bg-white text-muted rounded-pill px-3 py-2 fw-800" style="font-family: 'Space Mono', monospace; font-size: 0.7rem;">
+                                    {{ student.student_id }}
+                                </span>
+                            </td>
+                            <td>
+                                {% with rec=attendance_records|get_item:student.id %}
+                                <div class="nexus-status-switcher">
+                                    <label class="mb-0">
+                                        <input type="radio" name="status_{{ student.id }}" value="present" class="status-present-check"
+                                            {% if rec.status == 'present' or not rec %}checked{% endif %}>
+                                        <span class="nexus-status-option">Present</span>
+                                    </label>
+                                    <label class="mb-0">
+                                        <input type="radio" name="status_{{ student.id }}" value="absent" class="status-absent-check"
+                                            {% if rec.status == 'absent' %}checked{% endif %}>
+                                        <span class="nexus-status-option">Absent</span>
+                                    </label>
+                                    <label class="mb-0">
+                                        <input type="radio" name="status_{{ student.id }}" value="late" class="status-late-check"
+                                            {% if rec.status == 'late' %}checked{% endif %}>
+                                        <span class="nexus-status-option">Late</span>
+                                    </label>
+                                </div>
+                                {% endwith %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="p-4 border-top d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
+                <div class="extra-small text-muted fw-bold text-uppercase opa-5" style="letter-spacing: 0.5px;">
+                    <i class="fas fa-shield-alt me-2"></i> Operational Data Security Ensured
+                </div>
+                <button type="submit" name="save_attendance" class="btn btn-primary rounded-pill px-5 fw-800 shadow-lg">
+                    <i class="fas fa-cloud-upload-alt me-2"></i> Save Synchronization
+                </button>
+            </div>
+        </form>
     </div>
-  </div>
-
-  <!-- Step 2: Mark Attendance -->
-  {% if students %}
-  <div class="reg-card">
-    <div class="reg-card-header d-flex justify-content-between align-items-center">
-      <div class="d-flex align-items-center gap-3">
-        <div class="card-icon-wrap" style="background:#f0fdf4;">
-          <i class="fas fa-calendar-check" style="color:#16a34a;"></i>
+    {% elif selected_class %}
+    <div class="nexus-glass-card p-5 text-center animate-fade-up">
+        <div class="p-avatar-lg mx-auto mb-4" style="background: rgba(0,0,0,0.05); color: var(--text-muted); box-shadow: none;">
+            <i class="fas fa-users-slash"></i>
         </div>
-        <div>
-          <h5 style="margin:0; font-weight:700;">{{ selected_class }}</h5>
-          <p style="margin:0; font-size:0.75rem; color:var(--text-muted);">Attendance for: <strong style="color:var(--text-dark);">{{ selected_date }}</strong></p>
-        </div>
-      </div>
-      <span class="badge badge-akkhor badge-primary">{{ students|length }} Students</span>
+        <h4 class="fw-800 text-dark mb-2">Registry Depleted</h4>
+        <p class="text-muted small">No student entities discovered within Sector {{ selected_class }}.</p>
     </div>
-
-    <div class="reg-card-body">
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="class_id" value="{{ selected_class.id }}">
-        <input type="hidden" name="date" value="{{ selected_date }}">
-
-        <!-- Quick actions: mark all present/absent -->
-        <div class="d-flex gap-2 mb-3">
-          <button type="button" class="btn btn-sm btn-outline-success" onclick="markAll('present')" style="border-radius:6px;">✓ Mark All Present</button>
-          <button type="button" class="btn btn-sm btn-outline-danger" onclick="markAll('absent')" style="border-radius:6px;">✗ Mark All Absent</button>
-        </div>
-
-        <div class="table-responsive mb-4 border rounded-3 overflow-hidden">
-          <table class="table-akkhor m-0">
-            <thead>
-              <tr>
-                <th style="width:50px;">#</th>
-                <th>Student</th>
-                <th>Student ID</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for student in students %}
-              <tr>
-                <td style="color:var(--text-muted); font-size:0.8rem;">{{ forloop.counter }}</td>
-                <td>
-                  <div style="font-weight:600; color:var(--text-dark);">{{ student.user.get_full_name|default:student.user.username }}</div>
-                </td>
-                <td><span style="font-size:0.78rem; color:var(--text-muted); font-family:monospace;">{{ student.student_id }}</span></td>
-                <td>
-                  {% with rec=attendance_records|get_item:student.id %}
-                  <div class="d-flex gap-3">
-                    <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
-                      <input type="radio" name="status_{{ student.id }}" value="present"
-                        {% if rec.status == 'present' or not rec %}checked{% endif %}>
-                      <span style="color:#16a34a; font-weight:600; font-size:0.85rem;">Present</span>
-                    </label>
-                    <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
-                      <input type="radio" name="status_{{ student.id }}" value="absent"
-                        {% if rec.status == 'absent' %}checked{% endif %}>
-                      <span style="color:#dc2626; font-weight:600; font-size:0.85rem;">Absent</span>
-                    </label>
-                    <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
-                      <input type="radio" name="status_{{ student.id }}" value="late"
-                        {% if rec.status == 'late' %}checked{% endif %}>
-                      <span style="color:#d97706; font-weight:600; font-size:0.85rem;">Late</span>
-                    </label>
-                  </div>
-                  {% endwith %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-        <div class="d-flex justify-content-end border-top pt-3 mt-4">
-          <button type="submit" name="save_attendance" class="btn btn-primary-akkhor px-5">
-            <i class="fas fa-save me-1"></i> Save Attendance
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-  {% elif selected_class %}
-    <div class="reg-card">
-      <div class="reg-card-body text-center py-5">
-        <div class="avatar-ring mb-3" style="width:80px; height:80px; font-size:2rem; background:#f3f6fb; color:var(--text-muted); margin:0 auto; display:flex; align-items:center; justify-content:center; border-radius:50%;">
-          <i class="fas fa-users"></i>
-        </div>
-        <h5 style="color:var(--text-dark); font-weight:700;">No Students Found</h5>
-        <p style="color:var(--text-muted);">No students enrolled in {{ selected_class }} yet.</p>
-      </div>
-    </div>
-  {% endif %}
-
+    {% endif %}
 </div>
 
 <script>

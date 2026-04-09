@@ -305,3 +305,115 @@
 .js-progress-bar {
     transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ── Operational Intelligence Utilities ────────────────────── */
+
+/* Nexus Status Switcher (Attendance) */
+.nexus-status-switcher {
+    display: inline-flex;
+    background: rgba(0,0,0,0.03);
+    padding: 4px;
+    border-radius: 14px;
+    gap: 4px;
+}
+
+.nexus-status-option {
+    position: relative;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    color: var(--text-muted);
+}
+
+.nexus-status-option input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.status-present-check:checked + .nexus-status-option {
+    background: var(--p-nexus-success);
+    color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.status-absent-check:checked + .nexus-status-option {
+    background: var(--p-nexus-danger);
+    color: white;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.status-late-check:checked + .nexus-status-option {
+    background: var(--p-nexus-warning);
+    color: white;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+/* Master Thresholds (Grading) */
+.nexus-mastery-container {
+    padding: 12px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.4);
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+.nexus-mastery-bar-wrapper {
+    height: 8px;
+    background: rgba(0,0,0,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.nexus-mastery-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+}
+
+.mastery-low      { background: var(--p-nexus-danger); }
+.mastery-medium   { background: var(--p-nexus-warning); }
+.mastery-high     { background: var(--p-nexus-primary); }
+.mastery-complete { background: var(--p-nexus-success); }
+
+/* Premium Table Variations */
+.nexus-premium-table tr {
+    transition: transform 0.2s ease;
+}
+
+.nexus-premium-table tr:hover {
+    transform: scale(1.01) translateX(5px);
+    z-index: 10;
+}
+
+/* ── Diagnostic Terminal Inputs ────────────────────────────── */
+.nexus-input-terminal {
+    background: rgba(15, 23, 42, 0.03) !important;
+    border: 1px solid rgba(67, 97, 238, 0.1) !important;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    color: var(--p-nexus-dark) !important;
+}
+
+.nexus-input-terminal:focus {
+    background: white !important;
+    border-color: rgba(67, 97, 238, 0.5) !important;
+    box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15), 0 8px 16px rgba(67, 97, 238, 0.08) !important;
+    transform: translateY(-2px);
+}
+
+.nexus-input-terminal::placeholder {
+    color: rgba(15, 23, 42, 0.3);
+    font-weight: 500;
+}
+
+.nexus-label-terminal {
+    font-family: 'Outfit', sans-serif;
+    color: #475569;
+    letter-spacing: 1px;
+    font-weight: 800;
+}

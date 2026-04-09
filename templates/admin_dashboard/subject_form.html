@@ -1,90 +1,80 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 
-{% block title %}Subject Form{% endblock %}
+{% block title %}Discipline Initialization — Intelligence Nexus{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 style="font-weight:800; margin:0; color:var(--text-dark);">
-                {% if form.instance.pk %}Update{% else %}Create{% endif %} Subject
-            </h2>
-            <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">
-                Manage subject details
-            </p>
-        </div>
-        <a href="{% url 'subject_list' %}" class="btn btn-outline-akkhor">
-            <i class="fas fa-arrow-left me-1"></i> Back to List
-        </a>
-    </div>
-
-    <!-- Error Summary -->
-    {% if form.errors %}
-    <div class="reg-error-alert fade-in">
-        <i class="fas fa-circle-exclamation" style="color:#e74c3c; font-size:1.1rem; margin-top:0.1rem;"></i>
-        <div>
-            <strong style="font-size:0.85rem; color:#991b1b;">Please fix the following errors before saving:</strong>
-            <ul>
-                {% for field, errors in form.errors.items %}
-                    {% for error in errors %}<li>{{ field|capfirst }}: {{ error }}</li>{% endfor %}
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    {% endif %}
-    
-    <div class="reg-card">
-        <div class="reg-card-header">
-            <div class="card-icon-wrap" style="background:#fef3d7;">
-                <i class="fas fa-book" style="color:#b7770d;"></i>
-            </div>
+<div class="row layout-spacing animate-fade-up">
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h5>Subject Details</h5>
-                <p>Information regarding the subject</p>
+                <h2 class="fw-800 mb-0" style="letter-spacing: -1.5px; color: var(--text-dark);">
+                    <span class="me-2">📚</span> {% if form.instance.pk %}Synchronize{% else %}Initialize{% endif %} Discipline
+                </h2>
+                <p class="text-muted small mb-0 fw-medium">Configuring academic discipline parameters and subject domain details.</p>
             </div>
+            <a href="{% url 'subject_list' %}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-none extra-small">
+                <i class="fas fa-arrow-left me-2"></i> Return to Registry
+            </a>
         </div>
-        <div class="reg-card-body">
-            <form method="post" id="reg-form">
+
+        {% if form.errors %}
+        <div class="nexus-glass-card p-3 mb-4 border-start border-4 border-danger d-flex align-items-center gap-3 animate-fade-in" style="background: rgba(220, 38, 38, 0.05);">
+            <div class="p-avatar-sm" style="background: var(--p-nexus-danger);"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="fw-bold small text-danger">Configuration Error: Please verify domain integrity and re-attempt synchronization.</div>
+        </div>
+        {% endif %}
+        
+        <div class="nexus-glass-card p-4">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="p-avatar-sm" style="background: var(--p-nexus-warning);">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div>
+                    <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Subject Domain Parameters</h5>
+                    <p class="text-muted extra-small mb-0 fw-medium">Core definition for academic discipline.</p>
+                </div>
+            </div>
+
+            <form method="post" id="nexus-form">
                 {% csrf_token %}
-                <div class="row g-3">
+                <div class="row g-4">
                     <div class="col-md-6">
                         <div class="field-group">
-                            <label>Subject Name <span class="text-danger">*</span></label>
-                            {% render_field form.name class="form-control" placeholder="e.g. Mathematics" %}
-                            {% if form.name.errors %}<div class="field-error">{{ form.name.errors|join:", " }}</div>{% endif %}
+                            <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Subject Designation <span class="text-danger">*</span></label>
+                            {% render_field form.name class="form-control nexus-input-terminal px-3 fw-medium" placeholder="e.g. Mathematics" style="height: 50px;" %}
+                            {% if form.name.errors %}<div class="extra-small text-danger fw-bold mt-1">{{ form.name.errors|join:", " }}</div>{% endif %}
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="field-group">
-                            <label>Subject Code <span class="text-danger">*</span></label>
-                            {% render_field form.code class="form-control" placeholder="e.g. MAT101" %}
-                            {% if form.code.errors %}<div class="field-error">{{ form.code.errors|join:", " }}</div>{% endif %}
+                            <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Academic Code <span class="text-danger">*</span></label>
+                            {% render_field form.code class="form-control nexus-input-terminal px-3 fw-medium" placeholder="e.g. MAT101" style="height: 50px;" %}
+                            {% if form.code.errors %}<div class="extra-small text-danger fw-bold mt-1">{{ form.code.errors|join:", " }}</div>{% endif %}
                         </div>
                     </div>
-                    <div class="col-12">
+                    <div class="col-12 mt-4">
                         <div class="field-group">
-                            <label>Description</label>
-                            {% render_field form.description class="form-control" rows="3" placeholder="Provide a brief description of the subject..." %}
-                            {% if form.description.errors %}<div class="field-error">{{ form.description.errors|join:", " }}</div>{% endif %}
+                            <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Discipline Description</label>
+                            {% render_field form.description class="form-control nexus-input-terminal px-3 fw-medium" rows="3" placeholder="Provide a brief description of the subject domain..." %}
+                            {% if form.description.errors %}<div class="extra-small text-danger fw-bold mt-1">{{ form.description.errors|join:", " }}</div>{% endif %}
                         </div>
                     </div>
                 </div>
             </form>
         </div>
-    </div>
 
-    <!-- Submit Bar -->
-    <div class="reg-submit-bar">
-        <div class="note">
-            <i class="fas fa-info-circle" style="color:var(--primary);"></i>
-            Ensure code and name are correct before saving.
-        </div>
-        <div style="display:flex; gap:0.75rem;">
-            <a href="{% url 'subject_list' %}" class="btn btn-outline-akkhor">Cancel</a>
-            <button type="submit" form="reg-form" class="btn btn-primary-akkhor px-5">
-                <i class="fas fa-save me-1"></i> Save Subject
-            </button>
+        <!-- System Action Bar -->
+        <div class="nexus-glass-card p-4 mt-4 d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
+            <div class="extra-small text-muted fw-bold text-uppercase opa-5" style="letter-spacing: 0.5px;">
+                <i class="fas fa-shield-alt me-2"></i> Authorized System reconfiguration
+            </div>
+            <div class="d-flex gap-3">
+                <a href="{% url 'subject_list' %}" class="btn btn-light rounded-pill px-4 fw-800 extra-small">Cancel Protocol</a>
+                <button type="submit" form="nexus-form" class="btn btn-primary rounded-pill px-5 fw-800 shadow-lg">
+                    <i class="fas fa-save me-2"></i> Commit Synchronization
+                </button>
+            </div>
         </div>
     </div>
 </div>

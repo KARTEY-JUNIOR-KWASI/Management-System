@@ -1,164 +1,201 @@
 {% extends 'base.html' %}
-{% block title %}Manage Grades{% endblock %}
+{% load static %}
+
+{% block title %}Grade Evaluation Hub — Academic Diagnostics{% endblock %}
+
 {% block content %}
-<div class="container-fluid pb-5">
-
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 style="font-weight:800; margin:0; color:var(--text-dark);">Manage Grades</h2>
-      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">Assign grades to students by class and subject</p>
-    </div>
-    <a href="{% url 'grade_report' %}" class="btn btn-outline-akkhor">
-      <i class="fas fa-chart-bar me-1"></i> View Report
-    </a>
-  </div>
-
-  {% if messages %}
-    {% for m in messages %}
-      <div class="alert-akkhor alert-{{ m.tags }} fade-in mb-3"><i class="fas fa-circle-check"></i> {{ m }}</div>
-    {% endfor %}
-  {% endif %}
-
-  <!-- Filter -->
-  <div class="reg-card mb-4" style="border-top: 4px solid var(--primary);">
-    <div class="reg-card-body">
-      <h5 style="font-weight:700; color:var(--primary); margin-bottom:1.25rem;"><i class="fas fa-filter me-2"></i>Select Class & Subject</h5>
-      <form method="get">
-        <div class="row g-3 align-items-end">
-          <div class="col-md-4">
-            <div class="field-group">
-              <label>Class</label>
-              <select name="class_id" class="form-control form-select" required>
-                <option value="">-- Select Class --</option>
-                {% for cls in teacher_classes %}
-                  <option value="{{ cls.id }}" {% if selected_class.id == cls.id %}selected{% endif %}>{{ cls }}</option>
-                {% endfor %}
-              </select>
+<div class="row layout-spacing animate-fade-up">
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-800 mb-0" style="letter-spacing: -1.5px; color: var(--text-dark);"><span class="me-2">📊</span> Grade Evaluation Hub</h2>
+                <p class="text-muted small mb-0 fw-medium">Analytical terminal for academic assessment and mastery calibration.</p>
             </div>
-          </div>
-          <div class="col-md-4">
-            <div class="field-group">
-              <label>Subject</label>
-              <select name="subject_id" class="form-control form-select" required>
-                <option value="">-- Select Subject --</option>
-                {% for subj in teacher_subjects %}
-                  <option value="{{ subj.id }}" {% if selected_subject.id == subj.id %}selected{% endif %}>{{ subj.name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <button type="submit" class="btn btn-primary-akkhor w-100" style="padding:0.6rem 1rem;">
-              <i class="fas fa-search me-1"></i> Load Students
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Grade Entry Table -->
-  {% if students %}
-  <div class="reg-card">
-    <div class="reg-card-header d-flex justify-content-between align-items-center">
-      <div class="d-flex align-items-center gap-3">
-        <div class="card-icon-wrap" style="background:#eff3ff;">
-          <i class="fas fa-check-double" style="color:var(--primary);"></i>
-        </div>
-        <div>
-          <h5 style="margin:0; font-weight:700;">{{ selected_class }} — {{ selected_subject.name }}</h5>
-          <p style="margin:0; font-size:0.75rem; color:var(--text-muted);">Enter grades for each student</p>
-        </div>
-      </div>
-      <span class="badge badge-akkhor badge-primary">{{ students|length }} Students</span>
-    </div>
-
-    <div class="reg-card-body">
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="class_id" value="{{ selected_class.id }}">
-        <input type="hidden" name="subject_id" value="{{ selected_subject.id }}">
-
-        <div class="row g-3 mb-4" style="background:var(--body-bg); padding:1.25rem; border-radius:10px; border:1px solid var(--border-color);">
-          <div class="col-md-4">
-            <div class="field-group">
-              <label>Exam Type <span class="text-danger">*</span></label>
-              <select name="exam_type" class="form-control form-select" required>
-                {% for key, label in exam_types %}
-                <option value="{{ key }}">{{ label }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="field-group">
-              <label>Maximum Score</label>
-              <input type="number" name="max_score" class="form-control" value="100" min="1" step="0.01">
-            </div>
-          </div>
+            <a href="{% url 'grade_report' %}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-none extra-small">
+                <i class="fas fa-chart-pie me-2"></i> Performance Distribution
+            </a>
         </div>
 
-        <div class="table-responsive mb-4">
-          <table class="table-akkhor">
-            <thead>
-              <tr>
-                <th style="width:50px;">#</th>
-                <th>Student</th>
-                <th style="width:160px;">Score</th>
-                <th>Previous Grades</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for student in students %}
-              <tr>
-                <td style="color:var(--text-muted); font-size:0.8rem;">{{ forloop.counter }}</td>
-                <td>
-                  <div style="font-weight:600; color:var(--text-dark);">{{ student.user.get_full_name|default:student.user.username }}</div>
-                  <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">{{ student.student_id }}</div>
-                </td>
-                <td>
-                  <input type="number" name="score_{{ student.id }}" class="form-control form-control-sm"
-                    placeholder="Score" min="0" step="0.01"
-                    style="width:130px; font-weight:600;">
-                </td>
-                <td>
-                  {% if student.existing_grades %}
-                    <div class="d-flex flex-wrap gap-1">
-                    {% for exam_type, result in student.existing_grades.items %}
-                      <span class="badge" style="background:var(--primary-light); color:var(--primary); font-size:0.75rem; font-weight:600;">
-                        {{ exam_type }}: {{ result.score }}/{{ result.max_score }}
-                      </span>
-                    {% endfor %}
+        {% if messages %}
+            {% for m in messages %}
+                <div class="nexus-glass-card p-3 mb-4 border-start border-4 border-success d-flex align-items-center gap-3 animate-fade-in" style="background: rgba(16, 185, 129, 0.05);">
+                    <div class="p-avatar-sm" style="background: var(--p-nexus-success);"><i class="fas fa-check"></i></div>
+                    <div class="fw-bold small text-success">{{ m }}</div>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Evaluation Filter Station -->
+        <div class="nexus-glass-card p-4 mb-4">
+            <h5 class="fw-800 mb-4 extra-small text-uppercase opa-7" style="letter-spacing: 1px;"><i class="fas fa-filter me-2"></i> Assessment Parameters</h5>
+            <form method="get">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7" style="color: var(--text-muted);"><i class="fas fa-layer-group me-1"></i> Academic Sector</label>
+                        <select name="class_id" class="form-select nexus-input-terminal shadow-none px-3 fw-medium" style="height: 50px; font-size: 0.85rem;" required>
+                            <option value="">-- Sector Scan --</option>
+                            {% for cls in teacher_classes %}
+                                <option value="{{ cls.id }}" {% if selected_class.id == cls.id %}selected{% endif %}>{{ cls }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                  {% else %}
-                    <span style="color:var(--text-muted); font-size:0.8rem; font-style:italic;">No grades yet</span>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+                    <div class="col-md-4">
+                        <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7" style="color: var(--text-muted);"><i class="fas fa-book-open me-1"></i> Subject Domain</label>
+                        <select name="subject_id" class="form-select nexus-input-terminal shadow-none px-3 fw-medium" style="height: 50px; font-size: 0.85rem;" required>
+                            <option value="">-- Discipline Scan --</option>
+                            {% for subj in teacher_subjects %}
+                                <option value="{{ subj.id }}" {% if selected_subject.id == subj.id %}selected{% endif %}>{{ subj.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-dark rounded-pill w-100 fw-bold shadow-lg" style="height: 50px; background: #0f172a;">
+                            Initiate Protocol <i class="fas fa-microchip ms-2 scale-9"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </d    <!-- Step 2: Diagnostic Evaluation -->
+    {% if students %}
+    <div class="nexus-glass-card overflow-hidden animate-fade-up delay-1">
+        <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-avatar shadow-none" style="background: var(--p-nexus-primary);">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <div>
+                    <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">{{ selected_class }} — {{ selected_subject.name }}</h5>
+                    <p class="text-muted extra-small mb-0 fw-medium">Active assessment registry for <span class="text-dark fw-bold">{{ selected_subject.code }}</span></p>
+                </div>
+            </div>
+            <span class="badge badge-pill bg-dark py-2 px-3 fw-bold extra-small shadow-sm">{{ students|length }} Student Entities</span>
         </div>
 
-        <div class="d-flex justify-content-end border-top pt-3">
-          <button type="submit" name="save_grades" class="btn btn-primary-akkhor px-5">
-            <i class="fas fa-save me-1"></i> Save All Grades
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-  {% elif selected_class %}
-    <div class="reg-card">
-      <div class="reg-card-body text-center py-5">
-        <div class="avatar-ring mb-3" style="width:80px; height:80px; font-size:2rem; background:#f3f6fb; color:var(--text-muted); margin:0 auto; display:flex; align-items:center; justify-content:center; border-radius:50%;">
-          <i class="fas fa-user-graduate"></i>
-        </div>
-        <h5 style="color:var(--text-dark); font-weight:700;">No Students Found</h5>
-        <p style="color:var(--text-muted);">There are no students enrolled in {{ selected_class }}.</p>
-      </div>
-    </div>
-  {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="class_id" value="{{ selected_class.id }}">
+            <input type="hidden" name="subject_id" value="{{ selected_subject.id }}">
 
+            <!-- Protocol Parameters -->
+            <div class="p-4 mb-4 border-bottom" style="background: rgba(67, 97, 238, 0.02);">
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7" style="color: var(--text-muted);">Assessment Protocol</label>
+                        <select name="exam_type" class="form-select nexus-input-terminal shadow-none px-3 fw-medium" style="height: 45px; font-size: 0.85rem;" required>
+                            {% for key, label in exam_types %}
+                            <option value="{{ key }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7" style="color: var(--text-muted);">Max Threshold</label>
+                        <input type="number" name="max_score" class="form-control nexus-input-terminal shadow-none px-3 fw-bold" style="height: 45px; font-size: 0.9rem;" value="100" min="1" step="0.01">
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                    <thead>
+                        <tr class="bg-light bg-opacity-50">
+                            <th class="ps-4 py-3 extra-small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Academic Entity</th>
+                            <th class="py-3 extra-small text-uppercase text-muted fw-800" style="letter-spacing: 1px; width: 180px;">Evaluation Score</th>
+                            <th class="py-3 extra-small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Mastery Calibration</th>
+                            <th class="pe-4 py-3 extra-small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Historical Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="p-avatar-sm" style="background: var(--p-nexus-dark);">
+                                        {{ student.user.first_name|first }}{{ student.user.last_name|first }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-800 text-dark small">{{ student.user.get_full_name|default:student.user.username }}</div>
+                                        <div class="extra-small text-muted fw-medium opa-7">{{ student.student_id }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="number" name="score_{{ student.id }}" class="form-control nexus-input-terminal shadow-none px-3 fw-800 text-center score-input"
+                                    placeholder="0.00" min="0" step="0.01"
+                                    style="height: 40px; font-size: 0.9rem; color: var(--p-nexus-primary);">
+                            </td>
+                            <td>
+                                <div class="nexus-mastery-container">
+                                    <div class="nexus-mastery-bar-wrapper">
+                                        <div class="nexus-mastery-bar mastery-low" id="bar-{{ student.id }}" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <span class="extra-small fw-bold text-uppercase opa-5">Mastery level</span>
+                                        <span class="extra-small fw-bold text-primary" id="val-{{ student.id }}">0%</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="pe-4">
+                                {% if student.existing_grades %}
+                                    <div class="d-flex flex-wrap gap-1">
+                                    {% for exam_type, result in student.existing_grades.items %}
+                                        <span class="badge border bg-white rounded-pill px-2 py-1 fw-800 text-muted extra-small" style="font-size: 0.65rem;">
+                                            {{ exam_type }}: {{ result.score|floatformat:0 }}
+                                        </span>
+                                    {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <span class="extra-small text-muted fw-medium opa-5 italic">No prior indicators</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="p-4 border-top d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
+                <div class="extra-small text-muted fw-bold text-uppercase opa-5" style="letter-spacing: 0.5px;">
+                    <i class="fas fa-lock me-2"></i> Authorized Diagnostic Entry Only
+                </div>
+                <button type="submit" name="save_grades" class="btn btn-primary rounded-pill px-5 fw-800 shadow-lg">
+                    <i class="fas fa-save me-2"></i> Commit All Data
+                </button>
+            </div>
+        </form>
+    </div>
+    {% elif selected_class %}
+    <div class="nexus-glass-card p-5 text-center animate-fade-up">
+        <div class="p-avatar-lg mx-auto mb-4" style="background: rgba(0,0,0,0.05); color: var(--text-muted); box-shadow: none;">
+            <i class="fas fa-user-slash"></i>
+        </div>
+        <h4 class="fw-800 text-dark mb-2">Entity Registry Idle</h4>
+        <p class="text-muted small">No synchronized individuals identified in sector {{ selected_class }}.</p>
+    </div>
+    {% endif %}
 </div>
+
+<script>
+document.querySelectorAll('.score-input').forEach(input => {
+    input.addEventListener('input', function() {
+        const id = this.name.split('_')[1];
+        const max = parseFloat(document.querySelector('input[name="max_score"]').value) || 100;
+        const score = parseFloat(this.value) || 0;
+        const percent = Math.min(100, Math.round((score / max) * 100));
+        
+        const bar = document.getElementById('bar-' + id);
+        const text = document.getElementById('val-' + id);
+        
+        bar.style.width = percent + '%';
+        text.innerText = percent + '%';
+        
+        // Dynamic coloring
+        bar.classList.remove('mastery-low', 'mastery-medium', 'mastery-high', 'mastery-complete');
+        if (percent < 40) bar.classList.add('mastery-low');
+        else if (percent < 70) bar.classList.add('mastery-medium');
+        else if (percent < 90) bar.classList.add('mastery-high');
+        else bar.classList.add('mastery-complete');
+    });
+});
+</script>
 {% endblock %}

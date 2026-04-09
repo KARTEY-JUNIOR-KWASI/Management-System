@@ -1,339 +1,254 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 
-{% block title %}{% if form.instance.pk %}Edit{% else %}Register New{% endif %} Teacher — EduSystem{% endblock %}
+{% block title %}{% if form.instance.pk %}Modify Registry{% else %}Establish Protocol{% endif %} — Intelligence Nexus{% endblock %}
 
 {% block content %}
-<div class="container-fluid pb-5">
-
-  <!-- Page Header -->
-  <div class="d-flex justify-content-between align-items-center mb-5 animate-fade-up">
-    <div>
-        <h1 class="fw-800 mb-0" style="letter-spacing: -1.5px; color: var(--text-dark);">
-            {% if form.instance.pk %}Modify Registry{% else %}Establish Protocol{% endif %}
-        </h1>
-        <p class="text-muted fw-medium small mb-0">
-            {% if form.instance.pk %}Update institutional entity credentials and operational data.{% else %}Initiate new teacher entity onboarding and system integration.{% endif %}
-        </p>
-    </div>
-    <a href="{% url 'teacher_list' %}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-none extra-small">
-        <i class="fas fa-arrow-left me-2"></i> Registry List
-    </a>
-  </div>
-
-  <!-- Error Summary -->
-  {% if form.errors %}
-  <div class="reg-error-alert fade-in">
-    <i class="fas fa-circle-exclamation" style="color:#e74c3c; font-size:1.1rem; margin-top:0.1rem;"></i>
-    <div>
-      <strong style="font-size:0.85rem; color:#991b1b;">Please fix the following errors before saving:</strong>
-      <ul>
-        {% for field, errors in form.errors.items %}
-          {% for error in errors %}<li>{{ field|capfirst }}: {{ error }}</li>{% endfor %}
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
-  {% endif %}
-
-  <form method="post" enctype="multipart/form-data" class="reg-layout" id="reg-form">
-    {% csrf_token %}
-
-    <!-- ══════ LEFT SIDEBAR ══════ -->
-    <div class="reg-sidebar nexus-glass-card p-0 overflow-hidden" style="border: none;">
-      <div class="reg-sidebar-header p-4 text-center" style="background: var(--p-nexus-dark); color: white;">
-        <div class="p-avatar-lg mx-auto mb-3" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
-          <i class="fas fa-chalkboard-teacher"></i>
+<div class="row layout-spacing animate-fade-up">
+    <div class="col-12 mb-4">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="fw-800 mb-0" style="letter-spacing: -1.5px; color: var(--text-dark);">
+                    <span class="me-2">🧬</span> {% if form.instance.pk %}Modify Registry{% else %}Establish Protocol{% endif %}
+                </h1>
+                <p class="text-muted fw-medium small mb-0">
+                    {% if form.instance.pk %}Update institutional entity credentials and operational data.{% else %}Initiate new teacher entity onboarding and system integration.{% endif %}
+                </p>
+            </div>
+            <a href="{% url 'teacher_list' %}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-none extra-small">
+                <i class="fas fa-arrow-left me-2"></i> Registry Registry
+            </a>
         </div>
-        <h5 class="fw-800 mb-1" style="letter-spacing: -0.5px;">Teacher Protocol</h5>
-        <p class="opa-7 extra-small mb-0">Follow synchronization steps</p>
-      </div>
-      <nav class="reg-steps">
-        <a class="reg-step active" href="#sec-account" onclick="setActive(this)">
-          <span class="step-num">1</span>
-          <div>
-            <div>Account Credentials</div>
-            <div style="font-size:0.68rem; opacity:0.7;">Name, ID, password</div>
-          </div>
-        </a>
-        <a class="reg-step" href="#sec-personal" onclick="setActive(this)">
-          <span class="step-num">2</span>
-          <div>
-            <div>Personal Details</div>
-            <div style="font-size:0.68rem; opacity:0.7;">Contact, DOB, Avatar</div>
-          </div>
-        </a>
-        <a class="reg-step" href="#sec-professional" onclick="setActive(this)">
-          <span class="step-num">3</span>
-          <div>
-            <div>Professional Info</div>
-            <div style="font-size:0.68rem; opacity:0.7;">Subjects, department</div>
-          </div>
-        </a>
-        <a class="reg-step" href="#sec-emergency" onclick="setActive(this)">
-          <span class="step-num">4</span>
-          <div>
-            <div>Emergency Contact</div>
-            <div style="font-size:0.68rem; opacity:0.7;">Contact details</div>
-          </div>
-        </a>
 
-        <div style="border-top:1px solid #f0f3f8; margin:0.75rem 0;"></div>
-        <!-- Submit inside sidebar too -->
-        <div style="padding:0 1rem;">
-          <button type="submit" form="reg-form"
-            style="width:100%; background:var(--primary); color:#fff; border:none; border-radius:8px; padding:0.65rem; font-size:0.85rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem;">
-            <i class="fas fa-save"></i>
-            {% if form.instance.pk %}Update Teacher{% else %}Register Teacher{% endif %}
-          </button>
-          <a href="{% url 'teacher_list' %}" style="display:block; text-align:center; margin-top:0.5rem; font-size:0.78rem; color:var(--text-muted);">Cancel</a>
+        {% if form.errors %}
+        <div class="nexus-glass-card p-3 mb-4 border-start border-4 border-danger d-flex align-items-center gap-3 animate-fade-in" style="background: rgba(220, 38, 38, 0.05);">
+            <div class="p-avatar-sm" style="background: var(--p-nexus-danger);"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="fw-bold small text-danger">Configuration Error: Please verify domain integrity and re-attempt synchronization.</div>
         </div>
-      </nav>
-    </div>
+        {% endif %}
 
-    <!-- ══════ RIGHT CONTENT ══════ -->
-    <div>
+        <form method="post" enctype="multipart/form-data" class="reg-layout" id="reg-form">
+            {% csrf_token %}
 
-      <!-- ─── SECTION 1: Account ─────────────────── -->
-      <div id="sec-account" class="reg-section nexus-glass-card p-0 overflow-hidden mb-4">
-        <div class="reg-card-header p-4 border-bottom d-flex align-items-center gap-3" style="background: rgba(0,0,0,0.01);">
-          <div class="p-avatar shadow-none" style="background: var(--p-nexus-primary);">
-            <i class="fas fa-user-lock"></i>
-          </div>
-          <div>
-            <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Account Credentials</h5>
-            <p class="text-muted extra-small mb-0 fw-medium">Core system access and identification parameters</p>
-          </div>
-        </div>
-        <div class="reg-card-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <div class="field-group">
-                <label>First Name <span class="text-danger">*</span></label>
-                {% render_field form.first_name class="form-control" placeholder="Enter first name" %}
-                {% if form.first_name.errors %}<div class="field-error">{{ form.first_name.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="field-group">
-                <label>Last Name <span class="text-danger">*</span></label>
-                {% render_field form.last_name class="form-control" placeholder="Enter last name" %}
-                {% if form.last_name.errors %}<div class="field-error">{{ form.last_name.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="field-group">
-                <label>Email Address <span class="text-danger">*</span></label>
-                {% render_field form.email class="form-control" placeholder="teacher@school.edu" %}
-                {% if form.email.errors %}<div class="field-error">{{ form.email.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="field-group">
-                <label>Teacher ID <span class="text-danger">*</span></label>
-                <div class="id-gen-wrap">
-                  {% render_field form.teacher_id class="form-control" id="id_teacher_id" placeholder="e.g. TCH12345" %}
-                  {% if not form.instance.pk %}
-                  <button class="id-gen-btn" type="button" onclick="generateTeacherId()">
-                    <i class="fas fa-wand-magic-sparkles"></i> Generate
-                  </button>
-                  {% endif %}
-                </div>
-                <div class="field-hint"><i class="fas fa-fingerprint"></i> Used for system login</div>
-                {% if form.teacher_id.errors %}<div class="field-error">{{ form.teacher_id.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <div class="col-md-12">
-              <div class="field-group">
-                <label>Account Password {% if not form.instance.pk %}<span class="text-danger">*</span>{% endif %}</label>
-                {% if form.instance.pk %}
-                  {% render_field form.password class="form-control" placeholder="Leave blank to keep current" %}
-                  <div class="field-hint"><i class="fas fa-lock"></i> Leave empty to keep existing password</div>
-                {% else %}
-                  {% render_field form.password class="form-control" placeholder="Set a secure password" %}
-                {% endif %}
-                {% if form.password.errors %}<div class="field-error">{{ form.password.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ─── SECTION 2: Personal Details ────────────────────── -->
-      <div id="sec-personal" class="reg-section nexus-glass-card p-0 overflow-hidden mb-4 delay-1">
-        <div class="reg-card-header p-4 border-bottom d-flex align-items-center gap-3" style="background: rgba(0,0,0,0.01);">
-          <div class="p-avatar shadow-none" style="background: var(--p-nexus-warning);">
-            <i class="fas fa-fingerprint"></i>
-          </div>
-          <div>
-            <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Personal Identification</h5>
-            <p class="text-muted extra-small mb-0 fw-medium">Biographical and residential parameters</p>
-          </div>
-        </div>
-        <div class="reg-card-body">
-          <div class="row g-3">
-            <div class="col-md-4">
-              <div class="field-group">
-                <label>Gender</label>
-                {% render_field form.gender class="form-control form-select" %}
-                {% if form.gender.errors %}<div class="field-error">{{ form.gender.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="field-group">
-                <label>Date of Birth</label>
-                {% render_field form.date_of_birth class="form-control" %}
-                {% if form.date_of_birth.errors %}<div class="field-error">{{ form.date_of_birth.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <!-- Hidden fields for new users, shown for editing if needed -->
-            {% if not form.instance.pk %}
-                <div class="alert alert-info py-2 small mb-3">
-                    <i class="fas fa-magic me-2"></i> User ID and Password will be <strong>automatically generated</strong>.
-                </div>
-            {% else %}
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Teacher ID</label>
-                        {{ form.teacher_id|add_class:"form-control bg-light"|attr:"readonly:readonly" }}
+            <!-- ══════ LEFT SIDEBAR ══════ -->
+            <div class="reg-sidebar nexus-glass-card p-0 overflow-hidden" style="border: none;">
+                <div class="reg-sidebar-header p-4 text-center" style="background: var(--p-nexus-dark); color: white;">
+                    <div class="p-avatar-lg mx-auto mb-3" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
+                        <i class="fas fa-chalkboard-teacher"></i>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Password</label>
-                        {{ form.password|add_class:"form-control"|attr:"placeholder:Enter new password to change..." }}
+                    <h5 class="fw-800 mb-1" style="letter-spacing: -0.5px;">Teacher Protocol</h5>
+                    <p class="opa-7 extra-small mb-0">Operational Synchronization</p>
+                </div>
+                <nav class="reg-steps text-start">
+                    <a class="reg-step active" href="#sec-account" onclick="setActive(this)">
+                        <span class="step-num">1</span>
+                        <div>
+                            <div class="small fw-bold">Account Credentials</div>
+                            <div class="extra-small opa-7">Access parameter synchronization</div>
+                        </div>
+                    </a>
+                    <a class="reg-step" href="#sec-personal" onclick="setActive(this)">
+                        <span class="step-num">2</span>
+                        <div>
+                            <div class="small fw-bold">Personal Identity</div>
+                            <div class="extra-small opa-7">Biographical entity data</div>
+                        </div>
+                    </a>
+                    <a class="reg-step" href="#sec-professional" onclick="setActive(this)">
+                        <span class="step-num">3</span>
+                        <div>
+                            <div class="small fw-bold">Institutional Role</div>
+                            <div class="extra-small opa-7">Departmental domain markers</div>
+                        </div>
+                    </a>
+                    <a class="reg-step" href="#sec-emergency" onclick="setActive(this)">
+                        <span class="step-num">4</span>
+                        <div>
+                            <div class="small fw-bold">Anomaly Protocol</div>
+                            <div class="extra-small opa-7">Emergency safety contact</div>
+                        </div>
+                    </a>
+
+                    <div style="border-top:1px solid rgba(0,0,0,0.05); margin:1rem 0;"></div>
+                    <div class="p-3">
+                        <button type="submit" form="reg-form" class="btn btn-primary w-100 rounded-pill fw-bold extra-small py-2 mb-2">
+                            <i class="fas fa-sync me-2"></i> Commit Record
+                        </button>
+                        <a href="{% url 'teacher_list' %}" class="btn btn-light w-100 rounded-pill fw-bold extra-small py-2">Abort Protocol</a>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- ══════ RIGHT CONTENT ══════ -->
+            <div class="ms-md-4 flex-grow-1">
+
+                <!-- ─── SECTION 1: Account ─────────────────── -->
+                <div id="sec-account" class="reg-section nexus-glass-card overflow-hidden mb-4">
+                    <div class="p-4 border-bottom d-flex align-items-center gap-3" style="background: rgba(0,0,0,0.01);">
+                        <div class="p-avatar shadow-none" style="background: var(--p-nexus-primary);">
+                            <i class="fas fa-user-lock"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Account Credentials</h5>
+                            <p class="text-muted extra-small mb-0 fw-medium">Core system access and identification parameters</p>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">First Name <span class="text-danger">*</span></label>
+                                {% render_field form.first_name class="form-control nexus-input-terminal px-3 fw-medium" placeholder="Enter first name" style="height: 45px;" %}
+                                {% if form.first_name.errors %}<div class="extra-small text-danger fw-bold mt-1">{{ form.first_name.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Last Name <span class="text-danger">*</span></label>
+                                {% render_field form.last_name class="form-control nexus-input-terminal px-3 fw-medium" placeholder="Enter last name" style="height: 45px;" %}
+                                {% if form.last_name.errors %}<div class="extra-small text-danger fw-bold mt-1">{{ form.last_name.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Institutional Email <span class="text-danger">*</span></label>
+                                {% render_field form.email class="form-control nexus-input-terminal px-3 fw-medium" placeholder="teacher@school.edu" style="height: 45px;" %}
+                                {% if form.email.errors %}<div class="extra-small text-danger fw-bold mt-1">{{ form.email.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Teacher Identity <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    {% render_field form.teacher_id class="form-control nexus-input-terminal px-3 fw-medium" id="id_teacher_id" placeholder="TCHXXXXX" style="height: 45px;" %}
+                                    {% if not form.instance.pk %}
+                                    <button class="btn btn-dark fw-bold extra-small px-3" type="button" onclick="generateTeacherId()" style="border-radius: 0 10px 10px 0;">
+                                        <i class="fas fa-terminal"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                {% if form.teacher_id.errors %}<div class="extra-small text-danger fw-bold mt-1">{{ form.teacher_id.errors|join:", " }}</div>{% endif %}
+                            </div>
+                            <div class="col-12 mt-4">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Access Password {% if not form.instance.pk %}<span class="text-danger">*</span>{% endif %}</label>
+                                {% render_field form.password class="form-control nexus-input-terminal px-3 fw-medium" placeholder="Secure hash configuration" style="height: 45px;" %}
+                                <div class="extra-small text-muted mt-1 fw-bold text-uppercase opa-5"><i class="fas fa-shield-alt me-1"></i> Synchronized encryption applied</div>
+                                {% if form.password.errors %}<div class="extra-small text-danger fw-bold mt-1">{{ form.password.errors|join:", " }}</div>{% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
-            {% endif %}
-            <div class="col-md-4">
-              <div class="field-group">
-                <label>Phone Number</label>
-                {% render_field form.phone class="form-control" placeholder="+123 456 7890" %}
-                {% if form.phone.errors %}<div class="field-error">{{ form.phone.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <div class="col-md-8">
-              <div class="field-group">
-                <label>Residential Address</label>
-                {% render_field form.address class="form-control" rows="2" placeholder="Full street address" %}
-                {% if form.address.errors %}<div class="field-error">{{ form.address.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="field-group">
-                <label>Profile Picture</label>
-                {% render_field form.profile_picture class="form-control" %}
-                <div class="field-hint">PNG or JPG preferred</div>
-                {% if form.profile_picture.errors %}<div class="field-error">{{ form.profile_picture.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- ─── SECTION 3: Professional Information ────────────────── -->
-      <div id="sec-professional" class="reg-section nexus-glass-card p-0 overflow-hidden mb-4 delay-2">
-        <div class="reg-card-header p-4 border-bottom d-flex align-items-center gap-3" style="background: rgba(0,0,0,0.01);">
-          <div class="p-avatar shadow-none" style="background: var(--p-nexus-success);">
-            <i class="fas fa-briefcase"></i>
-          </div>
-          <div>
-            <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Institutional Role</h5>
-            <p class="text-muted extra-small mb-0 fw-medium">Departmental assignment and research areas</p>
-          </div>
-        </div>
-        <div class="reg-card-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <div class="field-group">
-                <label>Department</label>
-                {% render_field form.department class="form-control" placeholder="e.g. Science, Mathematics" %}
-                {% if form.department.errors %}<div class="field-error">{{ form.department.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="field-group">
-                <label>Qualification</label>
-                {% render_field form.qualification class="form-control form-select" %}
-                {% if form.qualification.errors %}<div class="field-error">{{ form.qualification.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <div class="col-md-12">
-              <div class="field-group">
-                <label>Specialization</label>
-                {% render_field form.specialization class="form-control" placeholder="e.g. Theoretical Physics, Early Childhood Dev" %}
-                {% if form.specialization.errors %}<div class="field-error">{{ form.specialization.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <div class="col-md-12">
-              <div class="field-group">
-                <label>Assigned Subjects</label>
-                {% render_field form.subjects class="form-control form-select" style="height:120px;" %}
-                <div class="field-hint">Hold Ctrl (or Cmd on Mac) to select multiple items</div>
-                {% if form.subjects.errors %}<div class="field-error">{{ form.subjects.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ─── SECTION 4: Emergency Contact ─────────────────── -->
-      <div id="sec-emergency" class="reg-section nexus-glass-card p-0 overflow-hidden mb-5 delay-3">
-        <div class="reg-card-header p-4 border-bottom d-flex align-items-center gap-3" style="background: rgba(0,0,0,0.01);">
-          <div class="p-avatar shadow-none" style="background: var(--p-nexus-danger);">
-            <i class="fas fa-shield-heart"></i>
-          </div>
-          <div>
-            <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Emergency Safety Contact</h5>
-            <p class="text-muted extra-small mb-0 fw-medium">Immediate notification protocol for anomaly events</p>
-          </div>
-        </div>
-        <div class="reg-card-body">
-          <div class="row g-3">
-            <div class="col-md-4">
-              <div class="field-group">
-                <label>Name</label>
-                {% render_field form.emergency_contact_name class="form-control" placeholder="Contact full name" %}
-                {% if form.emergency_contact_name.errors %}<div class="field-error">{{ form.emergency_contact_name.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="field-group">
-                <label>Emergency Phone</label>
-                <div style="display:flex; border:1.5px solid #fca5a5; border-radius:8px; overflow:hidden; background:#fff5f5;">
-                  <span style="background:#fee2e2; border-right:1.5px solid #fca5a5; padding:0.55rem 0.75rem; display:flex; align-items:center;">
-                    <i class="fas fa-phone-alt" style="color:#e74c3c; font-size:0.8rem;"></i>
-                  </span>
-                  {% render_field form.emergency_contact_phone class="form-control" placeholder="+233..." style="border:none; background:transparent; box-shadow:none;" %}
+                <!-- ─── SECTION 2: Personal Details ────────────────────── -->
+                <div id="sec-personal" class="reg-section nexus-glass-card overflow-hidden mb-4">
+                    <div class="p-4 border-bottom d-flex align-items-center gap-3" style="background: rgba(0,0,0,0.01);">
+                        <div class="p-avatar shadow-none" style="background: var(--p-nexus-warning);">
+                            <i class="fas fa-fingerprint"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Personal Identification</h5>
+                            <p class="text-muted extra-small mb-0 fw-medium">Biographical and residential parameters</p>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Gender Scan</label>
+                                {% render_field form.gender class="form-select nexus-input-terminal px-3 fw-medium" style="height: 45px;" %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Temporal Origin (DOB)</label>
+                                {% render_field form.date_of_birth class="form-control nexus-input-terminal px-3 fw-medium" id="date_of_birth" style="height: 45px;" %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Signal Number (Phone)</label>
+                                {% render_field form.phone class="form-control nexus-input-terminal px-3 fw-medium" placeholder="+123 456 7890" style="height: 45px;" %}
+                            </div>
+                            <div class="col-md-8 mt-4">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Geographic Coordinates (Address)</label>
+                                {% render_field form.address class="form-control nexus-input-terminal px-3 fw-medium" rows="2" placeholder="Full street address registry" %}
+                            </div>
+                            <div class="col-md-4 mt-4">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Visual ID (Avatar)</label>
+                                {% render_field form.profile_picture class="form-control nexus-input-terminal px-3 py-2 fw-medium" style="height: 45px; font-size: 0.75rem;" %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                {% if form.emergency_contact_phone.errors %}<div class="field-error">{{ form.emergency_contact_phone.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="field-group">
-                <label>Relationship</label>
-                {% render_field form.emergency_contact_relationship class="form-control" placeholder="Relationship" %}
-                {% if form.emergency_contact_relationship.errors %}<div class="field-error">{{ form.emergency_contact_relationship.errors|join:", " }}</div>{% endif %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- ─── Submit Bar ─────────────────────────────────────── -->
-      <div class="reg-submit-bar nexus-glass-card mb-4" style="border: none; background: rgba(255,255,255,0.7);">
-        <div class="note fw-bold extra-small text-uppercase opa-7" style="letter-spacing: 0.5px;">
-          <i class="fas fa-lock text-primary me-2"></i> Operational Data Security Ensured
-        </div>
-        <div class="d-flex gap-3">
-          <a href="{% url 'teacher_list' %}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold extra-small">Protocol Terminate</a>
-          <button type="submit" class="btn btn-primary rounded-pill px-5 fw-800 shadow-lg">
-            <i class="fas fa-paper-plane me-2"></i>
-            {% if form.instance.pk %}Update Record{% else %}Execute Enrollment{% endif %}
-          </button>
-        </div>
-      </div>
+                <!-- ─── SECTION 3: Professional Information ────────────────── -->
+                <div id="sec-professional" class="reg-section nexus-glass-card overflow-hidden mb-4">
+                    <div class="p-4 border-bottom d-flex align-items-center gap-3" style="background: rgba(0,0,0,0.01);">
+                        <div class="p-avatar shadow-none" style="background: var(--p-nexus-success);">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Institutional Role</h5>
+                            <p class="text-muted extra-small mb-0 fw-medium">Departmental assignment and research areas</p>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Sector Assignment</label>
+                                {% render_field form.department class="form-control nexus-input-terminal px-3 fw-medium" placeholder="e.g. Science, Mathematics" style="height: 45px;" %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Academic Stature</label>
+                                {% render_field form.qualification class="form-select nexus-input-terminal px-3 fw-medium" style="height: 45px;" %}
+                            </div>
+                            <div class="col-12 mt-4">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Specialization Domain</label>
+                                {% render_field form.specialization class="form-control nexus-input-terminal px-3 fw-medium" placeholder="Primary academic focus and research specialization" style="height: 45px;" %}
+                            </div>
+                            <div class="col-12 mt-4">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Operational Disciplines (Subjects)</label>
+                                {% render_field form.subjects class="form-control nexus-input-terminal px-3 py-2 fw-medium" style="height:150px; font-size: 0.85rem;" %}
+                                <div class="extra-small text-muted mt-1 fw-bold text-uppercase opa-5 italic"><i class="fas fa-info-circle me-1"></i> Multiple synchronization points allowed (CTRL+Click)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    </div><!-- end right content -->
-  </form>
+                <!-- ─── SECTION 4: Anomaly Protocol ─────────────────── -->
+                <div id="sec-emergency" class="reg-section nexus-glass-card overflow-hidden mb-5">
+                    <div class="p-4 border-bottom d-flex align-items-center gap-3" style="background: rgba(0,0,0,0.01);">
+                        <div class="p-avatar shadow-none" style="background: var(--p-nexus-danger);">
+                            <i class="fas fa-shield-heart"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Anomaly Protocol</h5>
+                            <p class="text-muted extra-small mb-0 fw-medium">Immediate notification protocol for anomaly events</p>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Liaison Name</label>
+                                {% render_field form.emergency_contact_name class="form-control nexus-input-terminal px-3 fw-medium" placeholder="Contact full name" style="height: 45px;" %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Signal Link (Phone)</label>
+                                {% render_field form.emergency_contact_phone class="form-control nexus-input-terminal px-3 fw-medium" placeholder="+233..." style="height: 45px; border-color: rgba(220, 38, 38, 0.2) !important;" %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Binding (Relationship)</label>
+                                {% render_field form.emergency_contact_relationship class="form-select nexus-input-terminal px-3 fw-medium" style="height: 45px;" %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Action Bar -->
+                <div class="nexus-glass-card p-4 d-flex justify-content-between align-items-center mb-5" style="background: rgba(0,0,0,0.01);">
+                    <div class="extra-small text-muted fw-bold text-uppercase opa-5" style="letter-spacing: 0.5px;">
+                        <i class="fas fa-lock me-2"></i> Authorized entity synchronization
+                    </div>
+                    <div class="d-flex gap-3">
+                        <a href="{% url 'teacher_list' %}" class="btn btn-light rounded-pill px-4 fw-800 extra-small">Abort Protocol</a>
+                        <button type="submit" form="reg-form" class="btn btn-primary rounded-pill px-5 fw-800 shadow-lg">
+                            <i class="fas fa-save me-2"></i> Commmit Teacher Registry
+                        </button>
+                    </div>
+                </div>
+
+            </div><!-- end right content -->
+        </form>
+    </div>
 </div>
 
 <script>
@@ -361,6 +276,14 @@ window.addEventListener('scroll', () => {
     const href = step.getAttribute('href').replace('#', '');
     step.classList.toggle('active', href === current);
   });
+});
+
+// Set default date picker if field exists
+document.addEventListener('DOMContentLoaded', function() {
+    const dob = document.getElementById('date_of_birth');
+    if (dob && !dob.value) {
+        dob.type = 'date';
+    }
 });
 </script>
 {% endblock %}

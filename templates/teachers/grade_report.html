@@ -1,117 +1,133 @@
 {% extends 'base.html' %}
-{% block title %}Grade Report{% endblock %}
+{% block title %}Institutional Diagnostics — Intelligence Nexus{% endblock %}
+
 {% block extra_head %}
 <style>
-  .bg-grade-a { background: #dcfce7 !important; color: #166534 !important; }
-  .bg-grade-b { background: #dbeafe !important; color: #1e40af !important; }
-  .bg-grade-c { background: #fef9c3 !important; color: #854d0e !important; }
-  .bg-grade-d { background: #ffedd5 !important; color: #9a3412 !important; }
-  .bg-grade-f { background: #fee2e2 !important; color: #991b1b !important; }
-  
-  .stat-bg-green { background: var(--stat-green) !important; }
-  .stat-bg-orange { background: var(--stat-orange) !important; }
-  .stat-bg-red { background: var(--stat-red) !important; }
+  .nexus-grade-a { background: rgba(16, 185, 129, 0.1) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.2); }
+  .nexus-grade-b { background: rgba(59, 130, 246, 0.1) !important; color: #3b82f6 !important; border: 1px solid rgba(59, 130, 246, 0.2); }
+  .nexus-grade-c { background: rgba(245, 158, 11, 0.1) !important; color: #f59e0b !important; border: 1px solid rgba(245, 158, 11, 0.2); }
+  .nexus-grade-d { background: rgba(249, 115, 22, 0.1) !important; color: #f97316 !important; border: 1px solid rgba(249, 115, 22, 0.2); }
+  .nexus-grade-f { background: rgba(239, 68, 68, 0.1) !important; color: #ef4444 !important; border: 1px solid rgba(239, 68, 68, 0.2); }
+  .nexus-bg-success { background: var(--stat-green) !important; }
+  .nexus-bg-warning { background: var(--stat-orange) !important; }
+  .nexus-bg-danger { background: var(--stat-red) !important; }
 </style>
 {% endblock %}
+
 {% block content %}
-<div class="container-fluid pb-5">
-
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 style="font-weight:800; margin:0; color:var(--text-dark);">Grade Report</h2>
-      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">View student performance by class and subject</p>
+<div class="row layout-spacing animate-fade-up">
+  <div class="col-12 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-800 mb-0" style="letter-spacing: -1.5px; color: var(--text-dark);">
+          <span class="me-2">📊</span> Institutional Diagnostics
+        </h2>
+        <p class="text-muted fw-medium small mb-0">High-fidelity academic performance distribution and subject parity metrics.</p>
+      </div>
+      <a href="{% url 'manage_grades' %}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-none extra-small">
+        <i class="fas fa-edit me-2"></i> Calibration Terminal
+      </a>
     </div>
-    <a href="{% url 'manage_grades' %}" class="btn btn-outline-akkhor">
-      <i class="fas fa-edit me-1"></i> Manage Grades
-    </a>
-  </div>
 
-  <!-- Filters -->
-  <div class="reg-card mb-4" style="border-top: 4px solid var(--primary);">
-    <div class="reg-card-body">
-      <h5 style="font-weight:700; color:var(--primary); margin-bottom:1.25rem;"><i class="fas fa-filter me-2"></i>Filter Grades</h5>
-      <form method="get">
+    <!-- Diagnostic Filters -->
+    <div class="nexus-glass-card p-4 mb-4">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="p-avatar-sm shadow-none" style="background: var(--p-nexus-primary);">
+          <i class="fas fa-filter"></i>
+        </div>
+        <div>
+          <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Filter Parameters</h5>
+          <p class="text-muted extra-small mb-0 fw-medium">Configure data scope for diagnostic run.</p>
+        </div>
+      </div>
+      <form method="get" id="diagnostic-filter">
         <div class="row g-3 align-items-end">
-          <div class="col-md-4">
+          <div class="col-md-5">
             <div class="field-group">
-              <label>Class</label>
-              <select name="class_id" class="form-control form-select">
-                <option value="">-- All Classes --</option>
+              <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Academic Sector (Class)</label>
+              <select name="class_id" class="form-select nexus-input-terminal px-3 fw-medium" style="height: 45px;">
+                <option value="">-- All Sectors --</option>
                 {% for cls in teacher_classes %}
                   <option value="{{ cls.id }}" {% if selected_class.id == cls.id %}selected{% endif %}>{{ cls }}</option>
                 {% endfor %}
               </select>
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-5">
             <div class="field-group">
-              <label>Subject (Optional)</label>
-              <select name="subject_id" class="form-control form-select">
-                <option value="">-- All Subjects --</option>
+              <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Discipline Domain (Subject)</label>
+              <select name="subject_id" class="form-select nexus-input-terminal px-3 fw-medium" style="height: 45px;">
+                <option value="">-- All Disciplines --</option>
                 {% for subj in teacher_subjects %}
                   <option value="{{ subj.id }}" {% if selected_subject.id == subj.id %}selected{% endif %}>{{ subj.name }}</option>
                 {% endfor %}
               </select>
             </div>
           </div>
-          <div class="col-md-4">
-            <button type="submit" class="btn btn-primary-akkhor w-100" style="padding:0.6rem 1rem;">
-              <i class="fas fa-search me-1"></i> Load Report
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary rounded-pill w-100 fw-800 extra-small shadow-sm" style="height: 45px;">
+              <i class="fas fa-sync me-2"></i> Run Scan
             </button>
           </div>
         </div>
       </form>
     </div>
-  </div>
 
-  {% if grade_data %}
-  <div class="reg-card">
-    <div class="reg-card-header d-flex justify-content-between align-items-center">
-      <div class="d-flex align-items-center gap-3">
-        <div class="card-icon-wrap" style="background:#eff3ff;">
-          <i class="fas fa-poll" style="color:var(--primary);"></i>
-        </div>
-        <div>
-          <h5 style="margin:0; font-weight:700;">{{ selected_class }} {% if selected_subject %}— {{ selected_subject.name }}{% endif %}</h5>
+    {% if grade_data %}
+    <div class="nexus-glass-card p-0 overflow-hidden shadow-sm">
+      <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
+        <div class="d-flex align-items-center gap-3">
+          <div class="p-avatar shadow-none" style="background: var(--p-nexus-success);">
+            <i class="fas fa-poll-h"></i>
+          </div>
+          <div>
+            <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">{{ selected_class }} {% if selected_subject %}— {{ selected_subject.name }}{% endif %}</h5>
+            <p class="text-muted extra-small mb-0 fw-medium">Execution complete: {{ grade_data|length }} entities scanned.</p>
+          </div>
         </div>
       </div>
-      <span class="badge badge-akkhor badge-primary">{{ grade_data|length }} Students</span>
-    </div>
-    <div class="reg-card-body">
-      <div class="table-responsive border rounded-3 overflow-hidden">
-        <table class="table-akkhor m-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 nexus-premium-table">
           <thead>
-            <tr>
-              <th>Student</th>
-              <th>Exams</th>
-              <th>Average</th>
-              <th>Grade</th>
-              <th>Report Card</th>
+            <tr class="bg-light bg-opacity-50">
+              <th class="ps-4 py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1px;">Individual Entity</th>
+              <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1px;">Calibration Load</th>
+              <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1px;">Performance Mass</th>
+              <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1px;">Diagnostic Stature</th>
+              <th class="pe-4 py-3 text-end">Operation</th>
             </tr>
           </thead>
           <tbody>
             {% for row in grade_data %}
-            <tr>
-              <td>
-                <div style="font-weight:600; color:var(--text-dark);">{{ row.student.user.get_full_name }}</div>
-                <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">{{ row.student.student_id }}</div>
-              </td>
-              <td style="font-weight:600;">{{ row.results|length }}</td>
-              <td>
-                <div style="display:flex; align-items:center; gap:0.5rem;">
-                    <div style="width:{{ row.average|default:0 }}%; background:{% if row.average >= 70 %}var(--stat-green){% elif row.average >= 50 %}var(--stat-orange){% else %}var(--stat-red){% endif %}; height:8px; border-radius:4px;"></div>
+            <tr class="animate-fade-in border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+              <td class="ps-4 py-3">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="p-avatar-sm" style="background: var(--p-nexus-primary);">
+                    {{ row.student.user.first_name|slice:":1" }}{{ row.student.user.last_name|slice:":1" }}
                   </div>
-                  <span style="font-weight:700; font-size:0.9rem; color:var(--text-dark);">{{ row.average }}%</span>
+                  <div>
+                    <div class="fw-800 text-dark small">{{ row.student.user.get_full_name }}</div>
+                    <div class="extra-small text-muted fw-bold text-uppercase opa-5">{{ row.student.student_id }}</div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-weight:700;" class="small text-muted text-uppercase opa-7">{{ row.results|length }} Assessments</td>
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="progress flex-grow-1" style="height:6px; background: rgba(0,0,0,0.05); min-width: 100px; border-radius: 10px;">
+                    <div class="progress-bar js-progress-bar {% if row.average >= 70 %}nexus-bg-success{% elif row.average >= 50 %}nexus-bg-warning{% else %}nexus-bg-danger{% endif %}" style="border-radius: 10px;" data-progress="{{ row.average|default:0 }}"></div>
+                  </div>
+                  <span class="fw-800 text-dark extra-small">{{ row.average }}%</span>
                 </div>
               </td>
               <td>
-                  <span class="badge" style="font-size:0.9rem; font-weight:700; background:{% if row.grade_letter == 'A' %}#dcfce7{% elif row.grade_letter == 'B' %}#dbeafe{% elif row.grade_letter == 'C' %}#fef9c3{% elif row.grade_letter == 'D' %}#ffedd5{% else %}#fee2e2{% endif %}; color:{% if row.grade_letter == 'A' %}#166534{% elif row.grade_letter == 'B' %}#1e40af{% elif row.grade_letter == 'C' %}#854d0e{% elif row.grade_letter == 'D' %}#9a3412{% else %}#991b1b{% endif %}; padding:0.4rem 0.75rem; border-radius:6px;">
-                  {{ row.grade_letter|default:"N/A" }}
+                <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-{{ row.grade_letter|lower|default:'f' }}">
+                  Level {{ row.grade_letter|default:"N/A" }}
                 </span>
               </td>
-              <td>
-                <a href="{% url 'student_report_card' row.student.id %}" class="btn btn-sm btn-outline-akkhor" target="_blank">
-                  <i class="fas fa-file-alt me-1"></i> Report Card
+              <td class="pe-4 text-end">
+                <a href="{% url 'student_report_card' row.student.id %}" class="btn btn-sm btn-icon nexus-glass-card shadow-sm border" style="width:34px; height:34px;" target="_blank" title="Generate Transcript">
+                  <i class="fas fa-file-invoice text-primary" style="font-size: 0.8rem;"></i>
                 </a>
               </td>
             </tr>
@@ -120,18 +136,29 @@
         </table>
       </div>
     </div>
-  </div>
-  {% elif selected_class %}
-    <div class="reg-card">
-      <div class="reg-card-body text-center py-5">
-        <div class="avatar-ring mb-3" style="width:80px; height:80px; font-size:2rem; background:#f3f6fb; color:var(--text-muted); margin:0 auto; display:flex; align-items:center; justify-content:center; border-radius:50%;">
-          <i class="fas fa-chart-bar"></i>
+    {% elif selected_class %}
+      <div class="nexus-glass-card py-5 text-center mt-4">
+        <div class="p-avatar-lg mx-auto mb-3" style="background: rgba(0,0,0,0.03); color: var(--text-muted);">
+          <i class="fas fa-database"></i>
         </div>
-        <h5 style="color:var(--text-dark); font-weight:700;">No Grade Records</h5>
-        <p style="color:var(--text-muted);">No grade records found for the selected filters.</p>
+        <h5 class="fw-800 text-dark mb-1" style="letter-spacing: -0.5px;">Null Observation</h5>
+        <p class="text-muted extra-small fw-medium">No performance markers identified within selected scope.</p>
+        <button class="btn btn-primary rounded-pill btn-sm px-4 fw-800 extra-small mt-2" onclick="location.reload()"><i class="fas fa-sync me-2"></i> Reset Sensors</button>
       </div>
-    </div>
-  {% endif %}
+    {% endif %}
 
+  </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.js-progress-bar').forEach(function(bar) {
+            const progress = bar.getAttribute('data-progress');
+            bar.style.width = progress + '%';
+        });
+    });
+</script>
+{% endblock %}
+
