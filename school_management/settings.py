@@ -138,16 +138,18 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 DB_NAME = os.getenv('DB_NAME')
 IS_BUILD_PHASE = os.getenv('IS_BUILD_PHASE', 'False').lower() == 'true'
 IS_RENDER = os.getenv('RENDER', 'False').lower() == 'true'
+RENDER_INSTANCE_TYPE = os.getenv('RENDER_INSTANCE_TYPE', '') # e.g. 'web' or 'worker'
 
-# Strict Lockout: If on Render, we DEMAND a persistent database (PostgreSQL)
-# We bypass the DEBUG exception because data loss in "Debug on Render" is still data loss.
-if IS_RENDER and not DATABASE_URL and not DB_NAME and not IS_BUILD_PHASE:
-    from django.core.exceptions import ImproperlyConfigured
-    raise ImproperlyConfigured(
-        "🚨 CRITICAL INFRASTRUCTURE FAILURE: No persistent database (DATABASE_URL) detected on Render. "
-        "The system has entered LOCKDOWN to prevent institutional data loss. "
-        "ACTION REQUIRED: Copy the Internal Database URL from your Render Postgres and paste it as 'DATABASE_URL' in Environment Variables."
-    )
+# Strict Lockout: If on Render, we DEMAND a persistent database (PostgreSQL) for runtime.
+# During the BUILD phase, we allow a fallback to SQLite to facilitate static file collection.
+if IS_RENDER and not IS_BUILD_PHASE and RENDER_INSTANCE_TYPE == 'web':
+    if not DATABASE_URL and not DB_NAME:
+        from django.core.exceptions import ImproperlyConfigured
+        raise ImproperlyConfigured(
+            "🚨 CRITICAL INFRASTRUCTURE FAILURE: No persistent database (DATABASE_URL) detected on Render. "
+            "The system has entered LOCKDOWN to prevent institutional data loss. "
+            "ACTION REQUIRED: Copy the Internal Database URL from your Render Postgres and paste it as 'DATABASE_URL' in Environment Variables."
+        )
 
 DATABASES = {
     'default': dj_database_url.config(

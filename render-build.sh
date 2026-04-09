@@ -11,9 +11,13 @@ export IS_BUILD_PHASE=True
 echo "📦 Installing internal dependencies..."
 pip install -r requirements.txt
 
-# Apply migrations
-echo "📡 Synchronizing database schemas..."
-python manage.py migrate
+# Apply migrations (Only if database is linked)
+if [ -n "$DATABASE_URL" ]; then
+  echo "📡 Synchronizing database schemas..."
+  python manage.py migrate
+else
+  echo "⚠️ Skipping database synchronization: DATABASE_URL not detected."
+fi
 
 # Collect static files
 echo "🎨 Collecting institutional static assets..."
