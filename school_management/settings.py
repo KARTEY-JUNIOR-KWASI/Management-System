@@ -137,13 +137,16 @@ WSGI_APPLICATION = 'school_management.wsgi.application'
 DATABASE_URL = os.getenv('DATABASE_URL')
 DB_NAME = os.getenv('DB_NAME')
 IS_BUILD_PHASE = os.getenv('IS_BUILD_PHASE', 'False').lower() == 'true'
+IS_RENDER = os.getenv('RENDER', 'False').lower() == 'true'
 
-if not DATABASE_URL and not DB_NAME and not DEBUG and not IS_BUILD_PHASE:
+# Strict Lockout: If on Render, we DEMAND a persistent database (PostgreSQL)
+# We bypass the DEBUG exception because data loss in "Debug on Render" is still data loss.
+if IS_RENDER and not DATABASE_URL and not DB_NAME and not IS_BUILD_PHASE:
     from django.core.exceptions import ImproperlyConfigured
     raise ImproperlyConfigured(
-        "CRITICAL: No persistent database (DATABASE_URL or DB_NAME) detected in production. "
-        "Silent fallback to ephemeral SQLite has been disabled to prevent data loss. "
-        "Please add DATABASE_URL to your Render Environment Variables."
+        "🚨 CRITICAL INFRASTRUCTURE FAILURE: No persistent database (DATABASE_URL) detected on Render. "
+        "The system has entered LOCKDOWN to prevent institutional data loss. "
+        "ACTION REQUIRED: Copy the Internal Database URL from your Render Postgres and paste it as 'DATABASE_URL' in Environment Variables."
     )
 
 DATABASES = {

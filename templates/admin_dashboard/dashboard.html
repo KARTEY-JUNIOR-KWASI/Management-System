@@ -28,11 +28,14 @@
                 <div class="d-flex align-items-center gap-2 text-muted fw-bold extra-small text-uppercase opa-7" style="letter-spacing: 1px;">
                     <i class="fas fa-satellite-dish text-primary animate-pulse"></i> Sync: <span class="text-success">Optimal</span> <span class="mx-2">|</span> 
                     <i class="fas fa-database text-primary"></i> Nexus Intel: 
-                    <span class="{% if IS_PERSISTENT %}text-success{% else %}text-danger{% endif %} fw-900 shadow-glow">
+                    <span class="{% if INFRASTRUCTURE_MODE == 'stable' %}text-success{% elif INFRASTRUCTURE_MODE == 'critical' %}text-danger fw-bolder animate-pulse{% else %}text-warning{% endif %} shadow-glow">
                         {{ DATABASE_ENGINE_TYPE }}
                     </span>
-                    {% if not IS_PERSISTENT %}
+                    {% if INFRASTRUCTURE_MODE == 'critical' %}
+                        <span class="ms-2 badge bg-danger text-white px-2 py-1 animate-pulse" style="font-size: 0.6rem;">DATA LOSS RISK</span>
                         <i class="fas fa-triangle-exclamation text-danger ms-1 animate-pulse"></i>
+                    {% elif INFRASTRUCTURE_MODE == 'warning' %}
+                        <i class="fas fa-triangle-exclamation text-warning ms-1"></i>
                     {% else %}
                         <i class="fas fa-check-circle text-success ms-1"></i>
                     {% endif %}

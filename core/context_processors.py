@@ -19,16 +19,23 @@ def unread_notifications(request):
 def infrastructure_status(request):
     """Identifies the active institutional infrastructure for the dashboard."""
     from django.conf import settings
+    import os
     db_engine = settings.DATABASES['default']['ENGINE']
+    is_render = os.getenv('RENDER', 'False').lower() == 'true'
     
     if 'postgresql' in db_engine:
         engine_type = 'PostgreSQL (Enterprise)'
+        status_mode = 'stable'
     elif 'sqlite' in db_engine:
-        engine_type = 'SQLite (Local/Ephemeral)'
+        engine_type = 'SQLite (Temporary Vault)'
+        # If on Render and using SQLite, this is a CRITICAL risk
+        status_mode = 'critical' if is_render else 'warning'
     else:
         engine_type = 'External Engine'
+        status_mode = 'stable'
         
     return {
         'DATABASE_ENGINE_TYPE': engine_type,
-        'IS_PERSISTENT': 'postgresql' in db_engine
+        'IS_PERSISTENT': 'postgresql' in db_engine,
+        'INFRASTRUCTURE_MODE': status_mode
     }
