@@ -1,0 +1,26 @@
+# 📱 EduMS Mobile Access Protocol
+
+To view the "Clean Horizon" UI on your phone while the server is running on your computer, follow these steps:
+
+## 1. Prerequisites
+- Your phone and computer MUST be on the same Wi-Fi network.
+
+## 2. Identify your Computer's Local IP
+- Open a terminal and run: `ipconfig` (Windows) or `ifconfig` (Mac/Linux).
+- Look for **IPv4 Address** (usually something like `192.168.1.XX`).
+
+## 3. Launch the Server for Mobile
+Run the following command in your project terminal:
+```bash
+python manage.py runserver 0.0.0.0:8000
+```
+- Note: `0.0.0.0` tells Django to listen to all network interfaces, not just localhost.
+
+## 4. Access on your Phone
+- Open your mobile browser.
+- Type in your computer's IP followed by `:8000`.
+  - Example: `http://192.168.1.15:8000`
+
+---
+### 🔒 Security Note
+Your system is now configured to allow access from any IP during development (`DEBUG=True`). This is safe for your local Wi-Fi, but ensure you switch `DEBUG=False` in production (e.g., when deploying to Render).

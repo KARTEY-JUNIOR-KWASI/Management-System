@@ -105,28 +105,28 @@
                         <tbody>
                             {% for student_data in at_risk_students %}
                             <tr>
-                                <td>
-                                    <div class="fw-bold text-dark">{{ student_data.student.user.get_full_name }}</div>
-                                    <div class="text-muted small">{{ student_data.student.student_id }}</div>
+                                <td data-label="Student Identity">
+                                    <div class="fw-bold text-dark text-start">{{ student_data.student.user.get_full_name }}</div>
+                                    <div class="text-muted small text-start">{{ student_data.student.student_id }}</div>
                                 </td>
-                                <td><span class="badge-akkhor badge-primary">{{ student_data.student.class_enrolled.name }}</span></td>
-                                <td>
+                                <td data-label="Sector"><span class="badge-akkhor badge-primary">{{ student_data.student.class_enrolled.name }}</span></td>
+                                <td data-label="Risk Level">
                                     <span class="p-badge p-badge-{% if student_data.risk_level == 'critical' %}critical{% elif student_data.risk_level == 'high' %}high{% else %}medium{% endif %}">
                                         {{ student_data.risk_level|upper }}
                                     </span>
                                 </td>
-                                <td>
-                                    <div class="small">Att: <span class="fw-bold">{{ student_data.attendance_rate|floatformat:0 }}%</span></div>
-                                    <div class="small">GPA: <span class="fw-bold">{{ student_data.gpa|floatformat:1 }}</span></div>
+                                <td data-label="Diagnostics">
+                                    <div class="small text-start text-md-center">Att: <span class="fw-bold">{{ student_data.attendance_rate|floatformat:0 }}%</span></div>
+                                    <div class="small text-start text-md-center">GPA: <span class="fw-bold">{{ student_data.gpa|floatformat:1 }}</span></div>
                                 </td>
-                                <td>
-                                    <div class="text-muted" style="max-width: 180px; font-size: 0.75rem;">
+                                <td data-label="Critical Factors">
+                                    <div class="text-muted text-start" style="font-size: 0.75rem;">
                                         {% for factor in student_data.risk_factors %}
                                             • {{ factor }}{% if not forloop.last %}<br>{% endif %}
                                         {% endfor %}
                                     </div>
                                 </td>
-                                <td class="text-end">
+                                <td class="text-end" data-label="Intervention">
                                     <div class="d-flex justify-content-end gap-2">
                                         <a href="{% url 'analytics:student_performance_detail' student_data.student.id %}" class="p-btn-icon" title="View Profile">
                                             <i class="fas fa-user-chart"></i>

@@ -90,13 +90,16 @@
                         </thead>
                         <tbody>
                             {% for row in roster %}
-                            <tr class="animate-fade-in border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
-                                <td class="ps-4 py-3">
-                                    <input type="hidden" name="student_ids" value="{{ row.student.id }}">
+                        <tr class="animate-fade-in border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+                            <td class="ps-4 py-3" data-label="Candidate Identity">
+                                <input type="hidden" name="student_ids" value="{{ row.student.id }}">
+                                <div class="text-start">
                                     <div class="fw-800 text-dark small" style="line-height: 1.2;">{{ row.student.user.get_full_name }}</div>
                                     <div class="extra-small text-muted fw-bold text-uppercase opa-5 mt-1">{{ row.student.student_id }}</div>
-                                </td>
-                                <td>
+                                </div>
+                            </td>
+                            <td data-label="Fulfillment Status">
+                                <div class="text-start text-md-center">
                                     {% if row.has_submitted %}
                                         <div class="nexus-status-pill status-active d-inline-block">
                                             <i class="fas fa-check-circle me-1"></i> SUBMITTED
@@ -107,8 +110,10 @@
                                             <i class="fas fa-clock me-1"></i> AWAITING
                                         </div>
                                     {% endif %}
-                                </td>
-                                <td>
+                                </div>
+                            </td>
+                            <td data-label="Resource Access">
+                                <div class="text-start text-md-center">
                                     {% if row.has_submitted and row.submission.file %}
                                         <a href="{{ row.submission.file.url }}" target="_blank" class="btn btn-sm btn-icon shadow-sm" style="width: 32px; height: 32px;" title="View Artifact">
                                             <i class="fas fa-file-export text-primary" style="font-size: 0.75rem;"></i>
@@ -116,24 +121,29 @@
                                     {% else %}
                                         <span class="text-muted extra-small fw-bold opa-3">—</span>
                                     {% endif %}
-                                </td>
-                                <td>
+                                </div>
+                            </td>
+                            <td data-label="Score / 100">
+                                <div class="d-flex justify-content-start justify-content-md-center">
                                     <input type="number" name="grade_{{ row.student.id }}" class="form-control nexus-input-terminal px-3 fw-800 text-center score-field" 
-                                           value="{{ row.grade|default:'' }}" min="0" max="100" step="0.5" placeholder="—" style="height: 40px; font-size: 0.85rem;">
-                                </td>
-                                <td>
-                                    <textarea name="feedback_{{ row.student.id }}" class="form-control feedback-terminal px-3 py-2 score-field" 
-                                              placeholder="Inject diagnostic feedback..." rows="1">{{ row.feedback|default:'' }}</textarea>
-                                </td>
-                                <td class="pe-4 text-end">
+                                        value="{{ row.grade|default:'' }}" min="0" max="100" step="0.5" placeholder="—" style="height: 40px; font-size: 0.85rem; width: 100px;">
+                                </div>
+                            </td>
+                            <td data-label="Diagnostic Feedback">
+                                <textarea name="feedback_{{ row.student.id }}" class="form-control feedback-terminal px-3 py-2 score-field" 
+                                          placeholder="Inject feedback..." rows="1">{{ row.feedback|default:'' }}</textarea>
+                            </td>
+                            <td class="pe-4 text-end" data-label="Verification">
+                                <div class="d-flex justify-content-end">
                                     {% if row.grade is not None %}
                                         <span class="badge border bg-white text-success extra-small rounded-pill px-3 py-1 fw-800 text-uppercase" style="font-size: 0.6rem;">VALIDATED</span>
                                     {% else %}
                                         <span class="badge border bg-white text-muted extra-small rounded-pill px-3 py-1 fw-800 text-uppercase opa-5" style="font-size: 0.6rem;">NULL</span>
                                     {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>

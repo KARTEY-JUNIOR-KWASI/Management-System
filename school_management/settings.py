@@ -38,7 +38,12 @@ if not SECRET_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+if DEBUG:
+    # 📱 Mobile & Local Access Protocol
+    ALLOWED_HOSTS = ['*']
+else:
+    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -165,8 +170,9 @@ DATABASES = {
 
 # Cache Configuration
 # 🚀 Performance Optimization: Use Redis for caching and sessions
+# Fallback to LocMemCache if Redis URL is missing or if connection fails in dev
 REDIS_URL = os.getenv('REDIS_URL')
-if REDIS_URL:
+if REDIS_URL and not DEBUG:
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
@@ -178,17 +184,17 @@ if REDIS_URL:
             }
         }
     }
-    # Use Redis for sessions as well
-    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-    SESSION_CACHE_ALIAS = "default"
 else:
-    # Fallback to local memory cache for environments without Redis
+    # Use local memory cache for local development to avoid Redis dependency errors
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "LOCATION": "unique-snowflake",
+            "LOCATION": "edums-local-cache",
         }
     }
+    # Use cache for sessions in development as well to avoid DB bloat
+    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+    SESSION_CACHE_ALIAS = "default"
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

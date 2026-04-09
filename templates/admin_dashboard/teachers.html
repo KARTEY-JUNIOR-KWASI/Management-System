@@ -33,7 +33,7 @@
                     <tbody>
                         {% for teacher in teachers %}
                         <tr class="animate-fade-in" style="border-bottom: 1px solid rgba(0,0,0,0.03) !important;">
-                            <td class="ps-4 py-3">
+                            <td class="ps-4 py-3" data-label="Faculty Designation">
                                 <div class="d-flex align-items-center gap-3">
                                     {% if teacher.user.profile_picture %}
                                         <img src="{{ teacher.user.profile_picture.url }}" class="p-avatar shadow-sm" style="width:40px; height:40px; object-fit:cover;" alt="">
@@ -42,24 +42,27 @@
                                             {{ teacher.user.get_full_name|slice:":2"|upper }}
                                         </div>
                                     {% endif %}
-                                    <div class="fw-800 text-dark small" style="font-size: 0.88rem;">{{ teacher.user.get_full_name }}</div>
+                                    <div class="text-start">
+                                        <div class="fw-800 text-dark small" style="font-size: 0.88rem;">{{ teacher.user.get_full_name }}</div>
+                                        <div class="extra-small text-muted fw-bold text-uppercase opa-5">Academic Expert</div>
+                                    </div>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Employee ID">
                                 <span class="extra-small text-primary fw-bold text-uppercase" style="letter-spacing: 0.5px; font-family: 'JetBrains Mono', monospace;">
                                     {{ teacher.teacher_id }}
                                 </span>
                             </td>
-                            <td>
+                            <td data-label="Department Protocol">
                                 <span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-2 fw-800 text-uppercase opa-7" style="font-size: 0.65rem; border-color: rgba(0,0,0,0.1) !important;">
                                     {{ teacher.department }}
                                 </span>
                             </td>
-                            <td>
+                            <td data-label="Digital Contact">
                                 <div class="extra-small text-muted fw-bold opa-7">{{ teacher.user.email }}</div>
                             </td>
-                            <td class="pe-4 text-end">
-                                <div class="d-flex justify-content-end gap-3">
+                            <td class="pe-4 text-end" data-label="Operational Commands">
+                                <div class="d-flex justify-content-end gap-3 actions-mobile-fix">
                                     <a href="{% url 'teacher_detail' teacher.pk %}" class="btn btn-sm p-btn-icon shadow-sm" style="width: 36px; height: 36px;" title="View Dossier">
                                         <i class="fas fa-fingerprint text-primary" style="font-size: 0.9rem;"></i>
                                     </a>

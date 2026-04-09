@@ -119,23 +119,23 @@
                     <tbody>
                         {% for student in students %}
                         <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
-                            <td class="ps-4 py-3">
+                            <td class="ps-4 py-3" data-label="Academic Entity">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="p-avatar-sm" style="background: var(--p-nexus-dark);">
                                         {{ student.user.first_name|first }}{{ student.user.last_name|first }}
                                     </div>
-                                    <div>
+                                    <div class="text-start">
                                         <div class="fw-800 text-dark small">{{ student.user.get_full_name|default:student.user.username }}</div>
                                         <div class="extra-small text-muted fw-medium opa-7">{{ student.student_id }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Evaluation Score">
                                 <input type="number" name="score_{{ student.id }}" class="form-control nexus-input-terminal shadow-none px-3 fw-800 text-center score-input"
                                     placeholder="0.00" min="0" step="0.01" value="{{ student.target_score|default:'' }}"
                                     style="height: 40px; font-size: 0.9rem; color: var(--p-nexus-primary);">
                             </td>
-                            <td>
+                            <td data-label="Mastery Calibration">
                                 <div class="nexus-mastery-container">
                                     <div class="nexus-mastery-bar-wrapper">
                                         <div class="nexus-mastery-bar mastery-low" id="bar-{{ student.id }}" style="width: 0%;"></div>
@@ -146,18 +146,20 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="pe-4">
-                                {% if student.existing_grades %}
-                                    <div class="d-flex flex-wrap gap-1">
-                                    {% for exam_type, result in student.existing_grades.items %}
-                                        <span class="badge border bg-white rounded-pill px-2 py-1 fw-800 text-muted extra-small" style="font-size: 0.65rem;">
-                                            {{ exam_type }}: {{ result.score|floatformat:0 }}
-                                        </span>
-                                    {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <span class="extra-small text-muted fw-medium opa-5 italic">No prior indicators</span>
-                                {% endif %}
+                            <td class="pe-4" data-label="Historical Data">
+                                <div class="text-end">
+                                    {% if student.existing_grades %}
+                                        <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                        {% for exam_type, result in student.existing_grades.items %}
+                                            <span class="badge border bg-white rounded-pill px-2 py-1 fw-800 text-muted extra-small" style="font-size: 0.65rem;">
+                                                {{ exam_type }}: {{ result.score|floatformat:0 }}
+                                            </span>
+                                        {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <span class="extra-small text-muted fw-medium opa-5 italic">No prior indicators</span>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}

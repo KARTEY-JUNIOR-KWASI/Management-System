@@ -32,21 +32,21 @@
                     <tbody>
                         {% for subject in subjects %}
                         <tr class="animate-fade-in" style="border-bottom: 1px solid rgba(0,0,0,0.03) !important;">
-                            <td class="ps-4 py-3">
+                            <td class="ps-4 py-3" data-label="Module Code">
                                 <span class="extra-small text-primary fw-bold text-uppercase" style="letter-spacing: 1px; font-family: 'JetBrains Mono', monospace; background: rgba(67, 97, 238, 0.05); padding: 4px 10px; border-radius: 6px;">
                                     {{ subject.code }}
                                 </span>
                             </td>
-                            <td>
-                                <div class="fw-800 text-dark small" style="font-size: 0.9rem;">{{ subject.name }}</div>
+                            <td data-label="Subject Title">
+                                <div class="fw-800 text-dark small text-start" style="font-size: 0.9rem;">{{ subject.name }}</div>
                             </td>
-                            <td>
-                                <div class="extra-small text-muted fw-bold opa-7 lh-base" style="max-width: 300px;">
+                            <td data-label="Protocol Description">
+                                <div class="extra-small text-muted fw-bold opa-7 lh-base text-start" style="max-width: 300px;">
                                     {{ subject.description|truncatechars:80|default:"Institutional protocol description pending synchronization." }}
                                 </div>
                             </td>
-                            <td class="pe-4 text-end">
-                                <div class="d-flex justify-content-end gap-3">
+                            <td class="pe-4 text-end" data-label="Operational Commands">
+                                <div class="d-flex justify-content-end gap-3 actions-mobile-fix">
                                     <a href="{% url 'subject_update' subject.pk %}" class="btn btn-sm p-btn-icon shadow-sm" style="width: 34px; height: 34px;" title="Modify Record">
                                         <i class="fas fa-edit text-warning" style="font-size: 0.85rem;"></i>
                                     </a>

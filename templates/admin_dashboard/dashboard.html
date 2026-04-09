@@ -13,389 +13,115 @@
         .nexus-pulse-standard { background: rgba(67, 97, 238, 0.1) !important; }
     </style>
 
-    <!-- Institutional Command Unit Header -->
+    <!-- ── Institutional Command Hub ────────────────────────────── -->
     <div class="col-12 mb-5">
-        <div class="d-flex justify-content-between align-items-end">
-            <div>
-                <div class="d-flex align-items-center gap-3 mb-2">
-                    <div class="p-avatar shadow-none" style="background: var(--p-nexus-primary); width: 50px; height: 50px; font-size: 1.2rem;">
+        <div class="row g-4">
+            <div class="col-xl-8">
+                <!-- Service Hub Grid -->
+                <div class="service-grid">
+                    <a href="{% url 'student_list' %}" class="service-tile tile-blue">
+                        <i class="fas fa-user-graduate"></i>
+                        <div>
+                            <h6>Registry Management</h6>
+                            <p>Manage entities and sector enrollments.</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'teacher_list' %}" class="service-tile tile-teal">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <div>
+                            <h6>Staffing Portal</h6>
+                            <p>Administer faculty and teaching protocols.</p>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'class_list' %}" class="service-tile tile-purple">
+                        <i class="fas fa-school"></i>
+                        <div>
+                            <h6>Class Infrastructure</h6>
+                            <p>Setup sectors and grade structures.</p>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'finance:finance_hub' %}" class="service-tile tile-green">
+                        <i class="fas fa-vault"></i>
+                        <div>
+                            <h6>Fiscal Oversight</h6>
+                            <p>Monitor liquidity and digital treasury.</p>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'analytics:analytics_dashboard' %}" class="service-tile tile-amber">
+                        <i class="fas fa-brain"></i>
+                        <div>
+                            <h6>Operational Intel</h6>
+                            <p>Predictive mastery & system diagnostics.</p>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'audit_logs' %}" class="service-tile tile-red">
                         <i class="fas fa-shield-halved"></i>
-                    </div>
-                    <h2 class="fw-800 mb-0" style="letter-spacing: -1.5px; color: var(--text-dark); font-size: 2.2rem;">
-                        Institutional Command Unit
-                    </h2>
-                </div>
-                <div class="d-flex align-items-center gap-2 text-muted fw-bold extra-small text-uppercase opa-7" style="letter-spacing: 1px;">
-                    <i class="fas fa-satellite-dish text-primary animate-pulse"></i> Sync: <span class="text-success">Optimal</span> <span class="mx-2">|</span> 
-                    <i class="fas fa-database text-primary"></i> Nexus Intel: 
-                    <span class="{% if INFRASTRUCTURE_MODE == 'stable' %}text-success{% elif INFRASTRUCTURE_MODE == 'critical' %}text-danger fw-bolder animate-pulse{% else %}text-warning{% endif %} shadow-glow">
-                        {{ DATABASE_ENGINE_TYPE }}
-                    </span>
-                    {% if INFRASTRUCTURE_MODE == 'critical' %}
-                        <span class="ms-2 badge bg-danger text-white px-2 py-1 animate-pulse" style="font-size: 0.6rem;">DATA LOSS RISK</span>
-                        <i class="fas fa-triangle-exclamation text-danger ms-1 animate-pulse"></i>
-                    {% elif INFRASTRUCTURE_MODE == 'warning' %}
-                        <i class="fas fa-triangle-exclamation text-warning ms-1"></i>
-                    {% else %}
-                        <i class="fas fa-check-circle text-success ms-1"></i>
-                    {% endif %}
-                    <span class="mx-2">|</span> 
-                    <i class="fas fa-terminal text-primary ms-1"></i> Secure Core Access
-                </div>
-            </div>
-            <div class="d-flex gap-3 pb-1">
-                <a href="{% url 'finance:finance_hub' %}" class="btn btn-light rounded-pill px-4 fw-800 extra-small border shadow-sm">
-                    <i class="fas fa-vault me-2 text-primary"></i> FINANCE HUB
-                </a>
-                <a href="{% url 'analytics:generate_report' %}" class="btn btn-light rounded-pill px-4 fw-800 extra-small border shadow-sm">
-                    <i class="fas fa-print me-2 text-primary"></i> REPORTING HUB
-                </a>
-                <a href="{% url 'student_create' %}" class="btn btn-primary rounded-pill px-4 fw-800 shadow-lg border-0" style="background: var(--p-nexus-primary);">
-                    <i class="fas fa-user-plus me-2"></i> NEW REGISTRY
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Institutional Intelligence Hub (Notice Board) -->
-    <div class="col-12 mb-5">
-        <div class="nexus-glass-card overflow-hidden border-0" style="background: var(--p-nexus-dark) !important;">
-            <div class="card-header border-0 bg-transparent p-4 d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.03) !important;">
-                <h5 class="fw-800 mb-0 text-white d-flex align-items-center" style="letter-spacing: -0.5px;">
-                    <i class="fas fa-broadcast-tower me-3 text-warning animate-pulse"></i> Intelligence Feed
-                </h5>
-                <div class="d-flex gap-3">
-                    <button class="btn btn-sm text-white extra-small fw-800 text-uppercase border-0 shadow-none" style="background: rgba(255,255,255,0.05); letter-spacing: 1px;"><i class="fas fa-history me-1"></i> Archives</button>
-                    <button class="btn btn-sm btn-warning rounded-pill px-4 fw-800 shadow-lg border-0 extra-small text-uppercase" data-bs-toggle="modal" data-bs-target="#createNoticeModal">
-                        <i class="fas fa-plus me-2"></i> New Protocol
-                    </button>
-                </div>
-            </div>
-            <div class="card-body p-4">
-                <div class="row g-4">
-                    {% for notice in notices %}
-                    <div class="col-md-6 col-lg-4">
-                        <div class="p-4 h-100 position-relative animate-fade-in nexus-glass-card hover-lift" 
-                             style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;">
-                            
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <span class="badge border bg-white bg-opacity-10 text-white extra-small rounded-pill px-3 py-2 fw-800 text-uppercase" style="border-color: rgba(255,255,255,0.1) !important;">
-                                    {{ notice.get_category_display }}
-                                </span>
-                                {% if notice.is_pinned %}<i class="fas fa-thumbtack text-warning extra-small shadow-glow"></i>{% endif %}
-                            </div>
-                            
-                            <h6 class="text-white fw-800 mb-3" style="font-size: 0.95rem; line-height: 1.4;">{{ notice.title }}</h6>
-                            <p class="text-white opa-6 extra-small mb-4" style="line-height: 1.8;">{{ notice.content|truncatechars:100 }}</p>
-                            
-                            <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-white border-opacity-10">
-                                <div class="d-flex align-items-center gap-3 extra-small">
-                                    <div class="p-avatar-sm shadow-none" style="background: var(--p-nexus-primary); width: 32px; height: 32px;">
-                                        {{ notice.author.first_name|slice:":1" }}
-                                    </div>
-                                    <span class="fw-800 text-white opa-8">{{ notice.author.get_full_name|default:"ADMIN" }}</span>
-                                </div>
-                                <span class="text-white opa-5 extra-small fw-bold">{{ notice.created_at|timesince }}</span>
-                            </div>
+                        <div>
+                            <h6>System Pulse</h6>
+                            <p>Audit infrastructure events and logs.</p>
                         </div>
-                    </div>
-                    {% empty %}
-                    <div class="col-12 text-center py-5">
-                        <div class="p-avatar mx-auto mb-3 opa-2" style="background: white; width: 60px; height: 60px;">
-                            <i class="fas fa-inbox text-white"></i>
-                        </div>
-                        <p class="extra-small text-white opa-5 fw-bold text-uppercase" style="letter-spacing: 1px;">Null dataset. No active protocols found.</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Institutional Digital Treasury Banner -->
-    <div class="col-12 mb-5">
-        <div class="nexus-glass-card overflow-hidden nexus-stat-glow border-0" 
-             style="background: var(--p-nexus-success) !important;">
-            <div class="card-body p-4 d-flex flex-column flex-md-row align-items-center justify-content-between text-white position-relative" style="z-index: 1;">
-                <div class="d-flex align-items-center mb-4 mb-md-0">
-                    <div class="bg-white bg-opacity-20 rounded-pill d-flex align-items-center justify-content-center me-4 shadow-sm" style="width:64px; height:64px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
-                        <i class="fas fa-vault fs-3"></i>
-                    </div>
-                    <div>
-                        <h5 class="fw-800 mb-1" style="letter-spacing: -0.5px;">Institutional Digital Treasury</h5>
-                        <p class="opa-8 extra-small mb-0 fw-bold text-uppercase" style="letter-spacing: 1px;">Real-time Fiscal Architecture Sync</p>
-                    </div>
-                </div>
-                
-                <div class="d-flex gap-5 align-items-center px-lg-5">
-                    <div class="text-center">
-                        <div class="opa-7 extra-small fw-bold text-uppercase mb-1" style="letter-spacing: 1.5px;">Projected</div>
-                        <div class="fw-800 h4 mb-0" style="font-size: 1.5rem;">{{ school_config.currency_symbol|default:"GH₵" }}{{ total_revenue_expected|floatformat:2 }}</div>
-                    </div>
-                    <div class="vr bg-white opacity-25" style="height:40px;"></div>
-                    <div class="text-center">
-                        <div class="opa-7 extra-small fw-bold text-uppercase mb-1" style="letter-spacing: 1.5px;">Liquidity</div>
-                        <div class="fw-800 h4 mb-0 text-white" style="font-size: 1.5rem;">{{ school_config.currency_symbol|default:"GH₵" }}{{ total_revenue_collected|floatformat:2 }}</div>
-                    </div>
-                    <div class="vr bg-white opacity-25" style="height:40px;"></div>
-                    <div class="text-center d-none d-lg-block">
-                        <div class="opa-7 extra-small fw-bold text-uppercase mb-1" style="letter-spacing: 1.5px;">Compliance</div>
-                        <div class="fw-800 h4 mb-0" style="font-size: 1.5rem;">{{ collection_percentage }}%</div>
-                    </div>
-                </div>
-
-                <div class="mt-4 mt-md-0">
-                    <a href="{% url 'finance:finance_hub' %}" class="btn btn-white text-dark px-5 py-2 fw-800 rounded-pill shadow-lg border-0 extra-small text-uppercase" style="background: white; letter-spacing: 1px;">
-                        Finance Portal <i class="fas fa-arrow-right ms-2"></i>
                     </a>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Strategic Operational Metrics -->
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
-        <div class="nexus-glass-card h-100 overflow-hidden border-start border-4 border-primary" style="border-left-color: var(--p-nexus-primary) !important;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="text-muted text-uppercase fw-800 m-0 opa-7" style="font-size:0.65rem; letter-spacing: 1px;">Total Entities</h6>
-                        <h2 class="fw-800 my-2" style="letter-spacing: -1px;">{{ total_students }}</h2>
-                        <span class="text-success extra-small fw-800"><i class="fas fa-arrow-up me-1"></i> ACTIVE SECTOR</span>
+            <div class="col-xl-4">
+                <!-- Intelligence Feed (Condensed) -->
+                <div class="nexus-glass-card h-100 overflow-hidden border-0" style="background: var(--p-nexus-dark) !important;">
+                    <div class="card-header border-0 bg-transparent p-4 d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.03) !important;">
+                        <h6 class="fw-800 mb-0 text-white" style="letter-spacing: -0.5px;">
+                            <i class="fas fa-broadcast-tower me-2 text-warning animate-pulse"></i> Intelligence Feed
+                        </h6>
                     </div>
-                    <div class="p-avatar shadow-sm" style="background: var(--p-nexus-primary); width:48px; height:48px;">
-                        <i class="fas fa-user-graduate"></i>
+                    <div class="card-body p-0" style="max-height: 480px; overflow-y: auto;">
+                        <div class="list-group list-group-flush">
+                            {% for notice in notices %}
+                            <div class="list-group-item p-4 border-0 border-bottom bg-transparent hover-bg-light transition-smooth" style="background: rgba(255,255,255,0.02) !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge border border-white border-opacity-10 text-white extra-small rounded-pill px-2 py-1 fw-bold">{{ notice.get_category_display }}</span>
+                                    <span class="text-white opa-5 extra-small fw-bold">{{ notice.created_at|timesince }} ago</span>
+                                </div>
+                                <h6 class="text-white fw-bold mb-2" style="font-size: 0.85rem;">{{ notice.title }}</h6>
+                                <p class="text-white opa-6 extra-small mb-0" style="line-height: 1.6;">{{ notice.content|truncatechars:80 }}</p>
+                            </div>
+                            {% empty %}
+                            <div class="p-5 text-center text-white opa-2">
+                                <i class="fas fa-inbox fs-3 mb-2"></i>
+                                <p class="extra-small fw-bold text-uppercase">Pulse Zero. No Active Protocols.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="p-3 text-center border-top border-white border-opacity-10">
+                        <button class="btn btn-sm btn-warning rounded-pill px-4 fw-800 extra-small" data-bs-toggle="modal" data-bs-target="#createNoticeModal">NEW PROTOCOL</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
-        <div class="nexus-glass-card h-100 overflow-hidden border-start border-4 border-success" style="border-left-color: var(--p-nexus-success) !important;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="text-muted text-uppercase fw-800 m-0 opa-7" style="font-size:0.65rem; letter-spacing: 1px;">Presence Radar</h6>
-                        <h2 class="fw-800 my-2" style="letter-spacing: -1px;">{{ attendance_stats|default:0|floatformat:1 }}%</h2>
-                        <span class="text-{% if attendance_trend == 'improving' %}success{% elif attendance_trend == 'declining' %}danger{% else %}warning{% endif %} extra-small fw-800">
-                            <i class="fas fa-{% if attendance_trend == 'improving' %}chart-line{% else %}minus{% endif %} me-1"></i> {{ attendance_trend|upper }}
-                        </span>
-                    </div>
-                    <div class="p-avatar shadow-sm" style="background: var(--p-nexus-success); width:48px; height:48px;">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
-        <div class="nexus-glass-card h-100 overflow-hidden border-start border-4 border-danger" style="border-left-color: var(--p-nexus-danger) !important;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="text-muted text-uppercase fw-800 m-0 opa-7" style="font-size:0.65rem; letter-spacing: 1px;">Risk Thresholds</h6>
-                        <h2 class="fw-800 my-2" style="letter-spacing: -1px;">{{ total_at_risk }}</h2>
-                        <span class="text-danger extra-small fw-800 text-uppercase">{{ system_analytics.critical_cases }} Critical Nodes</span>
-                    </div>
-                    <div class="p-avatar shadow-sm" style="background: var(--p-nexus-danger); width:48px; height:48px;">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
-        <div class="nexus-glass-card h-100 overflow-hidden border-start border-4 border-info" style="border-left-color: #0dcaf0 !important;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="text-muted text-uppercase fw-800 m-0 opa-7" style="font-size:0.65rem; letter-spacing: 1px;">Global Mastery</h6>
-                        <h2 class="fw-800 my-2" style="letter-spacing: -1px;">{{ system_analytics.average_gpa|default:0|floatformat:2 }}</h2>
-                        <span class="text-muted extra-small fw-800">SYSTEM GPA AVG</span>
-                    </div>
-                    <div class="p-avatar shadow-sm" style="background: #0dcaf0; width:48px; height:48px;">
-                        <i class="fas fa-microchip"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Performance & Academic Diagnostics -->
-    <div class="col-xl-8 col-lg-8 mb-4">
-        <div class="nexus-glass-card h-100 p-0 overflow-hidden">
+    <!-- Performance Diagnostics (Visual Insight) -->
+    <div class="col-xl-12 mb-5">
+        <div class="nexus-glass-card p-0 overflow-hidden">
             <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
                 <div>
-                    <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Performance Diagnostics</h5>
-                    <p class="text-muted extra-small mb-0 fw-medium">Neural visualization of academic mastery trends</p>
+                    <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Global Performance Diagnostics</h5>
+                    <p class="text-muted extra-small mb-0 fw-medium">Real-time visualization of academic mastery trends across all sectors.</p>
                 </div>
-                <button class="btn btn-sm btn-light border rounded-pill px-3 fw-800 extra-small" onclick="location.reload()"><i class="fas fa-sync-alt text-primary"></i></button>
+                <a href="{% url 'analytics:analytics_dashboard' %}" class="btn btn-sm btn-light border rounded-pill px-3 fw-800 extra-small">DEEP ANALYSIS <i class="fas fa-chevron-right ms-2"></i></a>
             </div>
             <div class="card-body p-4">
-                <div style="height: 350px;">
+                <div style="height: 380px;">
                     <canvas id="adminPerformanceChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Strategic Intervention Grid -->
-    <div class="col-xl-4 col-lg-4 mb-4">
-        <div class="nexus-glass-card h-100 border-top border-4 border-danger" style="border-top-color: var(--p-nexus-danger) !important; padding: 0; overflow: hidden;">
-            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(220, 38, 38, 0.02);">
-                <div>
-                    <h5 class="fw-800 mb-0 text-danger" style="letter-spacing: -0.5px;">Strategic Intervention</h5>
-                    <p class="text-muted extra-small mb-0 fw-medium">Protocol required for high-risk nodes</p>
-                </div>
-                <span class="badge border bg-white text-danger extra-small rounded-pill px-3 py-2 fw-800" style="border-color: rgba(220, 38, 38, 0.1) !important;">{{ total_at_risk }} TOTAL</span>
-            </div>
-            <div class="card-body p-0">
-                <div class="list-group list-group-flush">
-                    {% for risk in at_risk_students %}
-                    <div class="list-group-item p-4 border-0 border-bottom bg-transparent hover-bg-light transition-smooth">
-                        <div class="d-flex gap-3 align-items-start">
-                            <div class="p-avatar-sm shadow-sm" style="width:40px; height:40px; background:var(--p-nexus-danger); font-size:0.75rem; flex-shrink:0;">
-                                {{ risk.student.user.first_name|slice:":1" }}{{ risk.student.user.last_name|slice:":1" }}
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="fw-800 text-dark m-0 small" style="font-size: 0.82rem;">{{ risk.student.user.get_full_name }}</h6>
-                                    <span class="p-badge p-badge-{% if risk.risk_level == 'critical' %}critical{% else %}warning{% endif %} extra-small">{{ risk.risk_level|upper }}</span>
-                                </div>
-                                <div class="nexus-mastery-container p-0 border-0 bg-transparent mb-2">
-                                    <div class="nexus-mastery-bar-wrapper" style="height: 4px;">
-                                        <div class="nexus-mastery-bar mastery-low js-progress-bar" data-progress="{% if risk.risk_level == 'critical' %}25{% else %}45{% endif %}"></div>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="extra-small text-muted fw-bold text-uppercase opa-5">Sector: {{ risk.student.class_enrolled.name }}</span>
-                                    <a href="{% url 'student_update' risk.student.id %}" class="btn btn-sm p-btn-icon shadow-sm" style="width: 28px; height: 28px;" title="Execute Protocol">
-                                        <i class="fas fa-bolt text-danger" style="font-size: 0.75rem;"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="p-5 text-center">
-                        <div class="p-avatar mx-auto mb-3 opa-2" style="background: var(--p-nexus-success); width: 60px; height: 60px;">
-                            <i class="fas fa-shield-check"></i>
-                        </div>
-                        <div class="opa-5 fw-bold text-uppercase extra-small" style="letter-spacing: 1px;">Security verified.<br>All nodes meeting thresholds.</div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="p-3 border-top text-center" style="background: rgba(0,0,0,0.01);">
-                <a href="{% url 'analytics:analytics_dashboard' %}" class="extra-small text-primary fw-800 text-decoration-none text-uppercase" style="letter-spacing: 1px;">Full Analytics Radar <i class="fas fa-chevron-right ms-1"></i></a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Registry Stream (Recent Admissions) -->
-    <div class="col-xl-7 col-lg-7 mb-4">
-        <div class="nexus-glass-card h-100 p-0 overflow-hidden">
-            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
-                <div>
-                    <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Registry Stream</h5>
-                    <p class="text-muted extra-small mb-0 fw-medium">Real-time identification of new entities</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <input type="text" id="adminSearchInp" placeholder="Scan registry..." class="form-control nexus-input-terminal px-3 extra-small" style="width:140px; height: 32px; border-radius: 20px;">
-                    <a href="{% url 'student_list' %}" class="btn btn-sm btn-primary rounded-pill px-4 fw-800 extra-small text-uppercase shadow-sm border-0" style="background: var(--p-nexus-primary);">VIEW ALL</a>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 nexus-premium-table" id="recentStudentsTable">
-                    <thead>
-                        <tr class="bg-light bg-opacity-50">
-                            <th class="ps-4 py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Entity Designation</th>
-                            <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Sector</th>
-                            <th class="pe-4 py-3 text-end">Operation</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for student in students|slice:":6" %}
-                        <tr class="animate-fade-in" style="border-bottom: 1px solid rgba(0,0,0,0.03) !important;">
-                            <td class="ps-4 py-3">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="p-avatar-sm shadow-sm" style="background: var(--p-nexus-primary); width: 32px; height: 32px; font-size: 0.7rem;">
-                                        {{ student.user.first_name|slice:":1" }}{{ student.user.last_name|slice:":1" }}
-                                    </div>
-                                    <div class="fw-800 text-dark small" style="font-size: 0.8rem;">{{ student.user.get_full_name }}</div>
-                                    {% if student.house %}
-                                         <div style="width: 8px; height: 8px; border-radius: 50%; --house-core: {{ student.house.color_code }}; background-color: var(--house-core); box-shadow: 0 0 5px var(--house-core);" title="{{ student.house.name }}"></div>
-                                    {% endif %}
-                                </div>
-                            </td>
-                            <td>
-                                <span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-1 fw-800 text-uppercase opa-7" style="font-size: 0.62rem;">
-                                    {{ student.class_enrolled.name }}
-                                </span>
-                            </td>
-                            <td class="pe-4 text-end">
-                                <a href="{% url 'student_detail' student.id %}" class="btn btn-sm p-btn-icon shadow-sm" style="width: 32px; height: 32px;">
-                                    <i class="fas fa-external-link-alt text-primary" style="font-size: 0.75rem;"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- System Pulse (Audit Logs) -->
-    <div class="col-xl-5 col-lg-5 mb-4">
-        <div class="nexus-glass-card h-100 border-top border-4 border-primary" style="border-top-color: var(--p-nexus-primary) !important; padding: 0; overflow: hidden;">
-            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(67, 97, 238, 0.02) !important;">
-                <div>
-                    <h5 class="fw-800 mb-0 text-primary" style="letter-spacing: -0.5px;">System Pulse</h5>
-                    <p class="text-muted extra-small mb-0 fw-medium">Real-time infrastructure event log</p>
-                </div>
-                <a href="{% url 'audit_logs' %}" class="extra-small fw-800 text-uppercase text-decoration-none" style="letter-spacing: 1px;">FULL AUDIT <i class="fas fa-chevron-right ms-1"></i></a>
-            </div>
-            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
-                <div class="list-group list-group-flush">
-                    {% for log in recent_logs %}
-                    <div class="list-group-item p-4 border-0 border-bottom bg-transparent hover-bg-light transition-smooth">
-                        <div class="d-flex gap-3 align-items-start">
-                            <div class="flex-shrink-0 mt-1">
-                                 <div class="p-icon-circle shadow-none {% if log.action == 'SECURITY' or log.action == 'DELETE' %}nexus-pulse-critical{% else %}nexus-pulse-standard{% endif %}" style="width: 34px; height: 34px;">
-                                    {% if log.action == 'LOGIN' %}<i class="fas fa-sign-in-alt text-success"></i>
-                                    {% elif log.action == 'SECURITY' %}<i class="fas fa-shield-alt text-danger animate-pulse"></i>
-                                    {% elif log.action == 'DELETE' %}<i class="fas fa-trash-alt text-danger"></i>
-                                    {% elif log.action == 'CREATE' %}<i class="fas fa-plus-circle text-info"></i>
-                                    {% elif log.action == 'UPDATE' %}<i class="fas fa-edit text-warning"></i>
-                                    {% else %}<i class="fas fa-circle text-muted"></i>{% endif %}
-                                </div>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="fw-800 text-dark extra-small text-uppercase">{{ log.get_action_display }}</span>
-                                    <span class="text-muted extra-small fw-bold">{{ log.timestamp|timesince }} ago</span>
-                                </div>
-                                <p class="text-muted m-0 extra-small fw-medium opa-7" style="line-height: 1.5;">{{ log.description|truncatechars:60 }}</p>
-                                <div class="mt-2 d-flex align-items-center gap-3 extra-small fw-bold opacity-50 text-uppercase" style="font-size: 0.6rem; letter-spacing: 0.5px;">
-                                    <span><i class="fas fa-user-circle me-1"></i> {{ log.user.get_full_name|default:"SYSTEM" }}</span>
-                                    <span><i class="fas fa-map-marker-alt me-1"></i> {{ log.ip_address|default:"CORE" }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="p-5 text-center opa-5">
-                        <p class="extra-small fw-bold text-uppercase">Pulse optimal. No recent events.</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 </div>
 

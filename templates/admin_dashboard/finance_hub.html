@@ -157,24 +157,24 @@
                                     <tbody>
                                         {% for payment in recent_payments %}
                                         <tr class="animate-fade-in" style="border-bottom: 1px solid rgba(0,0,0,0.03) !important;">
-                                            <td class="ps-4 py-3">
+                                            <td class="ps-4 py-3" data-label="Entity Designation">
                                                 <div class="d-flex align-items-center gap-3">
                                                     <div class="p-avatar-sm shadow-sm" style="background: var(--p-nexus-primary); width: 36px; height: 36px; font-size: 0.75rem;">
                                                         {{ payment.invoice.student.user.first_name|slice:":1" }}{{ payment.invoice.student.user.last_name|slice:":1" }}
                                                     </div>
-                                                    <div>
+                                                    <div class="text-start">
                                                         <div class="fw-800 text-dark small" style="font-size: 0.82rem;">{{ payment.invoice.student.user.get_full_name }}</div>
                                                         <div class="extra-small text-muted fw-bold text-uppercase opa-5">LOG-{{ payment.id|stringformat:"05d" }}</div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td><span class="fw-800 text-success small" style="font-size: 0.85rem;">+ {{ school_config.currency_symbol|default:"GH₵" }}{{ payment.amount_paid }}</span></td>
-                                            <td>
+                                            <td data-label="Fiscal Value"><span class="fw-800 text-success small" style="font-size: 0.85rem;">+ {{ school_config.currency_symbol|default:"GH₵" }}{{ payment.amount_paid }}</span></td>
+                                            <td data-label="Protocol">
                                                 <span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-2 fw-800 text-uppercase opa-7" style="font-size: 0.65rem; border-color: rgba(0,0,0,0.1) !important;">
                                                     {{ payment.get_method_display }}
                                                 </span>
                                             </td>
-                                            <td class="extra-small text-muted fw-bold text-uppercase opa-7">{{ payment.date_paid|date:"M d, H:i" }}</td>
+                                            <td data-label="Temporal Marker" class="extra-small text-muted fw-bold text-uppercase opa-7">{{ payment.date_paid|date:"M d, H:i" }}</td>
                                             <td class="pe-4 text-end">
                                                 <a href="{% url 'finance:generate_receipt' payment.id %}" class="btn btn-sm p-btn-icon shadow-sm" title="Secure Receipt Download">
                                                     <i class="fas fa-shield-halved text-primary" style="font-size: 0.9rem;"></i>
@@ -269,7 +269,7 @@
                                     <tbody>
                                         {% for cat in categories %}
                                         <tr class="animate-fade-in">
-                                            <td class="ps-4 py-3">
+                                            <td class="ps-4 py-3" data-label="Category Name">
                                                 <div class="fw-800 text-dark small">{{ cat.name }}</div>
                                                 <div class="extra-small text-muted opa-5">{{ cat.description|truncatechars:40 }}</div>
                                             </td>
@@ -313,11 +313,11 @@
                                     <tbody>
                                         {% for fee in structures %}
                                         <tr class="animate-fade-in">
-                                            <td class="ps-4 py-3">
+                                            <td class="ps-4 py-3" data-label="Cohort">
                                                 <div class="fw-800 text-dark small">{{ fee.class_name }}</div>
                                             </td>
-                                            <td><span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-2 fw-800 text-uppercase">{{ fee.category.name }}</span></td>
-                                            <td><span class="fw-800 text-primary small">{{ school_config.currency_symbol|default:"GH₵" }}{{ fee.amount }}</span></td>
+                                            <td data-label="Category"><span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-2 fw-800 text-uppercase">{{ fee.category.name }}</span></td>
+                                            <td data-label="Amount"><span class="fw-800 text-primary small">{{ school_config.currency_symbol|default:"GH₵" }}{{ fee.amount }}</span></td>
                                             <td class="pe-4 text-end">
                                                 <button class="btn btn-sm p-btn-icon" title="Edit Amount" data-bs-toggle="modal" data-bs-target="#editStructure-{{ fee.id }}">
                                                     <i class="fas fa-edit text-primary"></i>

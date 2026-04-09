@@ -79,52 +79,55 @@
                                 <th class="py-3 small text-uppercase text-muted fw-800">Primary Operator</th>
                                 <th class="py-3 small text-uppercase text-muted fw-800">Temporal Threshold</th>
                                 <th class="text-end pe-3 small text-uppercase text-muted fw-800">Status Protocol</th>
-                            </tr>
                         </thead>
                         <tbody>
                             {% for assignment in assignments %}
-                            <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
-                                <td class="ps-3 py-4">
-                                    <div class="fw-800 text-dark mb-1 small">{{ assignment.title }}</div>
-                                    <div class="text-muted extra-small fw-medium opa-7" style="max-width: 350px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                        {{ assignment.description|truncatechars:80 }}
-                                    </div>
-                                </td>
-                                <td><span class="badge border bg-white text-primary rounded-pill px-3 extra-small fw-800 text-uppercase">{{ assignment.subject.name|truncatechars:15 }}</span></td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="p-avatar-sm me-3" style="width: 32px; height: 32px; background: rgba(0,0,0,0.03); color: var(--text-muted);">
-                                            <i class="fas fa-user-tie" style="font-size: 0.7rem;"></i>
-                                        </div>
-                                        <div class="extra-small fw-800 text-dark text-uppercase opa-7">{{ assignment.teacher.user.get_full_name }}</div>
-                                    </div>
-                                </td>
-                                <td class="extra-small fw-800 {% if assignment.status == 'overdue' %}text-danger{% else %}text-muted{% endif %}">
-                                    {{ assignment.due_date|date:"M d, Y" }}
-                                </td>
-                                <td class="text-end pe-3">
-                                    {% if assignment.status == 'submitted' %}
-                                        <div class="d-flex align-items-center justify-content-end gap-2">
-                                            <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-a">FULFILLED</span>
-                                            <i class="fas fa-check-double text-success small ms-1"></i>
-                                        </div>
-                                    {% elif assignment.status == 'overdue' %}
-                                        <div class="d-flex align-items-center justify-content-end gap-3">
-                                            <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-f">OVERDUE</span>
-                                            <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-sm text-primary p-0 fw-800 extra-small">PUSH LATE</a>
-                                        </div>
-                                    {% else %}
-                                        <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-sm nexus-glass-card shadow-sm border px-3 fw-800 extra-small text-primary">
-                                            EXECUTE SUBMISSION
-                                        </a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="5" class="text-center py-5 text-muted extra-small fw-bold">NULL REGISTRY. NO ACTIVE OBJECTIVES DETECTED.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                    <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+                                        <td class="ps-3 py-4" data-label="Objective">
+                                            <div class="fw-800 text-dark mb-1 small text-start">{{ assignment.title }}</div>
+                                            <div class="text-muted extra-small fw-medium opa-7 text-start" style="max-width: 350px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                {{ assignment.description|truncatechars:40 }}
+                                            </div>
+                                        </td>
+                                        <td data-label="Sector"><span class="badge border bg-white text-primary rounded-pill px-3 extra-small fw-800 text-uppercase">{{ assignment.subject.name|truncatechars:15 }}</span></td>
+                                        <td data-label="Operator">
+                                            <div class="d-flex align-items-center">
+                                                <div class="p-avatar-sm me-3 d-none d-md-flex" style="width: 24px; height: 24px; background: rgba(0,0,0,0.03); color: var(--text-muted); font-size: 0.6rem;">
+                                                    <i class="fas fa-user-tie"></i>
+                                                </div>
+                                                <div class="extra-small fw-800 text-dark text-uppercase opa-7">{{ assignment.teacher.user.get_full_name }}</div>
+                                            </div>
+                                        </td>
+                                        <td data-label="Threshold" class="extra-small fw-800 {% if assignment.status == 'overdue' %}text-danger{% else %}text-muted{% endif %}">
+                                            {{ assignment.due_date|date:"M d, Y" }}
+                                        </td>
+                                        <td class="text-end pe-3" data-label="Protocol">
+                                            <div class="d-flex justify-content-end align-items-center">
+                                                {% if assignment.status == 'submitted' %}
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-a">FULFILLED</span>
+                                                        <i class="fas fa-check-double text-success small ms-1"></i>
+                                                    </div>
+                                                {% elif assignment.status == 'overdue' %}
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-f">OVERDUE</span>
+                                                        <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-sm text-primary p-0 fw-800 extra-small">PUSH LATE</a>
+                                                    </div>
+                                                {% else %}
+                                                    <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-sm nexus-glass-card shadow-sm border px-3 fw-800 extra-small text-primary">
+                                                        EXECUTE
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="5" class="text-center py-5 text-muted extra-small fw-bold">NULL REGISTRY. NO ACTIVE OBJECTIVES DETECTED.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

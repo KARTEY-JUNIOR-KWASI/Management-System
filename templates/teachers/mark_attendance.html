@@ -91,23 +91,23 @@
                     <tbody>
                         {% for student in students %}
                         <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
-                            <td class="ps-4 py-3">
+                            <td class="ps-4 py-3" data-label="Entity">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="p-avatar-sm" style="background: var(--p-nexus-dark);">
                                         {{ student.user.first_name|first }}{{ student.user.last_name|first }}
                                     </div>
-                                    <div>
+                                    <div class="text-start">
                                         <div class="fw-800 text-dark small">{{ student.user.get_full_name|default:student.user.username }}</div>
                                         <div class="extra-small text-muted fw-medium opa-7">Academic Entity</div>
                                     </div>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="ID Protocol">
                                 <span class="badge border bg-white text-muted rounded-pill px-3 py-2 fw-800" style="font-family: 'Space Mono', monospace; font-size: 0.7rem;">
                                     {{ student.student_id }}
                                 </span>
                             </td>
-                            <td>
+                            <td data-label="Presence Status">
                                 {% with rec=attendance_records|get_item:student.id %}
                                 <div class="nexus-status-switcher">
                                     <label class="mb-0">

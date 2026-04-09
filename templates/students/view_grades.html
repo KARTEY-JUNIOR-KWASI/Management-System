@@ -130,23 +130,27 @@
                                 <tbody>
                                     {% for result in subject_data.results %}
                                     <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
-                                        <td class="ps-3 py-4">
-                                            <div class="fw-800 text-dark small">{{ result.exam_type|title }}</div>
-                                            <div class="text-muted extra-small fw-bold text-uppercase opa-5">{{ result.date|date:"M d, Y" }}</div>
+                                        <td class="ps-3 py-4" data-label="Objective">
+                                            <div class="fw-800 text-dark small text-start">{{ result.exam_type|title }}</div>
+                                            <div class="text-muted extra-small fw-bold text-uppercase opa-5 text-start">{{ result.date|date:"M d, Y" }}</div>
                                         </td>
-                                        <td class="small fw-800 text-dark">{{ result.score }} <span class="text-muted fw-bold">/ {{ result.max_score }}</span></td>
-                                        <td>
+                                        <td data-label="Telemetry Val" class="small fw-800 text-dark">
+                                            {{ result.score }} <span class="text-muted fw-bold">/ {{ result.max_score }}</span>
+                                        </td>
+                                        <td data-label="Mastery %">
                                             {% widthratio result.score result.max_score 100 as percentage %}
-                                            <div class="fw-800 text-primary small">{{ percentage }}% Mastery</div>
+                                            <div class="fw-800 text-primary small">{{ percentage }}% Synergy</div>
                                         </td>
-                                        <td class="text-end pe-3">
-                                            {% if percentage|add:"0" >= 80 %}
-                                                <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-a">EXCEPTIONAL</span>
-                                            {% elif percentage|add:"0" >= 60 %}
-                                                <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-c">PROFICIENT</span>
-                                            {% else %}
-                                                <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-f">CRITICAL VARIANCE</span>
-                                            {% endif %}
+                                        <td class="text-end pe-3" data-label="Status">
+                                            <div class="d-flex justify-content-end">
+                                                {% if percentage|add:"0" >= 80 %}
+                                                    <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-a">EXCEPTIONAL</span>
+                                                {% elif percentage|add:"0" >= 60 %}
+                                                    <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-c">PROFICIENT</span>
+                                                {% else %}
+                                                    <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-f">CRITICAL VARIANCE</span>
+                                                {% endif %}
+                                            </div>
                                         </td>
                                     </tr>
                                     {% endfor %}

@@ -33,17 +33,17 @@
                     <tbody>
                         {% for class in classes %}
                         <tr class="animate-fade-in" style="border-bottom: 1px solid rgba(0,0,0,0.03) !important;">
-                            <td class="ps-4 py-3">
-                                <div class="fw-800 text-dark small" style="font-size: 0.9rem;">{{ class.name }} {{ class.section }}</div>
-                                <div class="extra-small text-muted fw-bold text-uppercase opa-5">Protocol: ACAD-{{ class.id|stringformat:"03d" }}</div>
+                            <td class="ps-4 py-3" data-label="Cohort Designation">
+                                <div class="fw-800 text-dark small text-start" style="font-size: 0.9rem;">{{ class.name }} {{ class.section }}</div>
+                                <div class="extra-small text-muted fw-bold text-uppercase opa-5 text-start">Protocol: ACAD-{{ class.id|stringformat:"03d" }}</div>
                             </td>
-                            <td>
+                            <td data-label="Grade Level">
                                 <span class="badge border bg-white text-info extra-small rounded-pill px-3 py-2 fw-800 text-uppercase opa-7" style="font-size: 0.65rem; border-color: rgba(13, 202, 240, 0.2) !important;">
                                     Level {{ class.grade }}
                                 </span>
                             </td>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
+                            <td data-label="Lead Educator">
+                                <div class="d-flex align-items-center gap-2 justify-content-end justify-content-md-start">
                                     <div class="p-avatar-sm" style="background: var(--p-nexus-primary); width: 28px; height: 28px; font-size: 0.65rem;">
                                         {{ class.class_teacher.user.first_name|slice:":1"|default:"?" }}
                                     </div>
@@ -52,11 +52,11 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Entity Count">
                                 <span class="extra-small text-muted fw-800">{{ class.student_set.count }} Entities</span>
                             </td>
-                            <td class="pe-4 text-end">
-                                <div class="d-flex justify-content-end gap-3">
+                            <td class="pe-4 text-end" data-label="Operational Commands">
+                                <div class="d-flex justify-content-end gap-3 actions-mobile-fix">
                                     <a href="{% url 'class_update' class.pk %}" class="btn btn-sm p-btn-icon shadow-sm" style="width: 34px; height: 34px;" title="Modify Record">
                                         <i class="fas fa-edit text-warning" style="font-size: 0.85rem;"></i>
                                     </a>

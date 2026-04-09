@@ -45,30 +45,30 @@
                     <tbody>
                         {% for assignment in assignments %}
                         <tr class="animate-fade-in border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
-                            <td class="ps-4 py-3">
+                            <td class="ps-4 py-3" data-label="Payload Identity">
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="p-avatar-sm shadow-none" style="background: var(--p-nexus-primary); border-radius: 10px;">
+                                    <div class="p-avatar-sm shadow-none d-none d-md-flex" style="background: var(--p-nexus-primary); border-radius: 10px;">
                                         <i class="fas fa-file-alt"></i>
                                     </div>
-                                    <div>
+                                    <div class="text-start">
                                         <div class="fw-800 text-dark small" style="line-height: 1.2;">{{ assignment.title }}</div>
                                         <div class="extra-small text-muted fw-bold text-uppercase opa-5 mt-1">{{ assignment.subject.name }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Target Sector">
                                 <span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-1 fw-800 text-uppercase opa-7" style="font-size: 0.62rem;">
                                     {{ assignment.class_assigned.name }}
                                 </span>
                             </td>
-                            <td>
-                                <div class="d-flex flex-column gap-1">
+                            <td data-label="Temporal Window">
+                                <div class="d-flex flex-column gap-1 text-start text-md-start">
                                     <span class="extra-small fw-800 text-dark"><i class="far fa-clock me-1 opa-5"></i> Due: {{ assignment.due_date }}</span>
                                     <span class="extra-small text-muted fw-bold opa-5">Created: {{ assignment.created_at|date:"M d" }}</span>
                                 </div>
                             </td>
-                            <td>
-                                <div class="d-flex align-items-center gap-3" style="min-width: 150px;">
+                            <td data-label="Data Load">
+                                <div class="d-flex align-items-center gap-3" style="min-width: 120px;">
                                     <div class="progress flex-grow-1" style="height: 6px; border-radius: 10px; background: rgba(0,0,0,0.05);">
                                         {% with pct=assignment.submission_count|stringformat:"d"|add:"0" %}
                                         <div class="progress-bar {% if assignment.submission_count == 0 %}bg-secondary{% else %}bg-success{% endif %}" 
@@ -78,7 +78,7 @@
                                     <span class="fw-800 text-dark extra-small">{{ assignment.submission_count }} Hits</span>
                                 </div>
                             </td>
-                            <td class="pe-4 text-end">
+                            <td class="pe-4 text-end" data-label="Operations">
                                 <div class="d-flex justify-content-end gap-2">
                                     <a href="{% url 'grade_submissions' assignment.id %}" class="btn btn-sm btn-icon shadow-sm" style="width: 32px; height: 32px;" title="Evaluate Submissions">
                                         <i class="fas fa-tasks text-primary" style="font-size: 0.75rem;"></i>
