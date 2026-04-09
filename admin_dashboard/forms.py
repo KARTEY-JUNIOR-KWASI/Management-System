@@ -25,6 +25,7 @@ class StudentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['student_id'].required = False
         if self.instance and self.instance.pk:
             self.fields['first_name'].initial = self.instance.user.first_name
             self.fields['last_name'].initial = self.instance.user.last_name
@@ -32,6 +33,8 @@ class StudentForm(forms.ModelForm):
 
     def clean_student_id(self):
         student_id = self.cleaned_data.get('student_id')
+        if not student_id:
+            return None
         if not self.instance.pk:
             if User.objects.filter(username=student_id).exists():
                 raise forms.ValidationError(f'A user with ID "{student_id}" already exists.')
@@ -40,10 +43,7 @@ class StudentForm(forms.ModelForm):
         return student_id
 
     def clean(self):
-        cleaned_data = super().clean()
-        if not self.instance.pk and not cleaned_data.get('password'):
-            self.add_error('password', 'Password is required when creating a new student.')
-        return cleaned_data
+        return super().clean()
 
     def save(self, commit=True):
         if self.instance and self.instance.pk:
@@ -106,6 +106,7 @@ class TeacherForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['teacher_id'].required = False
         if self.instance and self.instance.pk:
             user = self.instance.user
             self.fields['first_name'].initial = user.first_name
@@ -119,16 +120,15 @@ class TeacherForm(forms.ModelForm):
 
     def clean_teacher_id(self):
         teacher_id = self.cleaned_data.get('teacher_id')
+        if not teacher_id:
+            return None
         if not self.instance.pk:
             if User.objects.filter(username=teacher_id).exists():
                 raise forms.ValidationError(f'Teacher ID "{teacher_id}" already exists.')
         return teacher_id
 
     def clean(self):
-        cleaned_data = super().clean()
-        if not self.instance.pk and not cleaned_data.get('password'):
-            self.add_error('password', 'Password is required for new teacher.')
-        return cleaned_data
+        return super().clean()
 
     def save(self, commit=True):
         if self.instance and self.instance.pk:

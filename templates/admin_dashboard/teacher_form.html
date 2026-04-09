@@ -111,24 +111,32 @@
                                 {% render_field form.email class="form-control nexus-input-terminal px-3 fw-medium" placeholder="teacher@school.edu" style="height: 45px;" %}
                                 {% if form.email.errors %}<div class="extra-small text-danger fw-bold mt-1">{{ form.email.errors|join:", " }}</div>{% endif %}
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Teacher Identity <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    {% render_field form.teacher_id class="form-control nexus-input-terminal px-3 fw-medium" id="id_teacher_id" placeholder="TCHXXXXX" style="height: 45px;" %}
-                                    {% if not form.instance.pk %}
-                                    <button class="btn btn-dark fw-bold extra-small px-3" type="button" onclick="generateTeacherId()" style="border-radius: 0 10px 10px 0;">
-                                        <i class="fas fa-terminal"></i>
-                                    </button>
-                                    {% endif %}
+                            <!-- Institutional Credentials Logic -->
+                            {% if not form.instance.pk %}
+                            <div class="col-12">
+                                <div class="nexus-glass-card p-4 d-flex align-items-center gap-4 mb-2" style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2);">
+                                    <div class="p-avatar shadow-none" style="background: var(--p-nexus-primary); width: 50px; height: 50px; font-size: 1.2rem;">
+                                        <i class="fas fa-microchip"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-800 mb-1" style="color: var(--primary);">Automated Protocol Initiation</h6>
+                                        <p class="text-muted extra-small mb-0 fw-medium">Universal ID and root access credentials will be <strong>hydrated automatically</strong> by the Institutional Core upon successful registry commit.</p>
+                                    </div>
                                 </div>
-                                {% if form.teacher_id.errors %}<div class="extra-small text-danger fw-bold mt-1">{{ form.teacher_id.errors|join:", " }}</div>{% endif %}
                             </div>
-                            <div class="col-12 mt-4">
-                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Access Password {% if not form.instance.pk %}<span class="text-danger">*</span>{% endif %}</label>
-                                {% render_field form.password class="form-control nexus-input-terminal px-3 fw-medium" placeholder="Secure hash configuration" style="height: 45px;" %}
-                                <div class="extra-small text-muted mt-1 fw-bold text-uppercase opa-5"><i class="fas fa-shield-alt me-1"></i> Synchronized encryption applied</div>
+                            {% else %}
+                            <div class="col-md-6">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Teacher Identity</label>
+                                {% render_field form.teacher_id class="form-control nexus-input-terminal px-3 fw-medium bg-light" readonly="readonly" style="height: 45px;" %}
+                                <div class="extra-small text-muted mt-1 fw-bold text-uppercase opa-5"><i class="fas fa-fingerprint me-1"></i> Static Institutional Identifier</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Access Password</label>
+                                {% render_field form.password class="form-control nexus-input-terminal px-3 fw-medium" placeholder="Update secure hash..." style="height: 45px;" %}
+                                <div class="extra-small text-muted mt-1 fw-bold text-uppercase opa-5"><i class="fas fa-lock me-1"></i> Leave empty to maintain current encryption</div>
                                 {% if form.password.errors %}<div class="extra-small text-danger fw-bold mt-1">{{ form.password.errors|join:", " }}</div>{% endif %}
                             </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
