@@ -79,7 +79,14 @@
         
         <nav class="mt-5 flex-1 px-4 space-y-1">
           <!-- Desktop Nav Links -->
-          <a href="{% url 'admin_dashboard' if user.role == 'admin' else 'teacher_dashboard' if user.role == 'teacher' else 'student_dashboard' %}" 
+          {% if user.role == 'admin' %}
+            {% url 'admin_dashboard' as dash_url %}
+          {% elif user.role == 'teacher' %}
+            {% url 'teacher_dashboard' as dash_url %}
+          {% else %}
+            {% url 'student_dashboard' as dash_url %}
+          {% endif %}
+          <a href="{{ dash_url }}" 
              class="group flex items-center px-4 py-3 text-sm font-bold rounded-2xl {% if 'dashboard' in request.resolver_match.url_name %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50{% endif %} transition-all">
             <i data-lucide="layout-grid" class="mr-3 h-5 w-5"></i>
             Dashboard
