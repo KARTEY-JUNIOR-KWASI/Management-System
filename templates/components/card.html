@@ -1,0 +1,16 @@
+<!-- templates/components/card.html -->
+<div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 {{ extra_classes }}">
+  {% if title %}
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-bold text-gray-800 tracking-tight">{{ title }}</h3>
+      {% if action_url %}
+        <a href="{{ action_url }}" class="text-indigo-600 text-xs font-bold uppercase tracking-wider hover:opacity-70 transition-opacity">
+          {{ action_text|default:"View All" }}
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+  <div class="card-content">
+    {{ content|safe }}
+  </div>
+</div>

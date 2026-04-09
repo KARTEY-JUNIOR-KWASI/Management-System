@@ -1,474 +1,165 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-gray-50">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="School Management System — manage students, teachers, grades, attendance, and more.">
-  <title>{% block title %}School Management System{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="EduMS — Advanced Institutional Intelligence Nexus.">
+  <title>{% block title %}EduMS Intelligence{% endblock %}</title>
+  
+  <!-- Fonts: Outfit for titles, Inter for body -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            primary: '#4f46e5',
+            secondary: '#10b981',
+          },
+          borderRadius: {
+            '3xl': '1.5rem',
+            '4xl': '2rem',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
   {% load static %}
+  <!-- Fallback/Legacy styles if needed -->
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  
+  <style>
+    [x-cloak] { display: none !important; }
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    body {
+      -webkit-tap-highlight-color: transparent;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+    /* Simple fade in animation for cards */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-card { animation: fadeInUp 0.5s ease-out both; }
+  </style>
+  
   {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="h-full font-sans text-gray-900 antialiased overflow-x-hidden">
 
 {% if user.is_authenticated %}
-
-  <!-- ══════════════════════════════════════
-       SIDEBAR
-  ══════════════════════════════════════ -->
-  <aside class="sms-sidebar" id="smsSidebar">
-
-    <!-- Logo -->
-    <div class="sidebar-logo">
-      {% if school_config.logo %}
-        <img src="{{ school_config.logo.url }}" alt="{{ school_config.name }}" style="height: 40px; width: auto;">
-      {% else %}
-        <div class="auth-logo" style="font-size: 1.5rem;">{{ school_config.name|slice:":3" }}<span>{{ school_config.name|slice:"3:5" }}</span></div>
-      {% endif %}
-      <div class="logo-text" style="margin-left: 10px;">{{ school_config.name|truncatechars:10 }}</div>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="sidebar-nav">
-
-      {% if user.role == 'admin' %}
-        <p class="sidebar-section-label">Main</p>
-
-        <div class="sidebar-item">
-          <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
-            <i class="fas fa-th-large"></i> Dashboard
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <div class="sidebar-link" id="toggle-students" onclick="toggleSubmenu('sub-students', this)">
-            <i class="fas fa-user-graduate"></i> Students
-            <i class="fas fa-chevron-right chevron"></i>
+  <div class="flex flex-col min-h-screen">
+    
+    <!-- Desktop Sidebar (Hidden on Mobile) -->
+    <aside class="hidden lg:flex lg:flex-shrink-0 lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-gray-100 bg-white">
+      <div class="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
+        <div class="flex items-center flex-shrink-0 px-6 gap-3 mb-8">
+          <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-200">
+            {{ school_config.name|slice:":1" }}
           </div>
-          <div class="sidebar-submenu" id="sub-students">
-            <a href="{% url 'student_list' %}" class="sidebar-link">All Students</a>
-            <a href="{% url 'student_create' %}" class="sidebar-link">Add Student</a>
+          <span class="font-display font-bold text-xl tracking-tight">{{ school_config.name|truncatechars:10 }}</span>
+        </div>
+        
+        <nav class="mt-5 flex-1 px-4 space-y-1">
+          <!-- Desktop Nav Links -->
+          <a href="{% url 'admin_dashboard' if user.role == 'admin' else 'teacher_dashboard' if user.role == 'teacher' else 'student_dashboard' %}" 
+             class="group flex items-center px-4 py-3 text-sm font-bold rounded-2xl {% if 'dashboard' in request.resolver_match.url_name %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50{% endif %} transition-all">
+            <i data-lucide="layout-grid" class="mr-3 h-5 w-5"></i>
+            Dashboard
+          </a>
+          
+          {% if user.role == 'admin' %}
+            <a href="{% url 'student_list' %}" class="group flex items-center px-4 py-3 text-sm font-bold text-gray-500 rounded-2xl hover:bg-gray-50 transition-all">
+              <i data-lucide="users" class="mr-3 h-5 w-5"></i>
+              Registry
+            </a>
+            <a href="{% url 'finance:finance_hub' %}" class="group flex items-center px-4 py-3 text-sm font-bold text-gray-500 rounded-2xl hover:bg-gray-50 transition-all">
+              <i data-lucide="wallet" class="mr-3 h-5 w-5"></i>
+              Treasury
+            </a>
+          {% endif %}
+          
+          <a href="{% url 'analytics:analytics_dashboard' %}" class="group flex items-center px-4 py-3 text-sm font-bold text-gray-500 rounded-2xl hover:bg-gray-50 transition-all">
+            <i data-lucide="bar-chart-3" class="mr-3 h-5 w-5"></i>
+            Intelligence
+          </a>
+        </nav>
+      </div>
+      
+      <div class="flex-shrink-0 flex border-t border-gray-100 p-4">
+        <a href="{% url 'profile' %}" class="flex-shrink-0 w-full group block">
+          <div class="flex items-center">
+            <div class="inline-block h-9 w-9 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold uppercase">
+              {{ user.get_full_name|slice:":1" }}
+            </div>
+            <div class="ml-3">
+              <p class="text-xs font-bold text-gray-700 group-hover:text-gray-900">{{ user.get_full_name }}</p>
+              <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">{{ user.role }}</p>
+            </div>
           </div>
-        </div>
-
-        <div class="sidebar-item">
-          <div class="sidebar-link" id="toggle-teachers" onclick="toggleSubmenu('sub-teachers', this)">
-            <i class="fas fa-chalkboard-teacher"></i> Teachers
-            <i class="fas fa-chevron-right chevron"></i>
-          </div>
-          <div class="sidebar-submenu" id="sub-teachers">
-            <a href="{% url 'teacher_list' %}" class="sidebar-link">All Teachers</a>
-            <a href="{% url 'teacher_create' %}" class="sidebar-link">Add Teacher</a>
-          </div>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'class_list' %}" class="sidebar-link">
-            <i class="fas fa-school"></i> Classes
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'subject_list' %}" class="sidebar-link">
-            <i class="fas fa-book"></i> Subjects
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'manage_timetable' %}" class="sidebar-link">
-            <i class="fas fa-calendar-alt"></i> Timetables
-          </a>
-        </div>
-
-        <p class="sidebar-section-label">Analytics</p>
-
-        <div class="sidebar-item">
-          <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-link">
-            <i class="fas fa-chart-line"></i> Analytics
-          </a>
-        </div>
-
-        <p class="sidebar-section-label">Academics</p>
-        <div class="sidebar-item">
-          <a href="{% url 'academic_diagnostics' %}" class="sidebar-link {% if request.resolver_match.url_name == 'academic_diagnostics' %}active{% endif %}">
-            <i class="fas fa-chart-pie"></i> Academic Intelligence
-          </a>
-        </div>
-
-        <p class="sidebar-section-label">Finance</p>
-        <div class="sidebar-item">
-          <a href="{% url 'finance:finance_hub' %}" class="sidebar-link {% if 'finance' in request.resolver_match.namespace %}active{% endif %}">
-            <i class="fas fa-wallet"></i> Finance Hub
-          </a>
-        </div>
-
-        <p class="sidebar-section-label">System</p>
-
-        <div class="sidebar-item">
-          <a href="{% url 'system_settings' %}" class="sidebar-link {% if request.resolver_match.url_name == 'system_settings' %}active{% endif %}">
-            <i class="fas fa-cogs"></i> Settings
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'audit_logs' %}" class="sidebar-link {% if request.resolver_match.url_name == 'audit_logs' %}active{% endif %}">
-            <i class="fas fa-shield-alt"></i> Audit Logs
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'profile' %}" class="sidebar-link">
-            <i class="fas fa-user-circle"></i> Profile
-          </a>
-        </div>
-
-      {% elif user.role == 'teacher' %}
-        <p class="sidebar-section-label">Main</p>
-
-        <div class="sidebar-item">
-          <a href="{% url 'teacher_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
-            <i class="fas fa-th-large"></i> Dashboard
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'teacher_timetable' %}" class="sidebar-link {% if request.resolver_match.url_name == 'teacher_timetable' %}active{% endif %}">
-            <i class="fas fa-calendar-alt"></i> My Timetable
-          </a>
-        </div>
-
-        <p class="sidebar-section-label">Manage</p>
-
-        <div class="sidebar-item">
-          <a href="{% url 'mark_attendance' %}" class="sidebar-link">
-            <i class="fas fa-calendar-check"></i> Attendance
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'manage_grades' %}" class="sidebar-link">
-            <i class="fas fa-graduation-cap"></i> Grades
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <div class="sidebar-link" onclick="toggleSubmenu('sub-assignments', this)">
-            <i class="fas fa-tasks"></i> Assignments
-            <i class="fas fa-chevron-right chevron"></i>
-          </div>
-          <div class="sidebar-submenu" id="sub-assignments">
-            <a href="{% url 'create_assignment' %}" class="sidebar-link">Create New</a>
-            <a href="{% url 'manage_assignments' %}" class="sidebar-link">Manage Assignments</a>
-          </div>
-        </div>
-
-        <p class="sidebar-section-label">Reports</p>
-
-        <div class="sidebar-item">
-          <a href="{% url 'attendance_report' %}" class="sidebar-link">
-            <i class="fas fa-chart-bar"></i> Attendance Report
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'grade_report' %}" class="sidebar-link">
-            <i class="fas fa-chart-line"></i> Grade Report
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-link">
-            <i class="fas fa-brain"></i> Analytics
-          </a>
-        </div>
-
-        <p class="sidebar-section-label">Library</p>
-
-        <div class="sidebar-item">
-          <div class="sidebar-link" onclick="toggleSubmenu('sub-library-t', this)">
-            <i class="fas fa-book-open"></i> Library
-            <i class="fas fa-chevron-right chevron"></i>
-          </div>
-          <div class="sidebar-submenu" id="sub-library-t">
-            <a href="{% url 'teacher_library' %}" class="sidebar-link">My Resources</a>
-            <a href="{% url 'upload_resource' %}" class="sidebar-link">Upload Resource</a>
-          </div>
-        </div>
-
-        <p class="sidebar-section-label">Account</p>
-
-        <div class="sidebar-item">
-          <a href="{% url 'profile' %}" class="sidebar-link">
-            <i class="fas fa-user-circle"></i> Profile
-          </a>
-        </div>
-
-      {% elif user.role == 'student' %}
-        <p class="sidebar-section-label">Main</p>
-
-        <div class="sidebar-item">
-          <a href="{% url 'student_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
-            <i class="fas fa-th-large"></i> Dashboard
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'student_timetable' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_timetable' %}active{% endif %}">
-            <i class="fas fa-calendar-alt"></i> My Timetable
-          </a>
-        </div>
-
-        <p class="sidebar-section-label">My Academics</p>
-
-        <div class="sidebar-item">
-          <a href="{% url 'view_grades' %}" class="sidebar-link">
-            <i class="fas fa-graduation-cap"></i> My Grades
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'view_attendance' %}" class="sidebar-link">
-            <i class="fas fa-calendar-check"></i> Attendance
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'view_assignments' %}" class="sidebar-link">
-            <i class="fas fa-book-open"></i> Assignments
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'student_library' %}" class="sidebar-link {% if request.resolver_match.url_name == 'student_library' or request.resolver_match.url_name == 'view_resource' %}active{% endif %}">
-            <i class="fas fa-book-reader"></i> Library
-          </a>
-        </div>
-
-        <div class="sidebar-item">
-          <a href="{% url 'analytics:analytics_dashboard' %}" class="sidebar-link">
-            <i class="fas fa-chart-line"></i> My Analytics
-          </a>
-        </div>
-
-        <p class="sidebar-section-label">Account</p>
-
-        <div class="sidebar-item">
-          <a href="{% url 'profile' %}" class="sidebar-link">
-            <i class="fas fa-user-circle"></i> Profile
-          </a>
-        </div>
-
-      {% endif %}
-
-      <div style="margin-top:1rem;">
-        <a href="{% url 'account_logout' %}" class="sidebar-link" style="color:#e17;opacity:0.75;">
-          <i class="fas fa-sign-out-alt"></i> Logout
         </a>
       </div>
+    </aside>
 
-    </nav>
-  </aside>
+    <!-- Main Content Area -->
+    <div class="lg:pl-64 flex flex-col flex-1">
+      
+      <!-- Component: Header -->
+      {% include 'components/header.html' with title=block_title subtitle="System Protocol Active" %}
 
-  <!-- ══════════════════════════════════════
-       MAIN WRAPPER
-  ══════════════════════════════════════ -->
-  <div class="sms-main-wrapper">
-
-    <!-- Topbar -->
-    <header class="sms-topbar">
-      <button class="topbar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-        <i class="fas fa-bars"></i>
-      </button>
-
-      <span class="topbar-school-name">Intelligence Portal Protocol [{{ school_config.name }}]</span>
-
-      <!-- Search -->
-      <div class="topbar-search">
-        <i class="fas fa-search"></i>
-        <input type="text" placeholder="Search here...">
-      </div>
-
-      <!-- Icons -->
-      <div class="topbar-icons">
-        <div class="topbar-icon-wrapper" style="position:relative;">
-          <button class="topbar-icon-btn" title="Notifications" onclick="document.getElementById('notifDropdown').classList.toggle('show')">
-            <i class="fas fa-bell"></i>
-            {% if unread_notifications_count > 0 %}
-            <span class="topbar-badge">{{ unread_notifications_count }}</span>
-            {% endif %}
-          </button>
-          <div class="topbar-dropdown" id="notifDropdown" style="width: 300px; right: 0; left: auto; padding: 0;">
-            <div style="padding: 1rem; border-bottom: 1px solid #e2e8f0;">
-              <h6 style="margin:0; font-weight:700;">Notifications</h6>
-            </div>
-            <div style="max-height: 300px; overflow-y: auto;">
-              {% for num in unread_notifications %}
-                <a href="{% url 'analytics:notifications_list' %}" style="display:block; padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9; text-decoration: none; color: inherit;">
-                  <div style="font-weight: 600; font-size: 0.85rem;">{{ num.title }}</div>
-                  <div style="font-size: 0.75rem; color: #64748b; margin-top:0.25rem;">{{ num.message|truncatechars:40 }}</div>
-                  <div style="font-size: 0.7rem; color: #94a3b8; margin-top:0.25rem;">{{ num.created_at|timesince }} ago</div>
-                </a>
-              {% empty %}
-                <div style="padding: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.85rem;">
-                  No new notifications
+      <main class="flex-1 pb-32 lg:pb-8">
+        <div class="py-6 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+          
+          <!-- Flash Messages -->
+          {% if messages %}
+            <div class="space-y-3 mb-6">
+              {% for message in messages %}
+                <div class="p-4 rounded-2xl flex items-center gap-3 animate-fade-in shadow-sm {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-100{% else %}bg-green-50 text-green-700 border border-green-100{% endif %}">
+                  <i data-lucide="{% if message.tags == 'error' %}alert-circle{% else %}check-circle{% endif %}" class="w-5 h-5"></i>
+                  <p class="text-sm font-bold">{{ message }}</p>
                 </div>
               {% endfor %}
             </div>
-            <div style="padding: 0.5rem; text-align: center; border-top: 1px solid #e2e8f0; background: #f8fafc;">
-              <a href="{% url 'analytics:notifications_list' %}" style="font-size: 0.8rem; font-weight: 600; color: var(--primary-color); text-decoration: none;">View All</a>
-            </div>
-          </div>
+          {% endif %}
+
+          {% block content %}{% endblock %}
         </div>
-        <button class="topbar-icon-btn" title="Messages">
-          <i class="fas fa-envelope"></i>
-        </button>
-      </div>
+      </main>
 
-      <!-- User -->
-      <div class="topbar-user" id="topbarUser" onclick="toggleUserDropdown()">
-        <div class="topbar-avatar">
-          {{ user.get_full_name|default:user.username|slice:":2"|upper }}
-        </div>
-        <div class="topbar-user-info">
-          <div class="topbar-user-name">{{ user.get_full_name|default:user.username|truncatechars:14 }}</div>
-          <div class="topbar-user-role">{{ user.role|capfirst }}</div>
-        </div>
-        <i class="fas fa-chevron-down" style="font-size:0.65rem; color:#aab4be; margin-left:0.3rem;"></i>
-
-        <div class="topbar-dropdown" id="topbarDropdown">
-          <a href="{% url 'profile' %}"><i class="fas fa-user"></i> Profile</a>
-          <hr>
-          <form method="POST" action="{% url 'account_logout' %}" id="logout-form" class="logout-form">
-            {% csrf_token %}
-            <button type="submit" class="logout-link logout-btn">
-              <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-          </form>
-        </div>
-      </div>
-    </header>
-
-    <!-- Flash Messages -->
-    <!-- Page Content -->
-    <main class="sms-content">
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert-akkhor alert-{{ message.tags }} animate-fade-up">
-            <i class="fas fa-info-circle"></i>
-            {{ message }}
-            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
-          </div>
-        {% endfor %}
-      {% endif %}
-
-      {% block content %}{% endblock %}
-    </main>
-
-    <!-- ──────────────────────────────────────────────────
-         MOBILE BOTTOM NAVIGATION (ECG Inspired)
-    ────────────────────────────────────────────────── -->
-    <nav class="mobile-bottom-nav">
-      {% if user.role == 'admin' %}
-        <a href="{% url 'admin_dashboard' %}" class="m-nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
-          <i class="fas fa-home"></i> <span>Home</span>
-        </a>
-        <a href="{% url 'analytics:analytics_dashboard' %}" class="m-nav-item">
-          <i class="fas fa-brain"></i> <span>Intel</span>
-        </a>
-        <a href="{% url 'student_list' %}" class="m-nav-item">
-          <i class="fas fa-user-graduate"></i> <span>Registry</span>
-        </a>
-        <a href="{% url 'finance:finance_hub' %}" class="m-nav-item">
-          <i class="fas fa-wallet"></i> <span>Finance</span>
-        </a>
-      {% elif user.role == 'teacher' %}
-        <a href="{% url 'teacher_dashboard' %}" class="m-nav-item {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
-          <i class="fas fa-home"></i> <span>Home</span>
-        </a>
-        <a href="{% url 'mark_attendance' %}" class="m-nav-item">
-          <i class="fas fa-calendar-check"></i> <span>Attend</span>
-        </a>
-        <a href="{% url 'manage_grades' %}" class="m-nav-item">
-          <i class="fas fa-graduation-cap"></i> <span>Grades</span>
-        </a>
-        <a href="{% url 'manage_assignments' %}" class="m-nav-item">
-          <i class="fas fa-tasks"></i> <span>Tasks</span>
-        </a>
-      {% elif user.role == 'student' %}
-        <a href="{% url 'student_dashboard' %}" class="m-nav-item {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
-          <i class="fas fa-home"></i> <span>Home</span>
-        </a>
-        <a href="{% url 'view_grades' %}" class="m-nav-item">
-          <i class="fas fa-chart-line"></i> <span>Grades</span>
-        </a>
-        <a href="{% url 'view_assignments' %}" class="m-nav-item">
-          <i class="fas fa-book-reader"></i> <span>Tasks</span>
-        </a>
-        <a href="{% url 'student_library' %}" class="m-nav-item">
-          <i class="fas fa-layer-group"></i> <span>Library</span>
-        </a>
-      {% endif %}
+      <!-- Component: Bottom Nav (Mobile Only) -->
+      {% include 'components/bottom_nav.html' %}
       
-      <a href="#" class="m-nav-item" id="mobile-menu-trigger">
-        <i class="fas fa-bars"></i> <span>Menu</span>
-      </a>
-    </nav>
-
-  </div><!-- end .sms-main-wrapper -->
+    </div>
+  </div>
 
 {% else %}
-  {% block noauth_content %}{% endblock %}
+  <div class="min-h-screen bg-gray-50 font-sans">
+    {% block noauth_content %}{% endblock %}
+  </div>
 {% endif %}
 
+<!-- Initialize Lucide Icons -->
 <script>
-  function toggleSubmenu(id, el) {
-    const sub = document.getElementById(id);
-    if (!sub) return;
-    const isOpen = sub.classList.contains('open');
-    document.querySelectorAll('.sidebar-submenu').forEach(s => s.classList.remove('open'));
-    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('open'));
-    if (!isOpen) {
-      sub.classList.add('open');
-      el.classList.add('open');
-    }
-  }
-
-  const sidebarToggle = document.getElementById('sidebarToggle');
-  const mobileMenuTrigger = document.getElementById('mobile-menu-trigger'); // bottom nav button
-  const sidebar = document.getElementById('smsSidebar');
-
-  function toggleSidebar() {
-    if (sidebar) sidebar.classList.toggle('open');
-  }
-
-  if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
-  if (mobileMenuTrigger) mobileMenuTrigger.addEventListener('click', (e) => {
-    e.preventDefault();
-    toggleSidebar();
-  });
-
-  function toggleUserDropdown() {
-    const d = document.getElementById('topbarDropdown');
-    if (d) d.classList.toggle('open');
-  }
-  document.addEventListener('click', (e) => {
-    const d = document.getElementById('topbarDropdown');
-    const u = document.getElementById('topbarUser');
-    if (d && u && !u.contains(e.target)) d.classList.remove('open');
-  });
-
-  document.addEventListener('click', (e) => {
-    if (window.innerWidth < 900) {
-      if (sidebar && !sidebar.contains(e.target) && sidebarToggle && !sidebarToggle.contains(e.target)) {
-        sidebar.classList.remove('open');
-      }
-    }
-  });
+  lucide.createIcons();
 </script>
+
 {% block extra_js %}{% endblock %}
 </body>
 </html>

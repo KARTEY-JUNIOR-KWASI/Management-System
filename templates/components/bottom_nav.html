@@ -1,0 +1,26 @@
+<!-- templates/components/bottom_nav.html -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-gray-100 px-2 py-2 flex justify-around items-center z-50 rounded-t-3xl shadow-[0_-10px_30px_rgba(0,0,0,0.05)] md:hidden">
+  <a href="{% url 'admin_dashboard' if user.role == 'admin' else 'teacher_dashboard' if user.role == 'teacher' else 'student_dashboard' %}" 
+     class="flex flex-col items-center gap-1 p-2 {% if request.resolver_match.url_name == 'admin_dashboard' or request.resolver_match.url_name == 'teacher_dashboard' or request.resolver_match.url_name == 'student_dashboard' %}text-indigo-600{% else %}text-gray-400{% endif %}">
+    <i data-lucide="home" class="w-6 h-6"></i>
+    <span class="text-[10px] font-bold">Home</span>
+  </a>
+  
+  <a href="{% url 'analytics:analytics_dashboard' %}" 
+     class="flex flex-col items-center gap-1 p-2 text-gray-400">
+    <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+    <span class="text-[10px] font-bold">Intel</span>
+  </a>
+  
+  <a href="{% url 'finance:finance_hub' %}" 
+     class="flex flex-col items-center gap-1 p-2 text-gray-400">
+    <i data-lucide="wallet" class="w-6 h-6"></i>
+    <span class="text-[10px] font-bold">Treasury</span>
+  </a>
+  
+  <a href="{% url 'profile' %}" 
+     class="flex flex-col items-center gap-1 p-2 text-gray-400">
+    <i data-lucide="user-circle" class="w-6 h-6"></i>
+    <span class="text-[10px] font-bold">Profile</span>
+  </a>
+</nav>

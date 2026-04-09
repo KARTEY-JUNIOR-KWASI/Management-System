@@ -1,284 +1,125 @@
 {% extends 'base.html' %}
-{% load static %}
-
-{% block title %}My Intelligence Dashboard — EduMS{% endblock %}
-
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
-<style>
-    .dashboard-header { margin-bottom: 2.5rem; }
-    .main-canvas-area { padding-top: 1.5rem; }
-    
-    /* Animation Delays */
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
-    .delay-4 { animation-delay: 0.4s; }
-
-    .prediction-card { height: 100%; display: flex; flex-direction: column; }
-    
-    .insight-node {
-        background: rgba(255, 255, 255, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .insight-node:hover {
-        background: rgba(255, 255, 255, 0.7);
-        transform: translateX(5px);
-        border-color: var(--p-nexus-primary);
-    }
-</style>
-{% endblock %}
+{% block title %}My Academic Nexus — EduMS{% endblock %}
 
 {% block content %}
-<div class="container-fluid main-canvas-area">
+<div class="space-y-6">
+
+  <!-- ── Global Academic Diagnostics (Stats) ────────────────────────── -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-card">
+    <div class="bg-indigo-600 rounded-3xl p-5 text-white shadow-xl shadow-indigo-100 relative overflow-hidden">
+      <div class="relative z-10">
+        <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-1">Mastery Index</p>
+        <h3 class="text-3xl font-display font-black">{{ gpa|floatformat:2 }}</h3>
+      </div>
+      <i data-lucide="zap" class="absolute -bottom-2 -right-2 w-16 h-16 text-white/10 rotate-12"></i>
+    </div>
     
-    <!-- Header -->
-    <div class="dashboard-header d-flex justify-content-between align-items-end animate-fade-up">
-        <div>
-            <h1 class="page-title with-sub mb-0">My Intelligence Hub</h1>
-            <p class="page-subtitle mb-0">Personalized mastery diagnostics & academic forecasting.</p>
-        </div>
-        <div class="actions">
-            <a href="{% url 'analytics:generate_report' %}" class="btn btn-sm nexus-glass-card shadow-sm border px-3 fw-800 extra-small">
-                <i class="fas fa-file-pdf text-danger me-2"></i> EXPORT TRANSCRIPT
-            </a>
-        </div>
+    <div class="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm">
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Presence</p>
+      <h3 class="text-2xl font-display font-extrabold text-gray-800">{{ attendance_percentage|floatformat:1 }}%</h3>
+      <div class="w-full bg-gray-100 h-1 rounded-full mt-3 overflow-hidden">
+        <div class="bg-green-500 h-full transition-all" style="width: {{ attendance_percentage }}%"></div>
+      </div>
     </div>
 
-    <!-- Stat Grid -->
-    <div class="row mb-5">
-        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up">
-            <div class="nexus-glass-card h-100 p-4">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="p-avatar-lg" style="background: var(--p-nexus-primary);">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div>
-                        <div class="fw-800 h3 mb-0">{{ gpa|floatformat:2 }}</div>
-                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Mastery Index</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
-            <div class="nexus-glass-card h-100 p-4">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="p-avatar-lg" style="background: var(--p-nexus-success);">
-                        <i class="fas fa-fingerprint"></i>
-                    </div>
-                    <div>
-                        <div class="fw-800 h3 mb-0">{{ attendance_percentage|floatformat:1 }}%</div>
-                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Presence Meta</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-2">
-            <div class="nexus-glass-card h-100 p-4">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="p-avatar-lg" style="background: var(--p-nexus-warning);">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <div>
-                        <div class="fw-800 h3 mb-0">{{ performance_data.assignment_completion_rate|floatformat:0 }}%</div>
-                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Fulfillment</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-3">
-            <div class="nexus-glass-card h-100 p-4">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="p-avatar-lg" style="background: var(--p-nexus-dark);">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <div>
-                        <div class="fw-800 h3 mb-0">{{ insights.count }}</div>
-                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Active Insights</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- ── Student Service Hub ────────────────────────────────── -->
-    <div class="col-12 mb-5">
-        <div class="row g-4">
-            <div class="col-xl-8">
-                <div class="service-grid">
-                    <a href="{% url 'view_grades' %}" class="service-tile tile-blue">
-                        <i class="fas fa-chart-bar"></i>
-                        <div>
-                            <h6>Academic Transcript</h6>
-                            <p>Sector mastery & assessment records.</p>
-                        </div>
-                    </a>
-                    
-                    <a href="{% url 'view_assignments' %}" class="service-tile tile-purple">
-                        <i class="fas fa-book-open"></i>
-                        <div>
-                            <h6>Assignment Vault</h6>
-                            <p>Upcoming tasks & mission files.</p>
-                        </div>
-                    </a>
-
-                    <a href="{% url 'student_library' %}" class="service-tile tile-teal">
-                        <i class="fas fa-layer-group"></i>
-                        <div>
-                            <h6>Resource Library</h6>
-                            <p>Digital archives and study modules.</p>
-                        </div>
-                    </a>
-
-                    <a href="#" class="service-tile tile-amber">
-                        <i class="fas fa-calendar-alt"></i>
-                        <div>
-                            <h6>Daily Agenda</h6>
-                            <p>Time-sector synchronization.</p>
-                        </div>
-                    </a>
-
-                    <a href="{% url 'analytics:generate_report' %}" class="service-tile tile-green">
-                        <i class="fas fa-file-download"></i>
-                        <div>
-                            <h6>Export Unit</h6>
-                            <p>Generate performance summary.</p>
-                        </div>
-                    </a>
-
-                    <a href="#" class="service-tile tile-red">
-                        <i class="fas fa-headset"></i>
-                        <div>
-                            <h6>Support Node</h6>
-                            <p>Direct contact with sector admins.</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-
-            <div class="col-xl-4">
-                <!-- Mastery Forecast (Visual Summary) -->
-                <div class="nexus-glass-card h-100 p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="fw-800 m-0" style="letter-spacing: -0.5px;"><i class="fas fa-chart-area text-info me-2"></i> Mastery Forecast</h5>
-                    </div>
-                    <div style="height: 250px;">
-                        <canvas id="predictionChart"></canvas>
-                    </div>
-                    <div class="mt-4 p-3 rounded-4" style="background: rgba(0, 163, 255, 0.05); border: 1px solid rgba(0, 163, 255, 0.1);">
-                        <p class="text-muted mb-0" style="font-size: 0.7rem;">
-                            <i class="fas fa-info-circle text-info me-2"></i> Real-time forecast based on current sector performance.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hidden lg:block">
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fulfillment</p>
+      <h3 class="text-2xl font-display font-extrabold text-gray-800">{{ performance_data.assignment_completion_rate|floatformat:0 }}%</h3>
     </div>
 
-    <!-- Active Objectives (Upcoming) -->
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="nexus-glass-card p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-                    <h5 class="fw-800 m-0" style="letter-spacing: -0.5px;"><i class="fas fa-tasks text-primary me-2"></i> Critical Objectives</h5>
-                    <a href="{% url 'view_assignments' %}" class="btn btn-sm btn-light border px-4 fw-800 extra-small rounded-pill">VIEW ALL MISSION FILES</a>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 nexus-premium-table">
-                        <tbody>
-                            {% for assignment in upcoming_assignments|slice:":5" %}
-                            <tr class="border-0">
-                                <td class="ps-0 py-3">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="p-avatar-sm" style="background: #e0f2fe; color: #0369a1;">
-                                            <i class="fas fa-file-alt"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-800 text-dark small">{{ assignment.title }}</div>
-                                            <div class="extra-small text-muted fw-bold">{{ assignment.subject.name }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-center">
-                                    <div class="extra-small fw-800 text-uppercase text-muted opa-7 mb-1">Impact Deadline</div>
-                                    <div class="small fw-bold text-dark">{{ assignment.due_date|date:"F d, Y" }}</div>
-                                </td>
-                                <td class="text-end pe-0">
-                                    <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-primary rounded-pill px-4 fw-800 extra-small shadow-sm border-0">SUBMIT</a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="3" class="text-center py-5 text-muted opa-5 fw-medium">No pending objectives found. Optimal focus maintained.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+    <div class="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm">
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Insights</p>
+      <h3 class="text-2xl font-display font-extrabold text-indigo-600">{{ insights.count }}</h3>
     </div>
+  </div>
+
+  <!-- ── Operational Hub (Action Grid) ────────────────────────── -->
+  <section class="animate-card" style="animation-delay: 0.1s;">
+    {% with student_actions=actions_data|default:default_student_actions %}
+      {% include 'components/action_grid.html' with actions=student_actions %}
+    {% endwith %}
+  </section>
+
+  <!-- ── Forecast & Objectives ─────────────────────────────── -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6">
+    
+    <!-- Component: Mastery Forecast -->
+    <section class="animate-card" style="animation-delay: 0.2s;">
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-gray-800 tracking-tight">Intelligence Forecast</h3>
+        </div>
+        <div class="h-[250px] w-full mt-2">
+          <canvas id="predictionChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Component: Critical Objectives -->
+    <section class="animate-card" style="animation-delay: 0.3s;">
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-5 border-b border-gray-50 flex justify-between items-center">
+          <h3 class="text-gray-800 font-bold tracking-tight">Active Objectives</h3>
+          <a href="{% url 'view_assignments' %}" class="text-[10px] font-bold text-indigo-600 uppercase tracking-widest hover:opacity-70 transition-opacity">Full Vault</a>
+        </div>
+        
+        <div class="max-h-[350px] overflow-y-auto">
+          {% for assignment in upcoming_assignments|slice:":5" %}
+            {% include 'components/list_item.html' with label=assignment.title sublabel=assignment.subject.name amount=assignment.due_date|date:"d M" date="OBJECTIVE" bg="rgba(79, 70, 229, 0.05)" color="#4f46e5" %}
+          {% empty %}
+            <div class="p-16 text-center text-gray-300">
+              <i data-lucide="check-circle-2" class="w-12 h-12 mx-auto mb-3 opacity-20"></i>
+              <p class="text-[10px] font-bold uppercase tracking-widest">Focus Peak Maintenance</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+  </div>
+
 </div>
+
+<!-- Context Data for Chart -->
+{{ predictions|json_script:"prediction-data" }}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const ctx = document.getElementById('predictionChart').getContext('2d');
-        
-        const labels = [{% for prediction in predictions %}"{{ prediction.subject.name|truncatechars:10|escapejs }}",{% endfor %}];
-        const currentData = [{% for prediction in predictions %}{{ prediction.current_average|default:0|floatformat:1 }},{% endfor %}];
-        const predictedData = [{% for prediction in predictions %}{{ prediction.predicted_score|default:0|floatformat:1 }},{% endfor %}];
+        const predictionData = JSON.parse(document.getElementById('prediction-data').textContent);
 
         new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
-                labels: labels,
+                labels: predictionData.map(p => p.subject.name.substring(0,8)),
                 datasets: [
                     {
-                        label: 'Current %',
-                        data: currentData,
-                        backgroundColor: 'rgba(37, 99, 235, 0.4)',
-                        borderColor: '#2563eb',
-                        borderWidth: 0,
-                        borderRadius: 12,
-                        barThickness: 12
+                        label: 'Current',
+                        data: predictionData.map(p => p.current_average),
+                        borderColor: '#4f46e5',
+                        borderWidth: 4,
+                        tension: 0.4,
+                        pointRadius: 0
                     },
                     {
-                        label: 'Forecast %',
-                        data: predictedData,
-                        backgroundColor: 'rgba(16, 185, 129, 0.4)',
+                        label: 'Forecast',
+                        data: predictionData.map(p => p.predicted_score),
                         borderColor: '#10b981',
-                        borderWidth: 0,
-                        borderRadius: 12,
-                        barThickness: 12
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { font: { family: 'Outfit', size: 10, weight: 'bold' }, usePointStyle: true, boxWidth: 6, padding:20 }
-                    },
-                    tooltip: {
-                        backgroundColor: '#1e293b',
-                        titleFont: { family: 'Outfit', size: 14 },
-                        bodyFont: { family: 'Outfit', size: 13 },
-                        padding: 12,
-                        cornerRadius: 12
-                    }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: { color: 'rgba(0,0,0,0.02)', drawBorder: false },
-                        ticks: { font: { family: 'Outfit', size: 9, weight: '600' } }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { font: { family: 'Outfit', size: 9, weight: '600' } }
-                    }
+                    y: { beginAtZero: true, max: 100, grid: { display: false }, ticks: { display: false } },
+                    x: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' }, color: '#9ca3af' } }
                 }
             }
         });

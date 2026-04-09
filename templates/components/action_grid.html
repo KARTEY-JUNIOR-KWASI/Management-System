@@ -1,0 +1,22 @@
+<!-- templates/components/action_grid.html -->
+<div class="grid grid-cols-2 gap-4 my-2">
+  {% for action in actions %}
+    <a href="{{ action.url }}" 
+       class="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl border border-gray-100 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md active:scale-95 group relative overflow-hidden"
+       style="background: {{ action.bg|default:'white' }}">
+      
+      <div class="p-3 rounded-2xl transition-transform group-hover:scale-110" 
+           style="background: {{ action.icon_bg|default:'rgba(79, 70, 229, 0.1)' }}; color: {{ action.icon_color|default:'#4f46e5' }}">
+        <i data-lucide="{{ action.icon|default:'activity' }}" class="w-7 h-7"></i>
+      </div>
+      
+      <div class="text-center">
+        <h4 class="font-bold text-gray-800 text-sm tracking-tight leading-tight">{{ action.label }}</h4>
+        <p class="text-[10px] text-gray-400 font-medium mt-1 leading-tight">{{ action.desc }}</p>
+      </div>
+      
+      <!-- Subtle accent line -->
+      <div class="absolute bottom-0 left-0 right-0 h-1 transition-all group-hover:h-2 opacity-20" style="background: {{ action.icon_color|default:'#4f46e5' }}"></div>
+    </a>
+  {% endfor %}
+</div>

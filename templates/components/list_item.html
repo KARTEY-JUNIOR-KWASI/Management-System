@@ -1,0 +1,27 @@
+<!-- templates/components/list_item.html -->
+<div class="flex items-center justify-between p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors group">
+  <div class="flex items-center gap-4">
+    <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg shadow-inner group-hover:scale-105 transition-transform" 
+         style="background: {{ bg|default:'#f3f4f6' }}; color: {{ color|default:'#1f2937' }}">
+      {{ icon_text|default:label|slice:":1" }}
+    </div>
+    <div>
+      <h4 class="font-bold text-gray-800 text-sm leading-tight">{{ label }}</h4>
+      <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{{ sublabel }}</p>
+    </div>
+  </div>
+  
+  <div class="text-right flex items-center gap-3">
+    <div>
+      <div class="font-extrabold text-sm {% if amount_color %}{{ amount_color }}{% else %}text-gray-900{% endif %}">
+        {% if prefix %}{{ prefix }}{% endif %}{{ amount }}{% if suffix %}{{ suffix }}{% endif %}
+      </div>
+      <p class="text-[10px] text-gray-400 font-medium">{{ date|default:"RECENT" }}</p>
+    </div>
+    {% if status %}
+      <div class="w-6 h-6 rounded-full flex items-center justify-center bg-green-50 text-green-500">
+        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+      </div>
+    {% endif %}
+  </div>
+</div>
