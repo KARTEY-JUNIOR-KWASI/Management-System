@@ -1,106 +1,116 @@
 {% extends 'base.html' %}
-{% block title %}Create Assignment{% endblock %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Create Assessment — Curricular Deployment{% endblock %}
+
 {% block content %}
-<div class="container-fluid pb-5">
-
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 style="font-weight:800; margin:0; color:var(--text-dark);">
-        Create Assignment
-      </h2>
-      <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">
-        Publish a new assignment for your students
-      </p>
-    </div>
-    <a href="{% url 'manage_assignments' %}" class="btn btn-outline-akkhor">
-      <i class="fas fa-arrow-left me-1"></i> Back to Assignments
-    </a>
-  </div>
-
-  {% if messages %}
-    {% for m in messages %}
-      <div class="alert-akkhor alert-{{ m.tags }} fade-in mb-3">
-        <i class="fas fa-{% if m.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i> {{ m }}
-      </div>
-    {% endfor %}
-  {% endif %}
-
-  <div class="reg-card">
-    <div class="reg-card-header">
-      <div class="card-icon-wrap" style="background:#f0fdf4;">
-        <i class="fas fa-tasks" style="color:#16a34a;"></i>
-      </div>
-      <div>
-        <h5>Assignment Details</h5>
-        <p>Set a title, due date, and instructions</p>
-      </div>
-    </div>
-    <div class="reg-card-body">
-      <form method="post" enctype="multipart/form-data" id="reg-form">
-        {% csrf_token %}
-        {% load widget_tweaks %}
-
-        <div class="row g-3 mb-3">
-          <div class="col-md-6">
-            <div class="field-group">
-              <label>{{ form.title.label }} <span class="text-danger">*</span></label>
-              {% render_field form.title class="form-control" placeholder="e.g. Chapter 3 Exercise" %}
+<div class="row layout-spacing animate-fade-up">
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-800 mb-0" style="letter-spacing: -1.5px; color: var(--text-dark);"><span class="me-2">📝</span> Curricular Deployment</h2>
+                <p class="text-muted small mb-0 fw-medium">Protocol for dispatching academic challenges and resources.</p>
             </div>
-          </div>
-          <div class="col-md-6">
-            <div class="field-group">
-              <label>{{ form.due_date.label }} <span class="text-danger">*</span></label>
-              {% render_field form.due_date class="form-control" %}
-            </div>
-          </div>
+            <a href="{% url 'manage_assignments' %}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-none extra-small">
+                <i class="fas fa-arrow-left me-2"></i> Active Deployments
+            </a>
         </div>
 
-        <div class="row g-3 mb-3">
-          <div class="col-md-6">
-            <div class="field-group">
-              <label>{{ form.subject.label }} <span class="text-danger">*</span></label>
-              {% render_field form.subject class="form-control form-select" %}
-              {% if not form.subject.field.queryset %}
-                <div class="field-error">No subjects assigned to you. Ask admin to assign subjects.</div>
-              {% endif %}
+        {% if messages %}
+            {% for m in messages %}
+                <div class="nexus-glass-card p-3 mb-4 border-start border-4 border-success d-flex align-items-center gap-3 animate-fade-in" style="background: rgba(16, 185, 129, 0.05);">
+                    <div class="p-avatar-sm" style="background: var(--p-nexus-success);"><i class="fas fa-check"></i></div>
+                    <div class="fw-bold small text-success">{{ m }}</div>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" id="assignmentForm">
+            {% csrf_token %}
+            
+            <div class="row g-4">
+                <!-- Deployment Configuration -->
+                <div class="col-lg-8">
+                    <div class="nexus-glass-card p-4 h-100">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="p-avatar-sm shadow-none" style="background: var(--p-nexus-primary);">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Assignment Parameters</h5>
+                                <p class="text-muted extra-small mb-0 fw-medium">Core metadata for assessment identification.</p>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Assignment Designation (Title)</label>
+                                {% render_field form.title class="form-control nexus-input-terminal px-3 fw-bold" placeholder="e.g. Advanced Calculus: Phase 1" %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Temporal Deadline</label>
+                                {% render_field form.due_date class="form-control nexus-input-terminal px-3" %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Deployment Sector (Class)</label>
+                                {% render_field form.class_assigned class="form-select nexus-input-terminal px-3" %}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Curricular Domain (Subject)</label>
+                                {% render_field form.subject class="form-select nexus-input-terminal px-3" %}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Instructional Payload (Description)</label>
+                                {% render_field form.description class="form-control nexus-input-terminal px-3" rows="6" placeholder="Define assessment objectives and execution protocols..." %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resource payload -->
+                <div class="col-lg-4">
+                    <div class="nexus-glass-card p-4 h-100">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="p-avatar-sm shadow-none" style="background: var(--p-nexus-success);">
+                                <i class="fas fa-file-export"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Resource Payload</h5>
+                                <p class="text-muted extra-small mb-0 fw-medium">Supplementary data and files.</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 text-center py-5 border-2 border-dashed rounded-4" style="border-color: rgba(0,0,0,0.05);">
+                            <i class="fas fa-cloud-upload-alt fs-1 text-primary opa-3 mb-3"></i>
+                            <div class="px-4">
+                                {% render_field form.file class="form-control extra-small fw-bold border-0 shadow-none bg-transparent" %}
+                            </div>
+                            <p class="text-muted extra-small mt-3 px-4">Upload worksheets, reference datasets, or instructional media.</p>
+                        </div>
+
+                        <div class="alert bg-primary bg-opacity-5 rounded-4 border-0 p-3">
+                            <div class="d-flex gap-3">
+                                <i class="fas fa-info-circle text-primary mt-1"></i>
+                                <div class="extra-small text-muted fw-medium opa-8">
+                                    Upon deployment, the protocol will be immediately broadcasted to all student entities in the selected sector.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto pt-4 shadow-none">
+                            <button type="submit" class="btn btn-primary rounded-pill w-100 py-3 fw-800 shadow-lg">
+                                <i class="fas fa-rocket me-2"></i> DEPLOY PROTOCOL
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="col-md-6">
-            <div class="field-group">
-              <label>Class <span class="text-danger">*</span></label>
-              {% render_field form.class_assigned class="form-control form-select" %}
-              {% if not form.class_assigned.field.queryset %}
-                <div class="field-error">No classes available. Ask admin to create classes.</div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-
-        <div class="field-group mb-3">
-          <label>{{ form.description.label }} <span class="text-danger">*</span></label>
-          {% render_field form.description class="form-control" rows="5" placeholder="Provide detailed instructions for students..." %}
-        </div>
-
-        <div class="field-group">
-          <label>Attachment <span style="color:var(--text-muted); font-size:0.8rem;">(Optional)</span></label>
-          {% render_field form.file class="form-control" style="padding:0.4rem 0.85rem;" %}
-          <div class="field-hint">Upload worksheets, reference documents, or materials.</div>
-        </div>
-      </form>
+        </form>
     </div>
-  </div>
-
-  <div class="reg-submit-bar">
-    <div class="note">
-      <i class="fas fa-info-circle" style="color:var(--primary);"></i>
-      Students will see this published assignment immediately.
-    </div>
-    <div style="display:flex; gap:0.75rem;">
-      <a href="{% url 'manage_assignments' %}" class="btn btn-outline-akkhor">Cancel</a>
-      <button type="submit" form="reg-form" class="btn btn-primary-akkhor px-5">
-        <i class="fas fa-paper-plane me-1"></i> Publish Assignment
-      </button>
-    </div>
-  </div>
 </div>
-{% endblock %}
+{% endblock %}

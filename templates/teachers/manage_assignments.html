@@ -1,79 +1,114 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Manage Assignments - EduMS{% endblock %}
+{% block title %}Assignment Management — Intelligence Nexus{% endblock %}
 
 {% block content %}
-<div class="container-fluid pb-5">
-    <div class="dashboard-header animate-fade-up">
-        <h1 class="page-title with-sub">Assignment Management</h1>
-        <p class="page-subtitle">Create, monitor, and evaluate student coursework.</p>
-    </div>
-
-    <div class="premium-table-container animate-fade-up">
+<div class="row layout-spacing animate-fade-up">
+    <div class="col-12 mb-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold m-0"><i class="fas fa-list-ul text-primary me-2"></i> All Assignments</h5>
-            <a href="{% url 'create_assignment' %}" class="btn btn-akkhor btn-sm-akkhor">
-                <i class="fas fa-plus me-1"></i> New Assignment
+            <div>
+                <h2 class="fw-800 mb-0" style="letter-spacing: -1.5px; color: var(--text-dark);"><span class="me-2">📅</span> Deployment Registry</h2>
+                <p class="text-muted small mb-0 fw-medium">Monitoring and managing active curricular payloads across sectors.</p>
+            </div>
+            <a href="{% url 'create_assignment' %}" class="btn btn-primary rounded-pill px-4 fw-800 shadow-lg border-0" style="background: var(--p-nexus-primary);">
+                <i class="fas fa-plus me-2"></i> NEW DEPLOYMENT
             </a>
         </div>
 
-        <div class="table-responsive">
-            <table class="premium-table">
-                <thead>
-                    <tr>
-                        <th>Details</th>
-                        <th>Class & Subject</th>
-                        <th>Timeline</th>
-                        <th>Submissions</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for assignment in assignments %}
-                    <tr>
-                        <td>
-                            <div class="fw-bold text-dark">{{ assignment.title }}</div>
-                            <div class="text-muted small">{{ assignment.file.name|truncatechars:30 }}</div>
-                        </td>
-                        <td>
-                            <div class="small fw-bold">{{ assignment.class_assigned.name }}</div>
-                            <span class="p-badge p-badge-primary" style="font-size: 0.65rem;">{{ assignment.subject.name }}</span>
-                        </td>
-                        <td>
-                            <div class="small text-dark"><i class="far fa-clock me-1 text-muted"></i> Due: {{ assignment.due_date|date:"M d, Y" }}</div>
-                            <div class="text-muted" style="font-size: 0.7rem;">Created: {{ assignment.created_at|date:"M d" }}</div>
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="progress flex-grow-1" style="height: 6px; width: 80px; border-radius: 3px; background: #f1f5f9;">
-                                    <div class="progress-bar bg-success" style="width: 85%; border-radius: 3px;"></div>
+        {% if messages %}
+            {% for m in messages %}
+                <div class="nexus-glass-card p-3 mb-4 border-start border-4 border-success d-flex align-items-center gap-3 animate-fade-in" style="background: rgba(16, 185, 129, 0.05);">
+                    <div class="p-avatar-sm" style="background: var(--p-nexus-success);"><i class="fas fa-check"></i></div>
+                    <div class="fw-bold small text-success">{{ m }}</div>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="nexus-glass-card overflow-hidden">
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
+                <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Active Assignments</h5>
+                <span class="badge badge-pill bg-dark py-2 px-3 fw-bold extra-small shadow-sm">{{ assignments|length }} Protocols</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                    <thead>
+                        <tr class="bg-light bg-opacity-50">
+                            <th class="ps-4 py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Assignment Details</th>
+                            <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Target Sector</th>
+                            <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Temporal Window</th>
+                            <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Submission Load</th>
+                            <th class="pe-4 py-3 text-end">Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        <tr class="animate-fade-in border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="p-avatar-sm shadow-none" style="background: var(--p-nexus-primary); border-radius: 10px;">
+                                        <i class="fas fa-file-alt"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-800 text-dark small" style="line-height: 1.2;">{{ assignment.title }}</div>
+                                        <div class="extra-small text-muted fw-bold text-uppercase opa-5 mt-1">{{ assignment.subject.name }}</div>
+                                    </div>
                                 </div>
-                                <span class="small fw-bold">85%</span>
-                            </div>
-                        </td>
-                        <td class="text-end">
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="{% url 'grade_submissions' assignment.id %}" class="p-btn-icon" title="View Submissions">
-                                    <i class="fas fa-tasks"></i>
-                                </a>
-                                <a href="{% url 'edit_assignment' assignment.id %}" class="p-btn-icon" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form action="{% url 'delete_assignment' assignment.id %}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this assignment?')">
-                                    {% csrf_token %}
-                                    <button type="submit" class="p-btn-icon text-danger" title="Delete" style="background:transparent; border:none; padding:0;">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="5" class="text-center py-5 text-muted">You haven't created any assignments yet.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            </td>
+                            <td>
+                                <span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-1 fw-800 text-uppercase opa-7" style="font-size: 0.62rem;">
+                                    {{ assignment.class_assigned.name }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    <span class="extra-small fw-800 text-dark"><i class="far fa-clock me-1 opa-5"></i> Due: {{ assignment.due_date }}</span>
+                                    <span class="extra-small text-muted fw-bold opa-5">Created: {{ assignment.created_at|date:"M d" }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3" style="min-width: 150px;">
+                                    <div class="progress flex-grow-1" style="height: 6px; border-radius: 10px; background: rgba(0,0,0,0.05);">
+                                        {% with pct=assignment.submission_count|stringformat:"d"|add:"0" %}
+                                        <div class="progress-bar {% if assignment.submission_count == 0 %}bg-secondary{% else %}bg-success{% endif %}" 
+                                             style="width: {% if assignment.submission_count > 0 %}100{% else %}0{% endif %}%; border-radius: 10px;"></div>
+                                        {% endwith %}
+                                    </div>
+                                    <span class="fw-800 text-dark extra-small">{{ assignment.submission_count }} Hits</span>
+                                </div>
+                            </td>
+                            <td class="pe-4 text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{% url 'grade_submissions' assignment.id %}" class="btn btn-sm btn-icon shadow-sm" style="width: 32px; height: 32px;" title="Evaluate Submissions">
+                                        <i class="fas fa-tasks text-primary" style="font-size: 0.75rem;"></i>
+                                    </a>
+                                    <a href="{% url 'edit_assignment' assignment.id %}" class="btn btn-sm btn-icon shadow-sm" style="width: 32px; height: 32px;" title="Modify Protocol">
+                                        <i class="fas fa-edit text-warning" style="font-size: 0.75rem;"></i>
+                                    </a>
+                                    <form action="{% url 'delete_assignment' assignment.id %}" method="POST" class="d-inline" onsubmit="return confirm('Initiate Protocol Deletion?')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-icon shadow-sm" style="width: 32px; height: 32px; background: transparent;">
+                                            <i class="fas fa-trash-alt text-danger" style="font-size: 0.75rem;"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="p-avatar-lg mx-auto mb-3" style="background: rgba(0,0,0,0.03); color: var(--text-muted); box-shadow: none;">
+                                    <i class="fas fa-inbox"></i>
+                                </div>
+                                <h6 class="fw-800 text-dark mb-1">No Active Protocols</h6>
+                                <p class="text-muted extra-small">Initiate a new deployment to populate the registry.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

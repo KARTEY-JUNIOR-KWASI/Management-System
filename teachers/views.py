@@ -262,13 +262,14 @@ def manage_grades(request):
     # Unified Registry Loading
     class_id = request.GET.get('class_id') or request.POST.get('class_id')
     subject_id = request.GET.get('subject_id') or request.POST.get('subject_id')
+    selected_exam_type = request.GET.get('exam_type') or request.POST.get('exam_type')
     
     if class_id and subject_id:
         selected_class = get_object_or_404(Class, id=class_id)
         selected_subject = get_object_or_404(Subject, id=subject_id)
         students = Student.objects.filter(class_enrolled=selected_class).select_related('user')
 
-        # Pre-fill existing grades for display logic
+        # Pre-fetch ALL results for historical badges
         results = Result.objects.filter(student__in=students, subject=selected_subject)
         results_by_student = defaultdict(dict)
         for r in results:
@@ -276,6 +277,15 @@ def manage_grades(request):
             
         for student in students:
             student.existing_grades = results_by_student.get(student.id, {})
+            # Pre-set the target score if an exam type is selected
+            if selected_exam_type:
+                target_result = student.existing_grades.get(selected_exam_type)
+                if target_result:
+                    student.target_score = target_result.score
+                    student.target_max_score = target_result.max_score
+                else:
+                    student.target_score = None
+                    student.target_max_score = 100
 
     if request.method == 'POST' and 'save_grades' in request.POST:
         exam_type = request.POST.get('exam_type')

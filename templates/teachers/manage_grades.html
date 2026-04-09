@@ -30,7 +30,7 @@
             <h5 class="fw-800 mb-4 extra-small text-uppercase opa-7" style="letter-spacing: 1px;"><i class="fas fa-filter me-2"></i> Assessment Parameters</h5>
             <form method="get">
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7" style="color: var(--text-muted);"><i class="fas fa-layer-group me-1"></i> Academic Sector</label>
                         <select name="class_id" class="form-select nexus-input-terminal shadow-none px-3 fw-medium" style="height: 50px; font-size: 0.85rem;" required>
                             <option value="">-- Sector Scan --</option>
@@ -48,15 +48,25 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7" style="color: var(--text-muted);"><i class="fas fa-microchip me-1"></i> Protocol</label>
+                        <select name="exam_type" class="form-select nexus-input-terminal shadow-none px-2 fw-medium" style="height: 50px; font-size: 0.85rem;">
+                            <option value="">-- Type --</option>
+                            {% for key, label in exam_types %}
+                            <option value="{{ key }}" {% if request.GET.exam_type == key %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <button type="submit" class="btn btn-dark rounded-pill w-100 fw-bold shadow-lg" style="height: 50px; background: #0f172a;">
-                            Initiate Protocol <i class="fas fa-microchip ms-2 scale-9"></i>
+                            Scan <i class="fas fa-satellite-dish ms-1 scale-9"></i>
                         </button>
                     </div>
                 </div>
             </form>
         </div>
-    </d    <!-- Step 2: Diagnostic Evaluation -->
+    </div>
+    <!-- Step 2: Diagnostic Evaluation -->
     {% if students %}
     <div class="nexus-glass-card overflow-hidden animate-fade-up delay-1">
         <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
@@ -82,15 +92,16 @@
                 <div class="row g-3">
                     <div class="col-md-5">
                         <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7" style="color: var(--text-muted);">Assessment Protocol</label>
-                        <select name="exam_type" class="form-select nexus-input-terminal shadow-none px-3 fw-medium" style="height: 45px; font-size: 0.85rem;" required>
+                        <select name="exam_type" class="form-select nexus-input-terminal shadow-none px-3 fw-medium" style="height: 45px; font-size: 0.85rem;" required id="exam_type_selector">
                             {% for key, label in exam_types %}
-                            <option value="{{ key }}">{{ label }}</option>
+                            <option value="{{ key }}" {% if request.GET.exam_type == key or request.POST.exam_type == key %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7" style="color: var(--text-muted);">Max Threshold</label>
-                        <input type="number" name="max_score" class="form-control nexus-input-terminal shadow-none px-3 fw-bold" style="height: 45px; font-size: 0.9rem;" value="100" min="1" step="0.01">
+                        <input type="number" name="max_score" id="max_score_input" class="form-control nexus-input-terminal shadow-none px-3 fw-bold" style="height: 45px; font-size: 0.9rem;" 
+                               value="{% firstof students.0.target_max_score 100 %}" min="1" step="0.01">
                     </div>
                 </div>
             </div>
@@ -121,7 +132,7 @@
                             </td>
                             <td>
                                 <input type="number" name="score_{{ student.id }}" class="form-control nexus-input-terminal shadow-none px-3 fw-800 text-center score-input"
-                                    placeholder="0.00" min="0" step="0.01"
+                                    placeholder="0.00" min="0" step="0.01" value="{{ student.target_score|default:'' }}"
                                     style="height: 40px; font-size: 0.9rem; color: var(--p-nexus-primary);">
                             </td>
                             <td>
@@ -176,25 +187,55 @@
 </div>
 
 <script>
-document.querySelectorAll('.score-input').forEach(input => {
-    input.addEventListener('input', function() {
-        const id = this.name.split('_')[1];
-        const max = parseFloat(document.querySelector('input[name="max_score"]').value) || 100;
-        const score = parseFloat(this.value) || 0;
+document.addEventListener('DOMContentLoaded', function() {
+    const maxInput = document.getElementById('max_score_input');
+    const examSelector = document.getElementById('exam_type_selector');
+    
+    // Function to calculate mastery for a row
+    function updateMastery(input) {
+        const id = input.name.split('_')[1];
+        const max = parseFloat(maxInput.value) || 100;
+        const score = parseFloat(input.value) || 0;
         const percent = Math.min(100, Math.round((score / max) * 100));
         
         const bar = document.getElementById('bar-' + id);
         const text = document.getElementById('val-' + id);
         
-        bar.style.width = percent + '%';
-        text.innerText = percent + '%';
-        
-        // Dynamic coloring
-        bar.classList.remove('mastery-low', 'mastery-medium', 'mastery-high', 'mastery-complete');
-        if (percent < 40) bar.classList.add('mastery-low');
-        else if (percent < 70) bar.classList.add('mastery-medium');
-        else if (percent < 90) bar.classList.add('mastery-high');
-        else bar.classList.add('mastery-complete');
+        if (bar && text) {
+            bar.style.width = percent + '%';
+            text.innerText = percent + '%';
+            
+            // Dynamic coloring
+            bar.classList.remove('mastery-low', 'mastery-medium', 'mastery-high', 'mastery-complete');
+            if (percent < 40) bar.classList.add('mastery-low');
+            else if (percent < 70) bar.classList.add('mastery-medium');
+            else if (percent < 90) bar.classList.add('mastery-high');
+            else bar.classList.add('mastery-complete');
+        }
+    }
+
+    // Initialize on load
+    document.querySelectorAll('.score-input').forEach(input => {
+        updateMastery(input);
+        input.addEventListener('input', function() {
+            updateMastery(this);
+        });
+    });
+
+    // Update all when max score changes
+    maxInput.addEventListener('input', function() {
+        document.querySelectorAll('.score-input').forEach(input => {
+            updateMastery(input);
+        });
+    });
+
+    // Auto-reload on protocol change to fetch scores
+    examSelector.addEventListener('change', function() {
+        const url = new URL(window.location.href);
+        url.searchParams.set('exam_type', this.value);
+        url.searchParams.set('class_id', '{{ selected_class.id }}');
+        url.searchParams.set('subject_id', '{{ selected_subject.id }}');
+        window.location.href = url.toString();
     });
 });
 </script>

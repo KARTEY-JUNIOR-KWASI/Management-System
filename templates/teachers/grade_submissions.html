@@ -1,215 +1,176 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Academics — Batch Grading Portal{% endblock %}
+{% block title %}Evaluation Terminal — Intelligence Nexus{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
 <style>
-    .grading-header { margin-bottom: 2rem; }
-    .attendance-indicator {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 6px;
-    }
-    .status-submitted { background: #6FB13F; }
-    .status-pending { background: #ffc107; }
+    .nexus-status-pill { padding: 4px 12px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; text-uppercase: uppercase; letter-spacing: 0.5px; }
+    .status-active { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .status-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+    .status-none { background: rgba(100, 116, 139, 0.1); color: #64748b; border: 1px solid rgba(100, 116, 139, 0.2); }
     
-    .batch-input {
-        background: rgba(0, 64, 103, 0.02);
-        border: 1px solid rgba(0, 64, 103, 0.1);
-        border-radius: 8px;
-        padding: 0.5rem 0.75rem;
-        transition: all 0.2s ease;
-        font-weight: 500;
-        width: 100%;
+    .row-changed { background-color: rgba(67, 97, 238, 0.03) !important; }
+    .feedback-terminal { 
+        min-height: 45px; 
+        font-size: 0.8rem; 
+        border-radius: 8px; 
+        background: rgba(0,0,0,0.02); 
+        border: 1px solid rgba(0,0,0,0.05); 
+        transition: all 0.2s; 
     }
-    .batch-input:focus {
-        background: white;
-        border-color: var(--p-primary-hsl);
-        box-shadow: 0 0 0 3px rgba(0, 64, 103, 0.05);
-        outline: none;
+    .feedback-terminal:focus { 
+        background: #fff; 
+        border-color: var(--p-nexus-primary); 
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1); 
+        outline: none; 
     }
-    .feedback-input {
-        font-size: 0.85rem;
-        min-height: 40px;
-    }
-    .row-changed { background-color: rgba(0, 163, 255, 0.03) !important; }
-    
-    .floating-actions {
-        position: sticky;
-        bottom: 2rem;
-        z-index: 100;
-        display: flex;
-        justify-content: flex-end;
-        pointer-events: none;
-    }
-    .floating-actions > * { pointer-events: auto; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid main-canvas-area">
-    
-    <!-- Header -->
-    <div class="grading-header d-flex justify-content-between align-items-end animate-fade-up">
-        <div class="d-flex align-items-center gap-4">
-             <a href="{% url 'manage_assignments' %}" class="p-btn-icon bg-white shadow-sm" style="width: 45px; height: 45px;">
-                <i class="fas fa-arrow-left"></i>
-            </a>
-            <div>
-                <h1 class="page-title with-sub mb-0">Batch Grading</h1>
-                <p class="page-subtitle mb-0">Editing: {{ assignment.title }} — {{ assignment.class_assigned.name }}</p>
+<div class="row layout-spacing animate-fade-up">
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div class="d-flex align-items-center gap-4">
+                 <a href="{% url 'manage_assignments' %}" class="btn btn-icon nexus-glass-card shadow-sm border" style="width: 45px; height: 45px;">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div>
+                    <h2 class="fw-800 mb-0" style="letter-spacing: -1.5px; color: var(--text-dark);"><span class="me-2">🎯</span> Evaluation Terminal</h2>
+                    <p class="text-muted small mb-0 fw-medium">Analyzing: {{ assignment.title }} — Sector {{ assignment.class_assigned.name }}</p>
+                </div>
             </div>
-        </div>
-        <div class="d-flex gap-3">
-             <div class="p-badge p-badge-medium">
-                <i class="fas fa-users me-2"></i> {{ total_students }} Students
-            </div>
-             <div class="p-badge p-badge-high">
-                <i class="fas fa-check-circle me-2"></i> {{ total_submitted }} Submissions
-            </div>
-        </div>
-    </div>
-
-    <!-- Assignment Context Card (Glass) -->
-    <div class="premium-table-container mb-5 animate-fade-up delay-1" style="background: linear-gradient(135deg, rgba(0, 64, 103, 0.03), rgba(111, 177, 63, 0.03)); border: 1px solid rgba(0,0,0,0.05);">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <p class="text-muted small fw-bold text-uppercase mb-2" style="letter-spacing: 1px;">Assignment Brief</p>
-                <p class="mb-0 text-dark">{{ assignment.description }}</p>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <div class="p-badge bg-white shadow-sm py-2 px-3 text-dark fw-bold border">
-                    <i class="fas fa-calendar-day text-primary me-2"></i>
-                    Deadline: {{ assignment.due_date|date:"F d, Y" }}
+            <div class="d-flex gap-2">
+                 <div class="badge bg-white text-dark border rounded-pill px-3 py-2 fw-800 extra-small shadow-none">
+                    <i class="fas fa-users me-2 text-primary"></i> {{ total_students }} ENTITIES
+                </div>
+                 <div class="badge bg-white text-dark border rounded-pill px-3 py-2 fw-800 extra-small shadow-none">
+                    <i class="fas fa-satellite me-2 text-success"></i> {{ total_submitted }} UPLOADS
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Grading Roster -->
-    <form method="POST" id="batchGradingForm">
-        {% csrf_token %}
-        <div class="row animate-fade-up delay-2">
-            <div class="col-12">
-                <div class="premium-table-container">
-                    <div class="table-responsive">
-                        <table class="premium-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 250px;">Student Identity</th>
-                                    <th>Fulfillment</th>
-                                    <th>Resource</th>
-                                    <th style="width: 120px;">Score / 100</th>
-                                    <th>Constructive Feedback</th>
-                                    <th class="text-end">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for row in roster %}
-                                <tr>
-                                    <td>
-                                        <input type="hidden" name="student_ids" value="{{ row.student.id }}">
-                                        <div class="fw-bold text-dark">{{ row.student.user.get_full_name }}</div>
-                                        <div class="text-muted small" style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">{{ row.student.student_id }}</div>
-                                    </td>
-                                    <td>
-                                        {% if row.has_submitted %}
-                                            <div class="d-flex align-items-center">
-                                                <span class="attendance-indicator status-submitted"></span>
-                                                <div class="small fw-bold text-success">Submitted</div>
-                                            </div>
-                                            <div class="text-muted" style="font-size: 0.7rem;">{{ row.submission.submitted_at|date:"M d, H:i" }}</div>
-                                        {% else %}
-                                            <div class="d-flex align-items-center">
-                                                <span class="attendance-indicator status-pending"></span>
-                                                <div class="small text-muted">Awaiting</div>
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if row.has_submitted and row.submission.file %}
-                                            <a href="{{ row.submission.file.url }}" target="_blank" class="p-btn-icon" title="View Submission File">
-                                                <i class="fas fa-external-link-alt"></i>
-                                            </a>
-                                        {% else %}
-                                            <span class="text-muted small fst-italic">None</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <input type="number" 
-                                               name="grade_{{ row.student.id }}" 
-                                               class="batch-input text-center grading-field" 
-                                               value="{{ row.grade|default:'' }}" 
-                                               min="0" max="100" step="0.5"
-                                               placeholder="—">
-                                    </td>
-                                    <td>
-                                        <textarea name="feedback_{{ row.student.id }}" 
-                                                  class="batch-input feedback-input grading-field" 
-                                                  placeholder="Provide student feedback...">{{ row.feedback|default:'' }}</textarea>
-                                    </td>
-                                    <td class="text-end">
-                                        {% if row.grade is not None %}
-                                            <span class="p-badge p-badge-medium" style="font-size: 0.65rem;">GRADED</span>
-                                        {% else %}
-                                            <span class="p-badge p-badge-critical" style="font-size: 0.65rem;">UNGRADED</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+        <form method="POST" id="batchGradingForm">
+            {% csrf_token %}
+            
+            <div class="nexus-glass-card overflow-hidden">
+                <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-avatar shadow-none" style="background: var(--p-nexus-primary);">
+                            <i class="fas fa-list-check"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Candidate Roster</h5>
+                            <p class="text-muted extra-small mb-0 fw-medium">Real-time performance distribution monitoring.</p>
+                        </div>
+                    </div>
+                    <div class="floating-commit-strip d-flex gap-2 align-items-center">
+                        <span id="change-status" class="extra-small text-muted fw-bold me-3 animate-pulse" style="display:none;"><i class="fas fa-sync-alt me-1"></i> UNSAVED CALIBRATIONS</span>
+                        <button type="button" class="btn btn-outline-secondary rounded-pill extra-small fw-800 px-3 shadow-none" id="btn-auto-fill">
+                           <i class="fas fa-wand-magic-sparkles me-2"></i> AUTO-SYNC (100)
+                        </button>
+                        <button type="submit" class="btn btn-primary rounded-pill extra-small fw-800 px-4 shadow-lg border-0" style="background: var(--p-nexus-primary);">
+                            <i class="fas fa-cloud-upload-alt me-2"></i> COMMIT DATA
+                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Floating Actions -->
-        <div class="floating-actions animate-fade-in">
-            <div class="bg-white p-3 rounded-4 shadow-lg border d-flex gap-3 align-items-center">
-                <span id="change-counter" class="text-muted small" style="display: none;"><i class="fas fa-sync fa-spin me-2"></i> Unsaved changes detected</span>
-                <button type="button" class="btn btn-outline-akkhor rounded-3 px-4" id="btn-auto-fill">
-                    <i class="fas fa-magic me-2"></i> Auto-fill (100)
-                </button>
-                <button type="submit" class="btn btn-primary-akkhor rounded-3 px-5 shadow-sm">
-                    <i class="fas fa-cloud-upload-alt me-2"></i> Save All Grades
-                </button>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                        <thead>
+                            <tr class="bg-light bg-opacity-50">
+                                <th class="ps-4 py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1px;">Candidate Identity</th>
+                                <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1px;">Fulfillment Status</th>
+                                <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1px;">Resource Access</th>
+                                <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1px; width: 120px;">Score / 100</th>
+                                <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1px;">Constructive Feedback</th>
+                                <th class="pe-4 py-3 text-end">Diagnostic</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in roster %}
+                            <tr class="animate-fade-in border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+                                <td class="ps-4 py-3">
+                                    <input type="hidden" name="student_ids" value="{{ row.student.id }}">
+                                    <div class="fw-800 text-dark small" style="line-height: 1.2;">{{ row.student.user.get_full_name }}</div>
+                                    <div class="extra-small text-muted fw-bold text-uppercase opa-5 mt-1">{{ row.student.student_id }}</div>
+                                </td>
+                                <td>
+                                    {% if row.has_submitted %}
+                                        <div class="nexus-status-pill status-active d-inline-block">
+                                            <i class="fas fa-check-circle me-1"></i> SUBMITTED
+                                        </div>
+                                        <div class="extra-small text-muted fw-bold mt-1 opa-5">{{ row.submission.submitted_at|date:"M d, H:i" }}</div>
+                                    {% else %}
+                                        <div class="nexus-status-pill status-pending d-inline-block">
+                                            <i class="fas fa-clock me-1"></i> AWAITING
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if row.has_submitted and row.submission.file %}
+                                        <a href="{{ row.submission.file.url }}" target="_blank" class="btn btn-sm btn-icon shadow-sm" style="width: 32px; height: 32px;" title="View Artifact">
+                                            <i class="fas fa-file-export text-primary" style="font-size: 0.75rem;"></i>
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted extra-small fw-bold opa-3">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <input type="number" name="grade_{{ row.student.id }}" class="form-control nexus-input-terminal px-3 fw-800 text-center score-field" 
+                                           value="{{ row.grade|default:'' }}" min="0" max="100" step="0.5" placeholder="—" style="height: 40px; font-size: 0.85rem;">
+                                </td>
+                                <td>
+                                    <textarea name="feedback_{{ row.student.id }}" class="form-control feedback-terminal px-3 py-2 score-field" 
+                                              placeholder="Inject diagnostic feedback..." rows="1">{{ row.feedback|default:'' }}</textarea>
+                                </td>
+                                <td class="pe-4 text-end">
+                                    {% if row.grade is not None %}
+                                        <span class="badge border bg-white text-success extra-small rounded-pill px-3 py-1 fw-800 text-uppercase" style="font-size: 0.6rem;">VALIDATED</span>
+                                    {% else %}
+                                        <span class="badge border bg-white text-muted extra-small rounded-pill px-3 py-1 fw-800 text-uppercase opa-5" style="font-size: 0.6rem;">NULL</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 
+{% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const fields = document.querySelectorAll('.grading-field');
-        const counter = document.getElementById('change-counter');
+        const fields = document.querySelectorAll('.score-field');
+        const status = document.getElementById('change-status');
         const autoFillBtn = document.getElementById('btn-auto-fill');
         
         fields.forEach(field => {
             field.addEventListener('input', function() {
                 this.closest('tr').classList.add('row-changed');
-                counter.style.display = 'inline-block';
+                status.style.display = 'inline-block';
             });
         });
 
         autoFillBtn.addEventListener('click', function() {
-             if (confirm('Verify: Apply 100/100 to all ungraded students with submissions?')) {
+             if (confirm('Verify: Apply 100% mastery to all ungraded submissions?')) {
                 const rows = document.querySelectorAll('tbody tr');
                 rows.forEach(row => {
-                    const submissionStatus = row.querySelector('.status-submitted');
+                    const submissionStatus = row.querySelector('.status-active');
                     const gradeInput = row.querySelector('input[type="number"]');
                     if (submissionStatus && !gradeInput.value) {
                         gradeInput.value = '100';
                         row.classList.add('row-changed');
-                        counter.style.display = 'inline-block';
+                        status.style.display = 'inline-block';
                     }
                 });
              }
         });
     });
 </script>
+{% endblock %}
 {% endblock %}
