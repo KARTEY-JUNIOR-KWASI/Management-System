@@ -9,9 +9,9 @@
           {{ school_config.name|slice:":1" }}
         </div>
       {% endif %}
-      <div>
-        <h1 class="font-bold text-lg leading-tight tracking-tight">{{ title|default:school_config.name }}</h1>
-        <p class="text-indigo-100 text-[10px] uppercase font-bold tracking-widest opacity-80">{{ subtitle|default:"Intelligence Hub" }}</p>
+      <div class="min-w-0">
+        <h1 class="font-bold text-lg leading-tight tracking-tight truncate">{{ title|default:school_config.name }}</h1>
+        <p class="text-indigo-100 text-[10px] uppercase font-bold tracking-widest opacity-80 truncate">{{ subtitle|default:"Intelligence Hub" }}</p>
       </div>
     </div>
     

@@ -5,9 +5,9 @@
          style="background: {{ bg|default:'#f3f4f6' }}; color: {{ color|default:'#1f2937' }}">
       {{ icon_text|default:label|slice:":1" }}
     </div>
-    <div>
-      <h4 class="font-bold text-gray-800 text-sm leading-tight">{{ label }}</h4>
-      <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{{ sublabel }}</p>
+    <div class="min-w-0 flex-1">
+      <h4 class="font-bold text-gray-800 text-sm leading-tight truncate">{{ label }}</h4>
+      <p class="text-[11px] text-gray-400 font-bold uppercase tracking-wider mt-0.5 truncate">{{ sublabel }}</p>
     </div>
   </div>
   
