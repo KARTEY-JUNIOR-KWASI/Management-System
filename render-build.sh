@@ -1,6 +1,8 @@
-#!/usr/bin/env bash
 # exit on error
 set -o errexit
+
+# Signal build phase to settings.py
+export IS_BUILD_PHASE=True
 
 # Install dependencies
 pip install -r requirements.txt

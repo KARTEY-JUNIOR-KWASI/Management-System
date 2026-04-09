@@ -136,12 +136,14 @@ WSGI_APPLICATION = 'school_management.wsgi.application'
 # 🛡️ Nexus Infrastructure Guard: Strict Engine Requirements
 DATABASE_URL = os.getenv('DATABASE_URL')
 DB_NAME = os.getenv('DB_NAME')
+IS_BUILD_PHASE = os.getenv('IS_BUILD_PHASE', 'False').lower() == 'true'
 
-if not DATABASE_URL and not DB_NAME and not DEBUG:
+if not DATABASE_URL and not DB_NAME and not DEBUG and not IS_BUILD_PHASE:
     from django.core.exceptions import ImproperlyConfigured
     raise ImproperlyConfigured(
         "CRITICAL: No persistent database (DATABASE_URL or DB_NAME) detected in production. "
-        "Silent fallback to ephemeral SQLite has been disabled to prevent data loss."
+        "Silent fallback to ephemeral SQLite has been disabled to prevent data loss. "
+        "Please add DATABASE_URL to your Render Environment Variables."
     )
 
 DATABASES = {
