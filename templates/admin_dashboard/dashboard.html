@@ -307,6 +307,9 @@
                                         {{ student.user.first_name|slice:":1" }}{{ student.user.last_name|slice:":1" }}
                                     </div>
                                     <div class="fw-800 text-dark small" style="font-size: 0.8rem;">{{ student.user.get_full_name }}</div>
+                                    {% if student.house %}
+                                        <div style="width: 8px; height: 8px; border-radius: 50%; background: {{ student.house.color_code }}; shadow: 0 0 5px {{ student.house.color_code }};" title="{{ student.house.name }}"></div>
+                                    {% endif %}
                                 </div>
                             </td>
                             <td>

@@ -66,6 +66,7 @@ class Student(models.Model):
     user = models.OneToOneField('accounts.User', on_delete=models.CASCADE)
     student_id = models.CharField(max_length=20, unique=True)
     class_enrolled = models.ForeignKey('core.Class', on_delete=models.SET_NULL, null=True, blank=True)
+    house = models.ForeignKey('core.House', on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
     enrollment_date = models.DateField(null=True, blank=True, help_text="Date the student was admitted to the school")
 
     # Personal Info

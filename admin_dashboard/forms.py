@@ -69,6 +69,16 @@ class StudentForm(forms.ModelForm):
             student, created = Student.objects.get_or_create(user=user)
             student.student_id = username
             student.class_enrolled = self.cleaned_data.get('class_enrolled')
+            
+            # Automated Institutional House Assignment Protocol
+            from core.models import House
+            if not student.house:
+                houses = list(House.objects.all().order_by('id'))
+                if houses:
+                    student_count = Student.objects.exclude(pk=student.pk).count()
+                    next_house_index = student_count % len(houses)
+                    student.house = houses[next_house_index]
+
             student.enrollment_date = self.cleaned_data.get('enrollment_date')
             student.age = self.cleaned_data.get('age')
             student.gender = self.cleaned_data.get('gender', '')

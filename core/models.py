@@ -2,6 +2,19 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 
+class House(models.Model):
+    """Institutional house system for student identification and competition."""
+    name = models.CharField(max_length=100, unique=True)
+    color_code = models.CharField(max_length=20, default="#4361ee", help_text="Hex color code for identification (e.g. #FF0000)")
+    description = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = "Institutional House"
+        verbose_name_plural = "Institutional Houses"
+
+    def __str__(self):
+        return self.name
+
 class AcademicTerm(models.Model):
     """Naming and duration for institutional periods (e.g. First Term 2024)."""
     name = models.CharField(max_length=100)
