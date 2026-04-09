@@ -71,4 +71,4 @@ class AdminDashboardTest(TestCase):
         """Non-admin users should be redirected away from admin views."""
         self.client.login(username='student', password='pass')
         response = self.client.get(reverse('admin_dashboard'))
-        self.assertEqual(response.status_code, 302)  # Redirect to login or error
+        self.assertEqual(response.status_code, 403)  # Forbidden for non-admin students

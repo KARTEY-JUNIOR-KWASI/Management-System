@@ -72,7 +72,7 @@
                                     <div class="progress flex-grow-1" style="height: 6px; border-radius: 10px; background: rgba(0,0,0,0.05);">
                                         {% with pct=assignment.submission_count|stringformat:"d"|add:"0" %}
                                         <div class="progress-bar {% if assignment.submission_count == 0 %}bg-secondary{% else %}bg-success{% endif %}" 
-                                             style="width: {% if assignment.submission_count > 0 %}100{% else %}0{% endif %}%; border-radius: 10px;"></div>
+                                             {% if assignment.submission_count > 0 %}style="width: 100%; border-radius: 10px;"{% else %}style="width: 0%; border-radius: 10px;"{% endif %}></div>
                                         {% endwith %}
                                     </div>
                                     <span class="fw-800 text-dark extra-small">{{ assignment.submission_count }} Hits</span>

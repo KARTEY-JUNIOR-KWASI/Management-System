@@ -296,7 +296,7 @@
               <td>
                 <div style="font-weight:700; font-size:0.8rem; margin-bottom:4px;">{{ r.percentage }}%</div>
                 <div class="prog-track">
-                  <div class="prog-bar {% if r.percentage >= 70 %}nexus-bg-success{% elif r.percentage >= 50 %}nexus-bg-warning{% else %}nexus-bg-danger{% endif %}" style="width:{{ r.percentage }}%;"></div>
+                  <div class="prog-bar {% if r.percentage >= 70 %}nexus-bg-success{% elif r.percentage >= 50 %}nexus-bg-warning{% else %}nexus-bg-danger{% endif %}" style="width:{{ r.percentage|default:0 }}%;"></div>
                 </div>
               </td>
               <td style="text-align:right;">

@@ -74,7 +74,7 @@
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="extra-small text-primary fw-bold text-uppercase opa-6" style="letter-spacing: 0.5px;">{{ student.student_id|default:"ID-PENDING" }}</div>
                                             {% if student.house %}
-                                                <span class="badge rounded-pill extra-small fw-800 text-uppercase" style="background: {{ student.house.color_code }}; font-size: 0.55rem; padding: 2px 8px; color: white;">{{ student.house.name }}</span>
+                                                <span class="badge rounded-pill extra-small fw-800 text-uppercase" style="background: {{ student.house.color_code|default:'#6c757d' }}; font-size: 0.55rem; padding: 2px 8px; color: white;">{{ student.house.name }}</span>
                                             {% endif %}
                                         </div>
                                     </div>

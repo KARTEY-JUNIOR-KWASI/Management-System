@@ -77,9 +77,14 @@ def admin_analytics_dashboard(request):
     
     # Generate system analytics if not exists for today
     today = date.today()
+    analytics_data = _calculate_system_analytics()
+    # Ensure only valid model fields are passed to get_or_create
+    valid_fields = {f.name for f in SystemAnalytics._meta.get_fields()}
+    safe_defaults = {k: v for k, v in analytics_data.items() if k in valid_fields}
+
     system_analytics, created = SystemAnalytics.objects.get_or_create(
         date=today,
-        defaults=_calculate_system_analytics()
+        defaults=safe_defaults
     )
 
     # Get recent notifications

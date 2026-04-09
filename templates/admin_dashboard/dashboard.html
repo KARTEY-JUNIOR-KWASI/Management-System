@@ -177,7 +177,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="text-muted text-uppercase fw-800 m-0 opa-7" style="font-size:0.65rem; letter-spacing: 1px;">Presence Radar</h6>
-                        <h2 class="fw-800 my-2" style="letter-spacing: -1px;">{{ attendance_stats|floatformat:1 }}%</h2>
+                        <h2 class="fw-800 my-2" style="letter-spacing: -1px;">{{ attendance_stats|default:0|floatformat:1 }}%</h2>
                         <span class="text-{% if attendance_trend == 'improving' %}success{% elif attendance_trend == 'declining' %}danger{% else %}warning{% endif %} extra-small fw-800">
                             <i class="fas fa-{% if attendance_trend == 'improving' %}chart-line{% else %}minus{% endif %} me-1"></i> {{ attendance_trend|upper }}
                         </span>
@@ -213,7 +213,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="text-muted text-uppercase fw-800 m-0 opa-7" style="font-size:0.65rem; letter-spacing: 1px;">Global Mastery</h6>
-                        <h2 class="fw-800 my-2" style="letter-spacing: -1px;">{{ system_analytics.average_gpa|floatformat:2 }}</h2>
+                        <h2 class="fw-800 my-2" style="letter-spacing: -1px;">{{ system_analytics.average_gpa|default:0|floatformat:2 }}</h2>
                         <span class="text-muted extra-small fw-800">SYSTEM GPA AVG</span>
                     </div>
                     <div class="p-avatar shadow-sm" style="background: #0dcaf0; width:48px; height:48px;">

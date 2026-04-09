@@ -7,6 +7,24 @@ from .models import Student
 
 class StudentService:
     @staticmethod
+    def assign_automated_house(student):
+        """
+        Performs Round Robin house assignment for a student.
+        Ensures balanced distribution across institutional houses.
+        """
+        if not student.house:
+            houses = list(House.objects.all().order_by('id'))
+            if houses:
+                # Optimized count: find how many students are already in each house
+                # but for simple Round Robin, we use total student count modulo house count
+                student_count = Student.objects.exclude(pk=student.pk).count()
+                next_house_index = student_count % len(houses)
+                student.house = houses[next_house_index]
+                student.save()
+                return student.house
+        return student.house
+
+    @staticmethod
     @transaction.atomic
     def enroll_student(data):
         """
@@ -29,14 +47,8 @@ class StudentService:
         student, created = Student.objects.get_or_create(user=user)
         student.student_id = username
         
-        # 3. Automated House Assignment (Round Robin)
-        if not student.house:
-            houses = list(House.objects.all().order_by('id'))
-            if houses:
-                # Optimized count excluding self
-                student_count = Student.objects.exclude(pk=student.pk).count()
-                next_house_index = student_count % len(houses)
-                student.house = houses[next_house_index]
+        # 3. Automated House Assignment (Centralized)
+        StudentService.assign_automated_house(student)
         
         # 4. Populate Attributes
         student.class_enrolled = data.get('class_enrolled')

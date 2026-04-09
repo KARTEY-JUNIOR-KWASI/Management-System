@@ -105,7 +105,7 @@
                                 </div>
                                 <div class="progress" style="height: 10px; border-radius: 20px; background: rgba(0,0,0,0.05);">
                                     <div class="progress-bar {% if subject_data.average >= 75 %}bg-success{% elif subject_data.average >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
-                                         style="width: {{ subject_data.average }}%; border-radius: 20px;"></div>
+                                         style="width: {{ subject_data.average|default:0 }}%; border-radius: 20px;"></div>
                                 </div>
                             </div>
                             <div class="text-end">
@@ -166,4 +166,3 @@
     </div>
 </div>
 {% endblock %}
-%}

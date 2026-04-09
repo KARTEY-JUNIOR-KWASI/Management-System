@@ -191,7 +191,7 @@
                         <span class="badge bg-primary">{{ data.average|floatformat:1 }}%</span>
                     </div>
                     <div class="progress mt-2" style="height: 8px;">
-                        <div class="progress-bar" role="progressbar" style="width: {{ data.average|default:0 }}%"></div>
+                        <div class="progress-bar" role="progressbar" style="width: {{ data.average|default:0|floatformat:0 }}%"></div>
                     </div>
                     <small class="text-muted">{{ data.scores|length }} assessments</small>
                 </div>
