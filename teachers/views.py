@@ -257,63 +257,17 @@ def manage_grades(request):
     selected_class = None
     selected_subject = None
     students = []
-
-    if request.method == 'POST':
-            # Fetch existing results in one query
-            existing_results = {
-                r.student_id: r for r in Result.objects.filter(
-                    student__in=students, subject=selected_subject, exam_type=exam_type
-                )
-            }
-
-            to_create = []
-            to_update = []
-            saved = 0
-
-            for student in students:
-                score_key = f'score_{student.id}'
-                score = request.POST.get(score_key)
-                if score and score.strip():
-                    try:
-                        score_val = float(score)
-                        record = existing_results.get(student.id)
-                        
-                        if record:
-                            if float(record.score) != score_val or float(record.max_score) != float(max_score):
-                                record.score = score_val
-                                record.max_score = float(max_score)
-                                record.teacher = request.user
-                                to_update.append(record)
-                        else:
-                            to_create.append(Result(
-                                student=student,
-                                subject=selected_subject,
-                                exam_type=exam_type,
-                                score=score_val,
-                                max_score=float(max_score),
-                                teacher=request.user
-                            ))
-                        saved += 1
-                    except ValueError:
-                        pass
-
-            if to_create:
-                Result.objects.bulk_create(to_create)
-            if to_update:
-                Result.objects.bulk_update(to_update, ['score', 'max_score', 'teacher'])
-
-            messages.success(request, f'Grades saved for {saved} student(s) in {selected_subject} — {exam_type}!')
-            return redirect('manage_grades')
-
-    # Load class/subject from GET for display
-    class_id = request.GET.get('class_id')
-    subject_id = request.GET.get('subject_id')
+    
+    # Unified Registry Loading
+    class_id = request.GET.get('class_id') or request.POST.get('class_id')
+    subject_id = request.GET.get('subject_id') or request.POST.get('subject_id')
+    
     if class_id and subject_id:
         selected_class = get_object_or_404(Class, id=class_id)
         selected_subject = get_object_or_404(Subject, id=subject_id)
         students = Student.objects.filter(class_enrolled=selected_class).select_related('user')
 
-        # Pre-fill existing grades optimally
+        # Pre-fill existing grades for display logic
         results = Result.objects.filter(student__in=students, subject=selected_subject)
         results_by_student = defaultdict(dict)
         for r in results:
@@ -321,6 +275,60 @@ def manage_grades(request):
             
         for student in students:
             student.existing_grades = results_by_student.get(student.id, {})
+
+    if request.method == 'POST' and 'save_grades' in request.POST:
+        exam_type = request.POST.get('exam_type')
+        max_score = request.POST.get('max_score', 100)
+        
+        if not all([selected_class, selected_subject, exam_type]):
+            messages.error(request, "Failed to identify the academic sector, domain, or assessment protocol.")
+            return redirect('manage_grades')
+
+        # Fetch existing results for specific exam_type to optimize batch processing
+        existing_results = {
+            r.student_id: r for r in Result.objects.filter(
+                student__in=students, subject=selected_subject, exam_type=exam_type
+            )
+        }
+
+        to_create = []
+        to_update = []
+        saved = 0
+
+        for student in students:
+            score_key = f'score_{student.id}'
+            score = request.POST.get(score_key)
+            if score and score.strip():
+                try:
+                    score_val = float(score)
+                    record = existing_results.get(student.id)
+                    
+                    if record:
+                        if float(record.score) != score_val or float(record.max_score) != float(max_score):
+                            record.score = score_val
+                            record.max_score = float(max_score)
+                            record.teacher = request.user
+                            to_update.append(record)
+                    else:
+                        to_create.append(Result(
+                            student=student,
+                            subject=selected_subject,
+                            exam_type=exam_type,
+                            score=score_val,
+                            max_score=float(max_score),
+                            teacher=request.user
+                        ))
+                    saved += 1
+                except ValueError:
+                    pass
+
+        if to_create:
+            Result.objects.bulk_create(to_create)
+        if to_update:
+            Result.objects.bulk_update(to_update, ['score', 'max_score', 'teacher'])
+
+        messages.success(request, f'Assessment protocol successfully committed for {saved} student(s).')
+        return redirect(f"{reverse('manage_grades')}?class_id={selected_class.id}&subject_id={selected_subject.id}")
 
     exam_types = [('midterm', 'Midterm'), ('final', 'Final'), ('quiz', 'Quiz'), ('assignment', 'Assignment')]
 
