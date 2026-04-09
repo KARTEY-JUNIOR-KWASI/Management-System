@@ -1,126 +1,133 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Academics — Advanced Class Coordination{% endblock %}
+{% block title %}Academic Intelligence — Coordination Grid{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
 <style>
     .timetable-wrapper {
-        background: white;
-        border-radius: 24px;
-        padding: 2rem;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 10px 30px rgba(0, 64, 103, 0.04);
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(20px);
+        border-radius: 30px;
+        padding: 2.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 25px 50px rgba(0, 64, 103, 0.05);
         overflow: hidden;
     }
     .timetable-grid {
         display: grid;
-        grid-template-columns: 80px repeat(7, 1fr);
-        gap: 1px;
-        background: rgba(0, 64, 103, 0.05);
-        border: 1px solid rgba(0, 64, 103, 0.05);
-        border-radius: 16px;
-        overflow: hidden;
+        grid-template-columns: 100px repeat(7, 1fr);
+        gap: 15px;
+        border-radius: 20px;
     }
     .grid-header-cell {
-        background: #f8fafc;
-        padding: 1rem;
+        background: rgba(255, 255, 255, 0.6);
+        padding: 1.25rem;
         text-align: center;
         font-weight: 800;
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 2px;
         color: var(--text-muted);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
     }
     .grid-day-column {
         display: flex;
         flex-direction: column;
-        gap: 1px;
+        gap: 15px;
     }
     .session-card {
-        padding: 1.25rem;
-        background: white;
-        border: 1px solid rgba(0,0,0,0.02);
-        transition: var(--p-transition-smooth);
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
         position: relative;
-        min-height: 120px;
+        min-height: 130px;
         display: flex;
         flex-direction: column;
+        border-radius: 18px;
     }
     .session-card:hover {
-        transform: scale(1.02);
+        transform: scale(1.03) translateY(-5px);
         z-index: 10;
-        box-shadow: 0 10px 25px rgba(0, 64, 103, 0.08);
-        border-color: var(--p-primary-hsl);
+        background: rgba(255, 255, 255, 0.95);
+        border-color: var(--p-nexus-primary);
+        box-shadow: 0 20px 40px rgba(37, 99, 235, 0.12);
     }
     .session-active {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
-        border: 2px solid #10b981 !important;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.03));
+        border: 2px solid var(--p-nexus-primary) !important;
     }
     .session-active::after {
-        content: 'LIVE';
+        content: 'SYNCHRONIZED';
         position: absolute;
-        top: 8px;
-        right: 8px;
-        background: #10b981;
+        top: 12px;
+        right: 12px;
+        background: var(--p-nexus-primary);
         color: white;
-        font-size: 0.55rem;
+        font-size: 0.5rem;
         font-weight: 900;
-        padding: 2px 6px;
-        border-radius: 4px;
-        letter-spacing: 1px;
-        animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.5; }
-        100% { opacity: 1; }
-    }
-    .time-strip {
-        font-weight: 700;
-        color: var(--text-muted);
-        font-size: 0.7rem;
-        text-align: right;
-        padding-right: 1rem;
+        padding: 3px 8px;
+        border-radius: 6px;
+        letter-spacing: 1.5px;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        animation: nexus-pulse 2s infinite;
     }
     
-    /* Subject Colors */
-    .color-math { border-left: 5px solid #6366f1; }
-    .color-science { border-left: 5px solid #10b981; }
-    .color-english { border-left: 5px solid #f59e0b; }
-    .color-history { border-left: 5px solid #8b5cf6; }
-    .color-art { border-left: 5px solid #ec4899; }
-    .color-default { border-left: 5px solid #94a3b8; }
+    @keyframes nexus-pulse {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(0.95); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+
+    .time-strip {
+        font-weight: 800;
+        color: var(--text-muted);
+        font-size: 0.65rem;
+        text-align: right;
+        padding-right: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    .color-default { border-left: 4px solid var(--p-nexus-primary); }
 
     /* Mobile Day Tabs */
     .day-tabs { display: none; }
-    @media (max-width: 992px) {
-        .timetable-grid { grid-template-columns: 80px 1fr; }
+    @media (max-width: 1200px) {
+        .timetable-grid { grid-template-columns: 100px 1fr; }
         .grid-header-cell:not(.time-header) { display: none; }
         .grid-day-column:not(.active-day) { display: none; }
         .day-tabs {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
             overflow-x: auto;
-            padding-bottom: 0.5rem;
+            padding-bottom: 1rem;
         }
         .day-tab {
-            padding: 0.5rem 1.25rem;
+            padding: 0.6rem 1.5rem;
             border-radius: 50px;
-            background: white;
-            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             white-space: nowrap;
-            font-weight: 700;
-            font-size: 0.8rem;
+            font-weight: 800;
+            font-size: 0.75rem;
             cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-muted);
         }
         .day-tab.active {
-            background: var(--p-primary-hsl);
+            background: var(--p-nexus-primary);
             color: white;
-            border-color: var(--p-primary-hsl);
+            border-color: var(--p-nexus-primary);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
         }
     }
 </style>
@@ -132,93 +139,89 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-end mb-5 animate-fade-up">
         <div>
-            <h1 class="page-title with-sub mb-0">Academic Timetable</h1>
-            <p class="page-subtitle mb-0">Coordination Protocol for <strong>{{ student.class_enrolled.name }}</strong></p>
+            <h1 class="page-title with-sub mb-0">Coordination Grid</h1>
+            <p class="page-subtitle mb-0">Temporal synchronization for <strong>{{ student.class_enrolled.name }}</strong> operational sectors.</p>
         </div>
         <div class="d-flex gap-3">
-             <div class="p-badge p-badge-medium">
-                <i class="fas fa-clock me-2"></i> Current Session: <span id="current-session-label">Discovering...</span>
+             <div class="p-badge nexus-glass-card border shadow-none px-4 py-2 fw-800 extra-small">
+                <i class="fas fa-clock text-primary me-2"></i> ACTIVE SLOT: <span id="current-session-label" class="text-dark">IDLE</span>
             </div>
         </div>
     </div>
 
-    <!-- Mobile Tabs -->
+    <!-- Mobile Navigation -->
     <div class="day-tabs animate-fade-up delay-1">
         {% for day_name, events in schedule_list %}
             <div class="day-tab {% if forloop.first %}active{% endif %}" onclick="switchDay('{{ day_name|lower }}', this)">
-                {{ day_name }}
+                {{ day_name|upper }}
             </div>
         {% endfor %}
     </div>
 
-    <!-- Timetable Grid -->
+    <!-- Timetable Framework -->
     <div class="timetable-wrapper animate-fade-up delay-2">
         <div class="timetable-grid">
-            <!-- Header Row -->
-            <div class="grid-header-cell time-header">TIME</div>
+            <!-- Labels -->
+            <div class="grid-header-cell time-header">TEMPORAL</div>
             {% for day_name, events in schedule_list %}
-                <div class="grid-header-cell day-label-{{ day_name|lower }}">{{ day_name }}</div>
+                <div class="grid-header-cell day-label-{{ day_name|lower }}">{{ day_name|upper }}</div>
             {% endfor %}
 
-            <!-- Grid Content -->
-            <div class="time-column d-flex flex-direction-column gap-1">
-                <!-- We simulate time slots based on data or predefined slots -->
-                <div class="session-card time-strip border-0">08:00 AM</div>
-                <div class="session-card time-strip border-0">10:00 AM</div>
-                <div class="session-card time-strip border-0">12:00 PM</div>
-                <div class="session-card time-strip border-0">02:00 PM</div>
+            <!-- Temporal Strip -->
+            <div class="time-column d-flex flex-column gap-3">
+                <div class="session-card time-strip">08:00 AM</div>
+                <div class="session-card time-strip">10:00 AM</div>
+                <div class="session-card time-strip">12:00 PM</div>
+                <div class="session-card time-strip">02:00 PM</div>
             </div>
 
             {% for day_name, events in schedule_list %}
                 <div class="grid-day-column day-column-{{ day_name|lower }} {% if forloop.first %}active-day{% endif %}" data-day="{{ day_name|lower }}">
                     {% for entry in events %}
-                        <div class="session-card color-default" 
+                        <div class="session-card color-default shadow-sm" 
                              data-start="{{ entry.start_time|time:'H:i' }}" 
                              data-end="{{ entry.end_time|time:'H:i' }}"
                              data-day="{{ day_name|lower }}"
-                             onclick="showSessionDetails('{{ entry.subject.name }}', '{{ entry.teacher.get_full_name }}', '{{ entry.start_time|time:'h:i A' }} - {{ entry.end_time|time:'h:i A' }}')">
-                            <div class="fw-bold text-dark mb-1" style="font-size: 0.95rem;">{{ entry.subject.name }}</div>
-                            <div class="small text-muted mb-2">{{ entry.start_time|time:"h:i" }} - {{ entry.end_time|time:"h:i" }}</div>
+                             onclick="showSessionDetails('{{ entry.subject.name|escapejs }}', '{{ entry.teacher.get_full_name|escapejs }}', '{{ entry.start_time|time:'h:i A' }} - {{ entry.end_time|time:'h:i A' }}')">
+                            <div class="fw-800 text-dark mb-1" style="font-size: 0.9rem; letter-spacing: -0.3px;">{{ entry.subject.name }}</div>
+                            <div class="extra-small text-muted fw-bold mb-2">{{ entry.start_time|time:"h:i" }} — {{ entry.end_time|time:"h:i" }}</div>
                             <div class="mt-auto d-flex align-items-center gap-2">
-                                <div class="p-badge" style="font-size: 0.6rem; padding: 0.2rem 0.5rem; background: rgba(0, 64, 103, 0.05);">
-                                    {{ entry.teacher.get_full_name }}
-                                </div>
+                                <span class="extra-small fw-800 text-uppercase opa-7" style="color: var(--p-nexus-primary);">{{ entry.teacher.get_full_name }}</span>
                             </div>
                         </div>
                     {% empty %}
-                        <div class="session-card border-0 bg-light opacity-50 d-flex align-items-center justify-content-center">
-                            <i class="fas fa-ellipsis-h text-muted opacity-25"></i>
+                        <div class="session-card border-0 bg-light bg-opacity-10 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-ellipsis-h text-muted opa-25"></i>
                         </div>
-                        <div class="session-card border-0 bg-light opacity-50 d-flex align-items-center justify-content-center"></div>
                     {% endfor %}
                 </div>
             {% endfor %}
         </div>
     </div>
 
-    <div class="mt-5 text-center text-muted small animate-fade-in">
-        <i class="fas fa-info-circle me-2"></i> Timetable data is synchronized with institutional scheduling. Session highlights are calculated in real-time.
+    <div class="mt-5 text-center text-muted extra-small fw-bold animate-fade-in">
+        <i class="fas fa-info-circle text-primary me-2"></i> SYSTEM SYNCHRONIZED WITH INSTITUTIONAL SCHEDULING PROTOCOLS.
     </div>
 </div>
 
-<!-- Session Modal -->
+<!-- Detailed Session Overlay -->
 <div class="modal fade" id="sessionModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-content border-0 nexus-glass-card shadow-lg p-2">
             <div class="modal-body p-5">
-                <div class="text-center mb-4">
-                    <div id="modal-subject-icon" class="d-inline-flex p-3 rounded-4 bg-primary-soft text-primary mb-3">
-                        <i class="fas fa-book-reader fs-3"></i>
+                <div class="text-center mb-5">
+                    <div id="modal-subject-icon" class="d-inline-flex p-4 rounded-circle bg-primary bg-opacity-10 text-primary mb-4">
+                        <i class="fas fa-microchip fs-2"></i>
                     </div>
-                    <h3 id="modal-subject-name" class="fw-bold text-dark mb-1">Subject Name</h3>
-                    <p id="modal-teacher-name" class="text-muted mb-0">Teacher Name</p>
+                    <h3 id="modal-subject-name" class="fw-800 text-dark mb-1" style="letter-spacing: -1px;">Sector Identity</h3>
+                    <p id="modal-teacher-name" class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Primary Operator</p>
                 </div>
-                <div class="p-3 rounded-4 bg-light border d-flex justify-content-between align-items-center mb-4">
-                    <span class="text-muted small fw-bold">SESSION WINDOW</span>
-                    <span id="modal-time-range" class="fw-bold text-primary">00:00 - 00:00</span>
+                <div class="p-4 rounded-4 bg-light border-0 d-flex justify-content-between align-items-center mb-5" style="background: rgba(0,0,0,0.02) !important;">
+                    <span class="extra-small text-muted fw-bold text-uppercase">Temporal Window</span>
+                    <span id="modal-time-range" class="fw-800 text-primary small">00:00 — 00:00</span>
                 </div>
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary-akkhor py-3 rounded-3" data-bs-dismiss="modal">Acknowledged</button>
+                <div class="d-grid">
+                    <button class="btn btn-primary nexus-glass-card border-0 py-3 fw-800 extra-small" data-bs-dismiss="modal">ACKNOWLEDGE PROTOCOL</button>
                 </div>
             </div>
         </div>
@@ -260,18 +263,17 @@
             
             if (day === currentDay && currentTimeStr >= start && currentTimeStr <= end) {
                 session.classList.add('session-active');
-                document.getElementById('current-session-label').textContent = session.querySelector('.fw-bold').textContent;
+                document.getElementById('current-session-label').textContent = session.querySelector('.fw-800').textContent.toUpperCase();
                 foundActive = true;
             }
         });
         
         if (!foundActive) {
-            document.getElementById('current-session-label').textContent = 'No Active Session';
+            document.getElementById('current-session-label').textContent = 'IDLE';
         }
     }
 
-    // Run every minute
-    setInterval(updateLiveStatus, 60000);
+    setInterval(updateLiveStatus, 30000);
     updateLiveStatus();
 </script>
 {% endblock %}

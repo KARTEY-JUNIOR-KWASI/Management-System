@@ -1,32 +1,44 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Academics — Attendance Records{% endblock %}
+{% block title %}Attendance Intelligence — Presence Radar{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
 <style>
     .attendance-header { margin-bottom: 2.5rem; }
-    .attendance-metric-card {
-        padding: 2.5rem;
-        background: white;
-        border-radius: var(--p-card-radius);
-        text-align: center;
-        border: 1px solid var(--border-color);
-        height: 100%;
-    }
-    .circular-progress-wrap {
-        width: 150px;
-        height: 150px;
+    .main-canvas-area { padding-top: 1.5rem; }
+    
+    .radar-orbit {
+        width: 180px;
+        height: 180px;
         margin: 0 auto 2rem;
         position: relative;
+        filter: drop-shadow(0 0 20px rgba(37, 99, 235, 0.1));
     }
-    .status-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
+    
+    .radar-svg {
+        transform: rotate(-90deg);
+        width: 100%;
+        height: 100%;
+    }
+    
+    .radar-label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .consistency-node {
+        background: rgba(255, 255, 255, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        transition: all 0.3s ease;
+    }
+    .consistency-node:hover {
+        background: rgba(255, 255, 255, 0.8);
+        border-color: var(--p-nexus-primary);
     }
 </style>
 {% endblock %}
@@ -37,83 +49,90 @@
     <!-- Header -->
     <div class="attendance-header d-flex justify-content-between align-items-end animate-fade-up">
         <div>
-            <h1 class="page-title with-sub mb-0">Attendance Intelligence</h1>
-            <p class="page-subtitle mb-0">Detailed analysis of classroom presence and consistency metrics.</p>
+            <h1 class="page-title with-sub mb-0">Presence Radar</h1>
+            <p class="page-subtitle mb-0">Operational engagement diagnostics & consistency telemetry.</p>
+        </div>
+        <div class="actions">
+             <div class="p-badge nexus-glass-card border shadow-none px-4 py-2 fw-800 extra-small">
+                <i class="fas fa-shield-alt text-success me-2"></i> VERIFIED INSTITUTIONAL RECORD
+            </div>
         </div>
     </div>
 
-    <!-- Attendance Overview Row -->
+    <!-- Radar Hub Row -->
     <div class="row mb-5 animate-fade-up delay-1">
-        <!-- Main Circular Metric -->
+        <!-- Main Circular Diagnostic -->
         <div class="col-lg-4 mb-4">
-            <div class="attendance-metric-card">
-                <div class="circular-progress-wrap">
-                    <!-- Scalable SVG Circle -->
-                    <svg viewBox="0 0 36 36" style="transform: rotate(-90deg); width: 100%; height: 100%;">
-                        <path stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f1f5f9" stroke-width="3" />
-                        <path stroke-dasharray="{{ attendance_percentage|floatformat:0 }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#004067" stroke-width="3" stroke-linecap="round" />
+            <div class="nexus-glass-card h-100 p-5 text-center">
+                <h6 class="extra-small text-muted fw-bold text-uppercase mb-5" style="letter-spacing: 2px;">Core Engagement Index</h6>
+                <div class="radar-orbit">
+                    <svg class="radar-svg" viewBox="0 0 36 36">
+                        <path stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(0,0,0,0.05)" stroke-width="2.5" />
+                        <path stroke-dasharray="{{ attendance_percentage|floatformat:0 }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--p-nexus-primary)" stroke-width="2.5" stroke-linecap="round" />
                     </svg>
-                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                        <h2 class="fw-bold m-0 text-dark">{{ attendance_percentage|floatformat:0 }}%</h2>
-                        <span class="text-muted small fw-bold">PRESENT</span>
+                    <div class="radar-label">
+                        <div class="fw-800 h1 mb-0 text-dark" style="letter-spacing: -1px;">{{ attendance_percentage|floatformat:0 }}%</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase">Present Day</div>
                     </div>
                 </div>
-                <div class="d-flex justify-content-around mt-2">
+                <div class="d-flex justify-content-around mt-4 pt-4 border-top">
                     <div>
-                        <div class="fw-bold text-dark">{{ present_days }}</div>
-                        <div class="text-muted" style="font-size: 0.65rem;">PRESENT</div>
+                        <div class="fw-800 text-dark">{{ present_days }}</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7">Valid</div>
                     </div>
-                    <div style="width: 1px; background: #eee;"></div>
+                    <div style="width: 1px; background: rgba(0,0,0,0.05);"></div>
                     <div>
-                        <div class="fw-bold text-dark">{{ absent_days }}</div>
-                        <div class="text-muted" style="font-size: 0.65rem;">ABSENT</div>
+                        <div class="fw-800 text-dark text-danger">{{ absent_days }}</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7">Absent</div>
                     </div>
-                    <div style="width: 1px; background: #eee;"></div>
+                    <div style="width: 1px; background: rgba(0,0,0,0.05);"></div>
                     <div>
-                        <div class="fw-bold text-dark">{{ late_days }}</div>
-                        <div class="text-muted" style="font-size: 0.65rem;">LATE</div>
+                        <div class="fw-800 text-dark text-warning">{{ late_days }}</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7">Tardy</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Monthly Breakdown -->
+        <!-- Period Breakdown -->
         <div class="col-lg-8 mb-4">
-            <div class="premium-table-container h-100">
-                <h5 class="fw-bold mb-4">Engagement by Month</h5>
+            <div class="nexus-glass-card h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+                    <h5 class="fw-800 m-0" style="letter-spacing: -0.5px;"><i class="fas fa-calendar-alt text-primary me-2"></i> Engagement Periods</h5>
+                    <span class="text-muted extra-small fw-bold text-uppercase opa-7" style="letter-spacing: 1.5px;">Monthly Vector Analysis</span>
+                </div>
                 <div class="table-responsive">
-                    <table class="premium-table">
-                        <thead>
+                    <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                        <thead class="bg-light bg-opacity-20">
                             <tr>
-                                <th>Billing Period / Month</th>
-                                <th>Total Days</th>
-                                <th>Present</th>
-                                <th>Consistency</th>
-                                <th class="text-end">Status</th>
+                                <th class="ps-3 py-3 small text-uppercase text-muted fw-800">Operational Period</th>
+                                <th class="py-3 small text-uppercase text-muted fw-800">Telemetry</th>
+                                <th class="py-3 small text-uppercase text-muted fw-800">Consistency Synergy</th>
+                                <th class="text-end pe-3 small text-uppercase text-muted fw-800">Status Vector</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for month_data in monthly_attendance %}
-                            <tr>
-                                <td class="fw-bold text-dark small">{{ month_data.month|date:"F Y" }}</td>
-                                <td class="small">{{ month_data.total }} Days</td>
-                                <td class="small">{{ month_data.present }}</td>
+                            <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+                                <td class="ps-3 py-4 fw-800 text-dark small">{{ month_data.month|date:"F Y" }}</td>
+                                <td class="small fw-800 text-dark">{{ month_data.present }} <span class="text-muted fw-bold">/ {{ month_data.total }}</span></td>
                                 <td>
                                     {% widthratio month_data.present month_data.total 100 as pct %}
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="progress flex-grow-1" style="height: 6px; border-radius: 3px; background: #f1f5f9;">
-                                            <div class="progress-bar {% if pct|add:0 >= 90 %}bg-success{% elif pct|add:0 >= 75 %}bg-primary{% else %}bg-warning{% endif %}" style="width: {{ pct }}%; border-radius: 3px;"></div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="progress flex-grow-1" style="height: 6px; border-radius: 10px; background: rgba(0,0,0,0.05);">
+                                            <div class="progress-bar {% if pct|add:0 >= 90 %}bg-success{% elif pct|add:0 >= 75 %}bg-primary{% else %}bg-warning{% endif %}" 
+                                                 style="width: {{ pct }}%; border-radius: 10px;"></div>
                                         </div>
-                                        <span class="small fw-bold">{{ pct }}%</span>
+                                        <span class="fw-800 text-dark extra-small">{{ pct }}%</span>
                                     </div>
                                 </td>
-                                <td class="text-end">
+                                <td class="text-end pe-3">
                                     {% if pct|add:0 >= 90 %}
-                                        <span class="p-badge p-badge-medium" style="font-size: 0.6rem;">EXEMPLARY</span>
+                                        <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-a">EXEMPLARY</span>
                                     {% elif pct|add:0 >= 75 %}
-                                        <span class="p-badge p-badge-high" style="font-size: 0.6rem;">STABLE</span>
+                                        <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-c">STABLE</span>
                                     {% else %}
-                                        <span class="p-badge p-badge-critical" style="font-size: 0.6rem;">LOW</span>
+                                        <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-f">LOW SYNC</span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -125,43 +144,48 @@
         </div>
     </div>
 
-    <!-- Recent Records Table -->
+    <!-- Daily Log Row -->
     <div class="row animate-fade-up delay-2">
         <div class="col-12">
-            <div class="premium-table-container">
-                <h5 class="fw-bold mb-4">Detailed Daily Logs</h5>
+            <div class="nexus-glass-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+                    <h5 class="fw-800 m-0" style="letter-spacing: -0.5px;"><i class="fas fa-history text-primary me-2"></i> Detailed Daily Telemetry</h5>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-light text-dark border extra-small fw-bold px-3">FILTER: RECENT</span>
+                    </div>
+                </div>
                 <div class="table-responsive">
-                    <table class="premium-table">
-                        <thead>
+                    <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                        <thead class="bg-light bg-opacity-20">
                             <tr>
-                                <th>Date</th>
-                                <th>Class Designation</th>
-                                <th>Verification Status</th>
-                                <th class="text-end">Record</th>
+                                <th class="ps-3 py-3 small text-uppercase text-muted fw-800">Temporal Marker</th>
+                                <th class="py-3 small text-uppercase text-muted fw-800">Sector Designation</th>
+                                <th class="py-3 small text-uppercase text-muted fw-800">Verification Protocol</th>
+                                <th class="text-end pe-3 small text-uppercase text-muted fw-800">Status Response</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for record in attendance_records %}
-                            <tr>
-                                <td><div class="fw-bold text-dark small">{{ record.date|date:"l, F d" }}</div></td>
-                                <td class="small text-muted">{{ record.class_attended.name }}</td>
+                            <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+                                <td class="ps-3 py-4"><div class="fw-800 text-dark small">{{ record.date|date:"l, F d" }}</div></td>
+                                <td class="small fw-800 text-muted text-uppercase" style="letter-spacing: 0.5px;">{{ record.class_attended.name }}</td>
                                 <td>
-                                    <div class="d-flex align-items-center small text-muted">
-                                        <i class="fas fa-check-circle text-success me-2"></i> Verified Institutional Record
+                                    <div class="d-flex align-items-center extra-small fw-bold text-muted text-uppercase opa-7">
+                                        <i class="fas fa-check-circle text-success me-2"></i> Institutional Node Verified
                                     </div>
                                 </td>
-                                <td class="text-end">
+                                <td class="text-end pe-3">
                                     {% if record.status == 'present' %}
-                                        <span class="p-badge p-badge-medium" style="font-size: 0.65rem;">PRESENT</span>
+                                        <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-a">PRESENT</span>
                                     {% elif record.status == 'late' %}
-                                        <span class="p-badge p-badge-high" style="font-size: 0.65rem;">TARDY</span>
+                                        <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-c">TARDY</span>
                                     {% else %}
-                                        <span class="p-badge p-badge-critical" style="font-size: 0.65rem;">ABSENT</span>
+                                        <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-f">ABSENT</span>
                                     {% endif %}
                                 </td>
                             </tr>
                             {% empty %}
-                            <tr><td colspan="4" class="text-center py-4 text-muted small">No logs available for the current selection.</td></tr>
+                            <tr><td colspan="4" class="text-center py-5 text-muted extra-small fw-bold">NO LOGS DETECTED IN CURRENT SECTOR</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -171,3 +195,4 @@
     </div>
 </div>
 {% endblock %}
+%}

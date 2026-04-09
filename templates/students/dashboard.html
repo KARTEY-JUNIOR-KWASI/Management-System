@@ -7,22 +7,25 @@
 <link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
 <style>
     .dashboard-header { margin-bottom: 2.5rem; }
-    .main-canvas-area { padding-top: 1rem; }
-    .insight-card {
-        padding: 1.5rem;
-        border-radius: var(--p-card-radius);
-        background: #fff;
-        border: 1px solid var(--border-color);
-        transition: var(--p-transition-smooth);
+    .main-canvas-area { padding-top: 1.5rem; }
+    
+    /* Animation Delays */
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+
+    .prediction-card { height: 100%; display: flex; flex-direction: column; }
+    
+    .insight-node {
+        background: rgba(255, 255, 255, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .insight-card:hover {
-        transform: scale(1.02);
-        border-color: var(--p-info-hsl);
-    }
-    .prediction-card {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
+    .insight-node:hover {
+        background: rgba(255, 255, 255, 0.7);
+        transform: translateX(5px);
+        border-color: var(--p-nexus-primary);
     }
 </style>
 {% endblock %}
@@ -33,36 +36,36 @@
     <!-- Header -->
     <div class="dashboard-header d-flex justify-content-between align-items-end animate-fade-up">
         <div>
-            <h1 class="page-title with-sub mb-0">My Intelligence</h1>
-            <p class="page-subtitle mb-0">Personalized learning insights & academic predictions.</p>
+            <h1 class="page-title with-sub mb-0">My Intelligence Hub</h1>
+            <p class="page-subtitle mb-0">Personalized mastery diagnostics & academic forecasting.</p>
         </div>
         <div class="actions">
-            <a href="{% url 'analytics:generate_report' %}" class="btn btn-outline-akkhor btn-sm-akkhor">
-                <i class="fas fa-file-pdf me-2"></i> Progress Report PDF
+            <a href="{% url 'analytics:generate_report' %}" class="btn btn-sm nexus-glass-card shadow-sm border px-3 fw-800 extra-small">
+                <i class="fas fa-file-pdf text-danger me-2"></i> EXPORT TRANSCRIPT
             </a>
         </div>
     </div>
 
-    <!-- Stat Cards Row -->
+    <!-- Stat Grid -->
     <div class="row mb-5">
         <div class="col-xl-3 col-md-6 mb-4 animate-fade-up">
-            <div class="nexus-glass-card h-100 p-4" style="background: rgba(255,255,255,0.85);">
+            <div class="nexus-glass-card h-100 p-4">
                 <div class="d-flex align-items-center gap-3">
                     <div class="p-avatar-lg" style="background: var(--p-nexus-primary);">
-                        <i class="fas fa-graduation-cap"></i>
+                        <i class="fas fa-chart-line"></i>
                     </div>
                     <div>
                         <div class="fw-800 h3 mb-0">{{ gpa|floatformat:2 }}</div>
-                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Academic Index</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Mastery Index</div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
-            <div class="nexus-glass-card h-100 p-4" style="background: rgba(255,255,255,0.85);">
+            <div class="nexus-glass-card h-100 p-4">
                 <div class="d-flex align-items-center gap-3">
                     <div class="p-avatar-lg" style="background: var(--p-nexus-success);">
-                        <i class="fas fa-calendar-check"></i>
+                        <i class="fas fa-fingerprint"></i>
                     </div>
                     <div>
                         <div class="fw-800 h3 mb-0">{{ attendance_percentage|floatformat:1 }}%</div>
@@ -72,47 +75,47 @@
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-2">
-            <div class="nexus-glass-card h-100 p-4" style="background: rgba(255,255,255,0.85);">
+            <div class="nexus-glass-card h-100 p-4">
                 <div class="d-flex align-items-center gap-3">
                     <div class="p-avatar-lg" style="background: var(--p-nexus-warning);">
-                        <i class="fas fa-microchip"></i>
+                        <i class="fas fa-tasks"></i>
                     </div>
                     <div>
                         <div class="fw-800 h3 mb-0">{{ performance_data.assignment_completion_rate|floatformat:0 }}%</div>
-                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Execution Rate</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Fulfillment</div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-3">
-            <div class="nexus-glass-card h-100 p-4" style="background: rgba(255,255,255,0.85);">
+            <div class="nexus-glass-card h-100 p-4">
                 <div class="d-flex align-items-center gap-3">
                     <div class="p-avatar-lg" style="background: var(--p-nexus-dark);">
                         <i class="fas fa-brain"></i>
                     </div>
                     <div>
                         <div class="fw-800 h3 mb-0">{{ insights.count }}</div>
-                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Neural Insights</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Active Insights</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Main Insights Row -->
     <div class="row mb-5">
-        <!-- AI Learning Insights -->
         <div class="col-lg-8 mb-4 animate-fade-up delay-1">
             <div class="nexus-glass-card h-100 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4 px-2">
                     <h5 class="fw-800 m-0" style="letter-spacing: -0.5px;"><i class="fas fa-atom text-primary me-2 animate-spin-slow"></i> AI Neural Diagnostics</h5>
-                    <span class="text-muted extra-small fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Operational Analysis</span>
+                    <span class="text-muted extra-small fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Live Analysis</span>
                 </div>
 
                 {% if insights %}
                 <div class="row g-3">
                     {% for insight in insight_data %}
                     <div class="col-12">
-                        <div class="nexus-glass-card p-4 border-0 mb-3" style="background: rgba(67, 97, 238, 0.03);">
+                        <div class="nexus-glass-card insight-node p-4 border-0 mb-3">
                             <div class="d-flex gap-4 align-items-center">
                                 <div class="p-avatar-lg shadow-none" style="background: rgba(255,255,255,0.8); color: var(--p-nexus-primary);">
                                     <i class="fas fa-bolt"></i>
@@ -138,49 +141,51 @@
             </div>
         </div>
 
-        <!-- Grade Predictions Chart -->
         <div class="col-lg-4 mb-4 animate-fade-up delay-2">
-            <div class="chart-premium-wrapper h-100">
-                <h5 class="fw-bold mb-4">Grade Forecast</h5>
+            <div class="nexus-glass-card h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-800 m-0" style="letter-spacing: -0.5px;"><i class="fas fa-chart-area text-info me-2"></i> Mastery Forecast</h5>
+                    <i class="fas fa-expand-alt text-muted small cursor-pointer"></i>
+                </div>
                 <div style="height: 300px;">
                     <canvas id="predictionChart"></canvas>
                 </div>
-                <div class="mt-4 p-3 rounded-3" style="background: rgba(0, 163, 255, 0.05);">
-                    <p class="text-muted mb-0" style="font-size: 0.75rem;">
-                        <i class="fas fa-info-circle text-info me-2"></i> Predictions incorporate your current GPA, attendance trends, and late submission frequencies.
+                <div class="mt-4 p-3 rounded-4" style="background: rgba(0, 163, 255, 0.05); border: 1px solid rgba(0, 163, 255, 0.1);">
+                    <p class="text-muted mb-0" style="font-size: 0.7rem;">
+                        <i class="fas fa-info-circle text-info me-2"></i> Predictions incorporate current GPA trends and late submission frequencies.
                     </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Upcoming Assignments & Standing -->
+    <!-- Coursework Matrix -->
     <div class="row mb-5">
-        <div class="col-lg-7 mb-4 animate-fade-up delay-1">
-            <div class="nexus-glass-card p-4">
+        <div class="col-lg-7 mb-4 animate-fade-up delay-3">
+            <div class="nexus-glass-card p-4 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-800 m-0" style="letter-spacing: -0.5px;">Upcoming Tasks</h5>
-                    <a href="{% url 'view_assignments' %}" class="btn btn-sm btn-glass text-primary fw-bold extra-small border-0 px-3">View Registry</a>
+                    <h5 class="fw-800 m-0" style="letter-spacing: -0.5px;"><i class="fas fa-layer-group text-primary me-2"></i> Fulfillment Registry</h5>
+                    <a href="{% url 'view_assignments' %}" class="btn btn-sm nexus-glass-card border-0 text-primary fw-800 extra-small px-3">View Portal</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0 nexus-premium-table">
                         <thead class="bg-light bg-opacity-20">
                             <tr>
-                                <th class="ps-0 py-3 small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Objective</th>
+                                <th class="ps-3 py-3 small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Objective</th>
                                 <th class="py-3 small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Sector</th>
                                 <th class="py-3 small text-uppercase text-muted fw-800" style="letter-spacing: 1px;">Deadline</th>
-                                <th class="text-end">Command</th>
+                                <th class="text-end pe-3">Command</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for assignment in upcoming_assignments %}
                             <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
-                                <td class="ps-0 py-3"><div class="fw-800 text-dark small">{{ assignment.title }}</div></td>
-                                <td><span class="badge border bg-light text-dark rounded-pill px-3 extra-small fw-bold">{{ assignment.subject.name }}</span></td>
+                                <td class="ps-3 py-4"><div class="fw-800 text-dark small">{{ assignment.title }}</div></td>
+                                <td><span class="badge border bg-white text-dark rounded-pill px-3 extra-small fw-bold">{{ assignment.subject.name }}</span></td>
                                 <td class="small text-muted fw-medium">{{ assignment.due_date|date:"M d, Y" }}</td>
-                                <td class="text-end pe-0">
-                                    <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-sm btn-icon nexus-glass-card shadow-none" style="width: 34px; height: 34px;">
-                                        <i class="fas fa-upload text-primary" style="font-size: 0.8rem;"></i>
+                                <td class="text-end pe-3">
+                                    <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-sm btn-icon nexus-glass-card shadow-sm border" style="width: 34px; height: 34px;">
+                                        <i class="fas fa-upload text-primary" style="font-size: 0.7rem;"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -193,33 +198,32 @@
             </div>
         </div>
 
-        <!-- Academic Standing Widget -->
-        <div class="col-lg-5 mb-4 animate-fade-up delay-2">
-            <div class="premium-table-container h-100">
-                <h5 class="fw-bold mb-4">Academic Standing</h5>
-                <div class="d-flex align-items-center gap-4 mb-4 p-3 rounded-4" style="background: white; border: 1px solid rgba(0,0,0,0.03);">
-                    <div class="premium-stat-icon p-icon-warning m-0" style="width:70px; height:70px; font-size: 2rem;">
-                        <i class="fas fa-award"></i>
+        <div class="col-lg-5 mb-4 animate-fade-up delay-4">
+            <div class="nexus-glass-card p-4 h-100">
+                <h5 class="fw-800 mb-4" style="letter-spacing: -0.5px;"><i class="fas fa-award text-warning me-2"></i> Academic Stature</h5>
+                <div class="d-flex align-items-center gap-4 mb-4 p-4 rounded-4" style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.1);">
+                    <div class="p-avatar-lg shadow-sm" style="background: white; color: var(--p-nexus-warning); width:80px; height:80px; font-size: 2.2rem;">
+                        <i class="fas fa-star-half-alt"></i>
                     </div>
                     <div>
-                        <h4 class="fw-bold text-dark mb-1" style="letter-spacing: -0.5px;">
+                        <h4 class="fw-800 text-dark mb-1" style="letter-spacing: -1px;">
                             {% if gpa >= 3.5 %}Distinction{% elif gpa >= 3.0 %}Excellent{% elif gpa >= 2.0 %}Good{% else %}Support Required{% endif %}
                         </h4>
-                        <p class="text-muted small mb-0">Institutional Ranking: Top 15%</p>
+                        <p class="text-muted extra-small fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Institutional Ranking: Top 15%</p>
                     </div>
                 </div>
 
                 <div class="px-2">
-                    <h6 class="text-muted fw-bold text-uppercase mb-3" style="font-size:0.7rem; letter-spacing: 1px;">Subject Mastery Levels</h6>
-                    <div class="row g-3">
+                    <h6 class="text-muted fw-bold text-uppercase mb-3" style="font-size:0.65rem; letter-spacing: 1.5px;">Mastery Curve Diagnostics</h6>
+                    <div class="row g-4">
                         {% for subj in predictions|slice:":4" %}
                         <div class="col-12">
-                            <div class="mb-1 d-flex justify-content-between small">
-                                <span class="fw-bold text-dark">{{ subj.subject.name }}</span>
-                                <span class="text-muted">{{ subj.current_average|floatformat:0 }}%</span>
+                            <div class="mb-2 d-flex justify-content-between extra-small fw-800 text-uppercase">
+                                <span class="text-muted">{{ subj.subject.name }}</span>
+                                <span class="text-dark">{{ subj.current_average|floatformat:0 }}% Mastery</span>
                             </div>
-                            <div class="progress" style="height: 6px; border-radius: 3px; background: #f1f5f9;">
-                                <div class="progress-bar bg-primary" style="width: {{ subj.current_average|default:0 }}%; border-radius: 3px;"></div>
+                            <div class="progress" style="height: 6px; border-radius: 10px; background: rgba(0,0,0,0.05);">
+                                <div class="progress-bar" style="width: {{ subj.current_average|default:0 }}%; border-radius: 10px; background: var(--p-nexus-primary);"></div>
                             </div>
                         </div>
                         {% endfor %}
@@ -235,7 +239,6 @@
     document.addEventListener("DOMContentLoaded", function() {
         const ctx = document.getElementById('predictionChart').getContext('2d');
         
-        // Prepare data for Grade Predictions Chart
         const labels = [{% for prediction in predictions %}"{{ prediction.subject.name|truncatechars:10|escapejs }}",{% endfor %}];
         const currentData = [{% for prediction in predictions %}{{ prediction.current_average|default:0|floatformat:1 }},{% endfor %}];
         const predictedData = [{% for prediction in predictions %}{{ prediction.predicted_score|default:0|floatformat:1 }},{% endfor %}];
@@ -246,22 +249,22 @@
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Current Avg (%)',
+                        label: 'Current %',
                         data: currentData,
-                        backgroundColor: 'rgba(0, 64, 103, 0.4)',
-                        borderColor: '#004067',
+                        backgroundColor: 'rgba(37, 99, 235, 0.4)',
+                        borderColor: '#2563eb',
                         borderWidth: 0,
-                        borderRadius: 8,
-                        barThickness: 15
+                        borderRadius: 12,
+                        barThickness: 12
                     },
                     {
-                        label: 'Predicted Score (%)',
+                        label: 'Forecast %',
                         data: predictedData,
-                        backgroundColor: 'rgba(111, 177, 63, 0.4)',
-                        borderColor: '#6FB13F',
+                        backgroundColor: 'rgba(16, 185, 129, 0.4)',
+                        borderColor: '#10b981',
                         borderWidth: 0,
-                        borderRadius: 8,
-                        barThickness: 15
+                        borderRadius: 12,
+                        barThickness: 12
                     }
                 ]
             },
@@ -271,26 +274,26 @@
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: { font: { family: 'Inter', size: 11, weight: 'bold' }, usePointStyle: true, boxWidth: 10 }
+                        labels: { font: { family: 'Outfit', size: 10, weight: 'bold' }, usePointStyle: true, boxWidth: 6, padding:20 }
                     },
                     tooltip: {
-                        backgroundColor: '#111827',
+                        backgroundColor: '#1e293b',
                         titleFont: { family: 'Outfit', size: 14 },
-                        bodyFont: { family: 'Inter', size: 13 },
+                        bodyFont: { family: 'Outfit', size: 13 },
                         padding: 12,
-                        cornerRadius: 10
+                        cornerRadius: 12
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         max: 100,
-                        grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
-                        ticks: { font: { family: 'Inter', size: 10 } }
+                        grid: { color: 'rgba(0,0,0,0.02)', drawBorder: false },
+                        ticks: { font: { family: 'Outfit', size: 9, weight: '600' } }
                     },
                     x: {
                         grid: { display: false },
-                        ticks: { font: { family: 'Inter', size: 10 } }
+                        ticks: { font: { family: 'Outfit', size: 9, weight: '600' } }
                     }
                 }
             }
@@ -298,3 +301,4 @@
     });
 </script>
 {% endblock %}
+%}

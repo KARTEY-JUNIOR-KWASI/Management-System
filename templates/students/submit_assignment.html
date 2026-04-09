@@ -1,150 +1,184 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 
-{% block title %}Submit Assignment - {{ assignment.title }}{% endblock %}
+{% block title %}Submission Protocol — {{ assignment.title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .main-canvas-area { padding-top: 1.5rem; }
+    
+    .submission-terminal {
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(20px);
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    
+    .upload-node {
+        border: 2px dashed rgba(0, 0, 0, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(255, 255, 255, 0.3);
+    }
+    .upload-node:hover {
+        border-color: var(--p-nexus-primary);
+        background: rgba(255, 255, 255, 0.6);
+        transform: translateY(-5px);
+    }
+    
+    .protocol-marker {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="sms-breadcrumb mb-4">
-  <span><a href="{% url 'view_assignments' %}">Assignments</a></span><span class="sep">›</span><span class="current">Submit</span>
-</div>
-
-<div class="container-fluid fade-in pb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid main-canvas-area pb-5">
+    
+    <!-- Navigation Registry -->
+    <div class="d-flex justify-content-between align-items-center mb-5 animate-fade-up">
         <div>
-            <h2 style="font-weight: 800; margin: 0; color: var(--text-dark);">Assignment Details</h2>
-            <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">Turn in your work or view feedback</p>
+            <h1 class="page-title with-sub mb-0">Submission Terminal</h1>
+            <p class="page-subtitle mb-0">Operational objective fulfillment protocol.</p>
         </div>
-        <a href="{% url 'view_assignments' %}" class="btn btn-outline-akkhor btn-sm rounded-pill px-3">
-            <i class="fas fa-arrow-left me-1"></i> Back to Assignments
+        <a href="{% url 'view_assignments' %}" class="btn btn-sm nexus-glass-card border px-4 fw-800 extra-small">
+            <i class="fas fa-arrow-left me-2"></i> ABORT & RETURN
         </a>
     </div>
 
-    <div class="row g-4">
-        <!-- Assignment Details -->
-        <div class="col-lg-5">
-            <div class="reg-card h-100">
-                <div class="reg-card-body p-4 p-md-5">
-                    <span class="badge bg-primary text-uppercase px-3 py-1 rounded-pill mb-3 shadow-sm">{{ assignment.subject.name }}</span>
-                    <h3 class="fw-bold text-dark mb-4">{{ assignment.title }}</h3>
-                    
-                    <p class="text-muted mb-4 lh-lg">{{ assignment.description }}</p>
-                    
-                    <div class="d-flex flex-column gap-3 mt-4">
-                        <div class="d-flex align-items-center p-3 rounded-3 border" style="background:var(--body-bg);">
-                            <div class="icon-box me-3 rounded-circle d-flex align-items-center justify-content-center bg-white shadow-sm" style="width: 45px; height: 45px;">
-                                <i class="fas fa-user-tie text-primary fs-5"></i>
-                            </div>
-                            <div>
-                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Teacher</small>
-                                <span class="fw-medium text-dark">{{ assignment.teacher.user.get_full_name }}</span>
-                            </div>
+    <div class="row g-5">
+        <!-- Objective Metadata -->
+        <div class="col-lg-5 animate-fade-up delay-1">
+            <div class="nexus-glass-card h-100 p-5">
+                <span class="badge border bg-white text-primary px-3 py-2 rounded-pill mb-4 extra-small fw-800 text-uppercase">{{ assignment.subject.name }}</span>
+                <h3 class="fw-800 text-dark mb-4" style="letter-spacing: -1px;">{{ assignment.title }}</h3>
+                <p class="text-muted small fw-medium lh-lg opa-7 mb-5">{{ assignment.description }}</p>
+                
+                <div class="d-flex flex-column gap-3 mb-5">
+                    <div class="protocol-marker">
+                        <div class="p-avatar-sm me-3" style="background: white; color: var(--p-nexus-primary);">
+                            <i class="fas fa-user-tie" style="font-size: 0.8rem;"></i>
                         </div>
-
-                        <div class="d-flex align-items-center p-3 rounded-3 border" style="background:var(--body-bg);">
-                            <div class="icon-box me-3 rounded-circle d-flex align-items-center justify-content-center bg-white shadow-sm" style="width: 45px; height: 45px;">
-                                <i class="fas fa-clock text-danger fs-5"></i>
-                            </div>
-                            <div>
-                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Deadline</small>
-                                <span class="fw-medium text-dark">{{ assignment.due_date|date:"F j, Y" }} at {{ assignment.due_date|time:"g:i A" }}</span>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-center p-3 rounded-3 border" style="background:var(--body-bg);">
-                            <div class="icon-box me-3 rounded-circle d-flex align-items-center justify-content-center bg-white shadow-sm" style="width: 45px; height: 45px;">
-                                <i class="fas fa-star text-warning fs-5"></i>
-                            </div>
-                            <div>
-                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Maximum Score</small>
-                                <span class="fw-medium text-dark">{{ assignment.max_score }} Points</span>
-                            </div>
+                        <div>
+                            <div class="extra-small text-muted fw-bold text-uppercase opa-5">Sector Operator</div>
+                            <div class="small fw-800 text-dark">{{ assignment.teacher.user.get_full_name }}</div>
                         </div>
                     </div>
+                    <div class="protocol-marker">
+                        <div class="p-avatar-sm me-3" style="background: white; color: var(--p-nexus-danger);">
+                            <i class="fas fa-clock" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <div>
+                            <div class="extra-small text-muted fw-bold text-uppercase opa-5">Temporal Threshold</div>
+                            <div class="small fw-800 text-dark">{{ assignment.due_date|date:"F j, Y" }} @ {{ assignment.due_date|time:"g:i A" }}</div>
+                        </div>
+                    </div>
+                    <div class="protocol-marker">
+                        <div class="p-avatar-sm me-3" style="background: white; color: var(--p-nexus-warning);">
+                            <i class="fas fa-star" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <div>
+                            <div class="extra-small text-muted fw-bold text-uppercase opa-5">Mastery Yield</div>
+                            <div class="small fw-800 text-dark">{{ assignment.max_score }} Points</div>
+                        </div>
+                    </div>
+                </div>
 
-                    {% if assignment.file %}
-                    <div class="mt-4 pt-3 border-top">
-                        <a href="{{ assignment.file.url }}" target="_blank" class="btn btn-outline-primary w-100 rounded-pill py-2 fw-bold d-flex align-items-center justify-content-center gap-2">
-                            <i class="fas fa-download"></i> Download Resource File
-                        </a>
+                {% if assignment.file %}
+                <div class="pt-4 border-top">
+                    <a href="{{ assignment.file.url }}" target="_blank" class="btn btn-sm nexus-glass-card border-primary text-primary w-100 py-3 fw-800 extra-small">
+                        <i class="fas fa-download me-2"></i> RETRIEVE RESOURCE DATA
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Submission Node -->
+        <div class="col-lg-7 animate-fade-up delay-2">
+            {% if existing_submission %}
+            <div class="nexus-glass-card h-100 p-5 d-flex flex-column justify-content-center align-items-center text-center" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); border-color: rgba(16, 185, 129, 0.2);">
+                <div class="p-avatar-lg bg-white shadow-sm mb-4" style="width: 100px; height: 100px; color: var(--p-nexus-success);">
+                    <i class="fas fa-check-circle" style="font-size: 3.5rem;"></i>
+                </div>
+                <h3 class="fw-800 text-dark mb-3">Protocol Fulfilled</h3>
+                <p class="extra-small text-muted fw-bold text-uppercase opa-7 mb-5">Objective data synchronized on {{ existing_submission.submitted_at|date:"M d, Y" }} at {{ existing_submission.submitted_at|time:"g:i A" }}</p>
+                
+                <div class="w-100 nexus-glass-card bg-white p-5 text-start">
+                    {% if existing_submission.grade %}
+                    <div class="mb-5 pb-4 border-bottom">
+                        <span class="extra-small text-muted text-uppercase fw-800 opa-5 d-block mb-3">Mastery Evaluation</span>
+                        <div class="d-flex align-items-end gap-2">
+                            <span class="h1 fw-800 text-success mb-0">{{ existing_submission.grade }}</span>
+                            <span class="h5 text-muted fw-bold opa-5 mb-2">/ {{ assignment.max_score }}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="mb-5 pb-4 border-bottom d-flex align-items-center gap-4">
+                        <div class="p-avatar-sm bg-warning bg-opacity-10 text-warning">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <span class="extra-small fw-800 text-muted text-uppercase">Operational status: Pending evaluation...</span>
+                    </div>
+                    {% endif %}
+
+                    {% if existing_submission.feedback %}
+                    <div>
+                        <span class="extra-small text-muted text-uppercase fw-800 opa-5 d-block mb-3">Operator Narrative</span>
+                        <div class="p-4 rounded-4 bg-light border-start border-4 border-info">
+                            <p class="mb-0 text-dark fw-medium small opa-8">"{{ existing_submission.feedback }}"</p>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
             </div>
-        </div>
-
-        <!-- Submission Form -->
-        <div class="col-lg-7">
-            {% if existing_submission %}
-            <div class="reg-card h-100 text-white" style="background: linear-gradient(135deg, #28a745, #20c997); border:none;">
-                <div class="reg-card-body p-5 d-flex flex-column justify-content-center align-items-center text-center">
-                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center mb-4 shadow" style="width: 100px; height: 100px;">
-                        <i class="fas fa-check text-success" style="font-size: 3rem;"></i>
-                    </div>
-                    <h3 class="fw-bold mb-3 text-white">Assignment Submitted!</h3>
-                    <p class="opacity-75 mb-4 text-white">You turned in your work on {{ existing_submission.submitted_at|date:"F j, Y" }} at {{ existing_submission.submitted_at|time:"g:i A" }}.</p>
-                    
-                    <div class="w-100 bg-white text-dark rounded-4 p-4 shadow-sm text-start mt-2">
-                        {% if existing_submission.grade %}
-                        <div class="mb-3 pb-3 border-bottom">
-                            <span class="text-muted text-uppercase small fw-bold d-block mb-1">Your Grade</span>
-                            <span class="fs-2 fw-bold text-success">{{ existing_submission.grade }} <span class="fs-6 text-muted">/ {{ assignment.max_score }}</span></span>
-                        </div>
-                        {% else %}
-                        <div class="mb-3 pb-3 border-bottom d-flex align-items-center">
-                            <i class="fas fa-hourglass-half text-warning fs-4 me-3"></i>
-                            <span class="fw-medium">Waiting to be graded by the teacher.</span>
-                        </div>
-                        {% endif %}
-
-                        {% if existing_submission.feedback %}
-                        <div>
-                            <span class="text-muted text-uppercase small fw-bold d-block mb-2">Teacher Feedback</span>
-                            <p class="mb-0 bg-light p-3 rounded-3 border-start border-4 border-info fst-italic">"{{ existing_submission.feedback }}"</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
             {% else %}
-            <div class="reg-card h-100">
-                <div class="reg-card-header">
-                    <div class="card-icon-wrap" style="background:#eff3ff;">
-                        <i class="fas fa-cloud-upload-alt" style="color:var(--primary);"></i>
+            <div class="nexus-glass-card h-100 p-5">
+                <div class="d-flex align-items-center gap-4 mb-5 pb-4 border-bottom">
+                    <div class="p-avatar-sm" style="background: var(--p-nexus-primary); color: white;">
+                        <i class="fas fa-cloud-upload-alt"></i>
                     </div>
                     <div>
-                        <h5 style="margin:0; font-weight:700;">Upload Your Work</h5>
-                        <p style="margin:0; font-size:0.75rem; color:var(--text-muted);">Please attach required files below</p>
+                        <h5 class="fw-800 text-dark m-0" style="letter-spacing: -0.5px;">Execute Upload</h5>
+                        <p class="extra-small text-muted fw-bold text-uppercase opa-7 mb-0">Transmit objective data to central repository</p>
                     </div>
                 </div>
-                <div class="reg-card-body p-4 p-md-5">
-                    <form method="post" enctype="multipart/form-data" class="akkhor-form pt-2">
-                        {% csrf_token %}
-                        
-                        <div class="upload-area p-5 text-center border rounded-4 border-dashed bg-light mb-4 position-relative" style="border-style: dashed; border-color: #dee2e6; transition:all 0.2s ease;">
-                            <i class="fas fa-file-upload text-primary mb-3" style="font-size: 4rem; opacity: 0.5;"></i>
-                            <h5 class="fw-bold text-dark">Select a file to upload</h5>
-                            <p class="text-muted small px-3">Accepted formats: PDF, Word docs (.doc, .docx), Text files, Images, ZIP archives (Max 10MB)</p>
-                            
-                            <input type="file" class="form-control" id="file" name="file" required
-                                   accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.zip,.rar" 
-                                   style="opacity: 0; position: absolute; top:0; left:0; width:100%; height:100%; cursor: pointer;">
-                        </div>
-                        
-                        <div id="file-name-display" class="alert d-none d-flex align-items-center mb-4" style="background:#f3f6fb; border:1px solid #dbeafe;">
-                            <i class="fas fa-file-alt text-primary fs-4 me-3"></i>
-                            <div class="flex-grow-1">
-                                <span class="fw-bold text-dark d-block" id="selected-file-name">No file selected</span>
-                                <span class="text-muted small" id="selected-file-size">0 KB</span>
-                            </div>
-                        </div>
 
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary-akkhor btn-lg py-3 rounded-pill shadow-sm fw-bold">
-                                Turn In Assignment
-                            </button>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="upload-node p-5 text-center rounded-5 mb-5 position-relative">
+                        <i class="fas fa-file-invoice text-primary mb-4 opa-25" style="font-size: 5rem;"></i>
+                        <h4 class="fw-800 text-dark mb-2">Initiate File Stream</h4>
+                        <p class="extra-small text-muted fw-bold text-uppercase opa-7">PDF, Word, or Imagery Protocols (MAX: 10MB)</p>
+                        
+                        <input type="file" id="file" name="file" required class="form-control"
+                               accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.zip,.rar" 
+                               style="opacity: 0; position: absolute; top:0; left:0; width:100%; height:100%; cursor: pointer;">
+                    </div>
+                    
+                    <div id="file-telemetry" class="d-none nexus-glass-card p-4 border-primary mb-5 animate-fade-in">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-code text-primary fs-3 me-4"></i>
+                            <div class="flex-grow-1">
+                                <span class="fw-800 text-dark d-block small" id="selected-file-name">Unknown_Data.log</span>
+                                <span class="extra-small text-muted fw-bold text-uppercase opa-5" id="selected-file-size">0.0 KB</span>
+                            </div>
+                            <i class="fas fa-check-circle text-success fs-4"></i>
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary nexus-glass-card border-0 py-4 shadow-sm fw-800 extra-small">
+                            TERMINATE & TRANSMIT PROTOCOL
+                        </button>
+                    </div>
+                </form>
             </div>
             {% endif %}
         </div>
@@ -152,42 +186,40 @@
 </div>
 
 <script>
-// File validation and visual display
 const fileInput = document.getElementById('file');
 if(fileInput) {
     fileInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
-        const displayDiv = document.getElementById('file-name-display');
+        const telemetry = document.getElementById('file-telemetry');
         const nameSpan = document.getElementById('selected-file-name');
         const sizeSpan = document.getElementById('selected-file-size');
-        const uploadArea = document.querySelector('.upload-area');
+        const node = document.querySelector('.upload-node');
         
         if (file) {
-            const maxSize = 10 * 1024 * 1024; // 10MB
+            const maxSize = 10 * 1024 * 1024;
             if (file.size > maxSize) {
-                alert('File size must be less than 10MB');
+                alert('DATA OVERLOAD: FILE EXCEEDS 10MB THRESHOLD');
                 e.target.value = '';
-                displayDiv.classList.add('d-none');
-                uploadArea.style.borderColor = '#dee2e6';
-                uploadArea.style.background = '#f8f9fa';
+                telemetry.classList.add('d-none');
+                node.style.borderColor = 'rgba(239, 68, 68, 0.4)';
             } else {
-                displayDiv.classList.remove('d-none');
+                telemetry.classList.remove('d-none');
                 nameSpan.textContent = file.name;
-                uploadArea.style.borderColor = 'var(--primary)';
-                uploadArea.style.background = '#eff3ff';
-                // format size
+                node.style.borderColor = 'var(--p-nexus-primary)';
+                node.style.background = 'rgba(37, 99, 235, 0.05)';
+                
                 if(file.size < 1024 * 1024) {
-                    sizeSpan.textContent = (file.size / 1024).toFixed(1) + ' KB';
+                    sizeSpan.textContent = (file.size / 1024).toFixed(1) + ' KB TELEMETRY';
                 } else {
-                    sizeSpan.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+                    sizeSpan.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB TELEMETRY';
                 }
             }
         } else {
-            displayDiv.classList.add('d-none');
-            uploadArea.style.borderColor = '#dee2e6';
-            uploadArea.style.background = '#f8f9fa';
+            telemetry.classList.add('d-none');
+            node.style.borderColor = 'rgba(0,0,0,0.1)';
         }
     });
 }
 </script>
 {% endblock %}
+%}

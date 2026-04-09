@@ -1,24 +1,29 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Academics — My Grades{% endblock %}
+{% block title %}Academic Intelligence — Mastery Diagnostics{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
 <style>
     .grades-header { margin-bottom: 2.5rem; }
-    .subject-card {
-        margin-bottom: 2rem;
-        background: white;
-        border-radius: var(--p-card-radius);
-        overflow: hidden;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    .main-canvas-area { padding-top: 1.5rem; }
+    
+    .mastery-radar {
+        padding: 2rem;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.4);
     }
-    .subject-header {
-        padding: 1.5rem 2rem;
-        background: rgba(0, 64, 103, 0.02);
-        border-bottom: 1px solid var(--border-color);
+    
+    .subject-nexus-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .subject-nexus-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(37, 99, 235, 0.1);
+        border-color: var(--p-nexus-primary);
     }
 </style>
 {% endblock %}
@@ -29,95 +34,118 @@
     <!-- Header -->
     <div class="grades-header d-flex justify-content-between align-items-end animate-fade-up">
         <div>
-            <h1 class="page-title with-sub mb-0">Academic Performance</h1>
-            <p class="page-subtitle mb-0">Comprehensive record of examination results and mastery levels.</p>
+            <h1 class="page-title with-sub mb-0">Mastery Diagnostics</h1>
+            <p class="page-subtitle mb-0">Comprehensive academic telemetry and performance metrics.</p>
         </div>
         <div class="actions">
-            <a href="{% url 'download_report_card_pdf' %}" class="btn btn-primary-akkhor btn-sm-akkhor px-4">
-                <i class="fas fa-file-pdf me-2"></i> Official Report Card
+            <a href="{% url 'download_report_card_pdf' %}" class="btn btn-sm nexus-glass-card shadow-sm border px-3 fw-800 extra-small">
+                <i class="fas fa-file-pdf text-danger me-2"></i> OFFICIAL TRANSCRIPT
             </a>
         </div>
     </div>
 
-    <!-- Top Stats -->
+    <!-- Top Diagnostics -->
     <div class="row mb-5">
-        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
-            <div class="premium-stat-card">
-                <div>
-                    <div class="premium-stat-icon p-icon-primary">
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up">
+            <div class="nexus-glass-card h-100 p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-avatar-lg" style="background: var(--p-nexus-primary);">
                         <i class="fas fa-chart-line"></i>
                     </div>
-                    <div class="premium-stat-value">{{ overall_gpa|floatformat:2 }}</div>
-                    <div class="premium-stat-label">Cumulative GPA</div>
+                    <div>
+                        <div class="fw-800 h3 mb-0">{{ overall_gpa|floatformat:2 }}</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Cumulative Index</div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-2">
-            <div class="premium-stat-card">
-                <div>
-                    <div class="premium-stat-icon p-icon-success">
-                        <i class="fas fa-check-circle"></i>
+        <div class="col-xl-3 col-md-6 mb-4 animate-fade-up delay-1">
+            <div class="nexus-glass-card h-100 p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-avatar-lg" style="background: var(--p-nexus-success);">
+                        <i class="fas fa-microchip"></i>
                     </div>
-                    <div class="premium-stat-value">{{ grades_by_subject|length }}</div>
-                    <div class="premium-stat-label">Subjects Evaluated</div>
+                    <div>
+                        <div class="fw-800 h3 mb-0">{{ grades_by_subject|length }}</div>
+                        <div class="extra-small text-muted fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Sectors Evaluated</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Subjects Grid -->
-    <div class="row animate-fade-up delay-3">
+    <!-- Subjects Matrix -->
+    <div class="row animate-fade-up delay-2">
         <div class="col-12">
             {% if grades_by_subject %}
                 {% for subject_name, subject_data in grades_by_subject.items %}
-                <div class="subject-card">
-                    <div class="subject-header d-flex justify-content-between align-items-center">
+                <div class="nexus-glass-card subject-nexus-card mb-5 p-0 overflow-hidden">
+                    <div class="d-flex justify-content-between align-items-center p-4 border-bottom bg-light bg-opacity-25">
                         <div class="d-flex align-items-center gap-3">
-                            <div class="premium-stat-icon p-icon-primary m-0" style="width:45px; height:45px;">
-                                <i class="fas fa-book" style="font-size: 1rem;"></i>
+                            <div class="p-avatar-sm" style="background: var(--p-nexus-primary); width: 42px; height: 42px;">
+                                <i class="fas fa-book" style="font-size: 0.9rem;"></i>
                             </div>
-                            <h5 class="fw-bold text-dark m-0">{{ subject_name }}</h5>
+                            <div>
+                                <h5 class="fw-800 text-dark m-0" style="letter-spacing: -0.5px;">{{ subject_name }}</h5>
+                                <div class="extra-small text-muted fw-bold text-uppercase opa-7">Academic Sector</div>
+                            </div>
                         </div>
-                        <span class="p-badge {% if subject_data.grade_points >= 3.0 %}p-badge-medium{% elif subject_data.grade_points >= 2.0 %}p-badge-high{% else %}p-badge-critical{% endif %}" style="padding: 0.5rem 1.25rem;">
-                            GPA: {{ subject_data.grade_points|floatformat:1 }}
-                        </span>
+                        <div class="nexus-glass-card border py-2 px-4 shadow-none">
+                            <span class="fw-800 text-primary small">GPA Index: {{ subject_data.grade_points|floatformat:1 }}</span>
+                        </div>
                     </div>
                     
-                    <div class="p-4" style="background: white;">
-                        <div class="d-flex align-items-center mb-4 p-3 rounded-3" style="background: #fbfdff; border: 1px solid rgba(0, 64, 103, 0.05);">
-                            <span class="text-muted small fw-bold text-uppercase me-4" style="letter-spacing: 1px;">Mastery Level:</span>
-                            <div class="progress flex-grow-1" style="height: 10px; border-radius: 5px; background: #eaeff5; max-width: 400px;">
-                                <div class="progress-bar {% if subject_data.average >= 75 %}bg-success{% elif subject_data.average >= 60 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ subject_data.average }}%; border-radius: 5px;"></div>
+                    <div class="p-4 p-md-5">
+                        <!-- Mastery Overview -->
+                        <div class="mastery-radar d-flex align-items-center mb-5 gap-5">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="extra-small text-muted fw-bold text-uppercase" style="letter-spacing: 1.5px;">Mastery Curve Diagnostics</span>
+                                    <span class="fw-800 text-dark">{{ subject_data.average|floatformat:1 }}% Synergy</span>
+                                </div>
+                                <div class="progress" style="height: 10px; border-radius: 20px; background: rgba(0,0,0,0.05);">
+                                    <div class="progress-bar {% if subject_data.average >= 75 %}bg-success{% elif subject_data.average >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                         style="width: {{ subject_data.average }}%; border-radius: 20px;"></div>
+                                </div>
                             </div>
-                            <span class="ms-4 fw-bold text-dark">{{ subject_data.average|floatformat:1 }}%</span>
+                            <div class="text-end">
+                                <div class="fw-800 h4 mb-0 {% if subject_data.average >= 75 %}text-success{% elif subject_data.average >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                                    {% if subject_data.average >= 90 %}A+{% elif subject_data.average >= 80 %}A{% elif subject_data.average >= 70 %}B{% elif subject_data.average >= 60 %}C{% else %}F{% endif %}
+                                </div>
+                                <div class="extra-small text-muted fw-bold text-uppercase">Rating</div>
+                            </div>
                         </div>
 
+                        <!-- Technical Log -->
                         <div class="table-responsive">
-                            <table class="premium-table">
-                                <thead>
+                            <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                                <thead class="bg-light bg-opacity-20">
                                     <tr>
-                                        <th>Exam / Assessment Type</th>
-                                        <th>Points Earned</th>
-                                        <th>Percentage</th>
-                                        <th class="text-end">Status</th>
+                                        <th class="ps-3 py-3 small text-uppercase text-muted fw-800">Operational Objective</th>
+                                        <th class="py-3 small text-uppercase text-muted fw-800">Telemetry Val</th>
+                                        <th class="py-3 small text-uppercase text-muted fw-800">Mastery %</th>
+                                        <th class="text-end pe-3 small text-uppercase text-muted fw-800">Stature Badge</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for result in subject_data.results %}
-                                    <tr>
-                                        <td><div class="fw-bold text-dark small">{{ result.exam_type|title }}</div><div class="text-muted" style="font-size: 0.7rem;">{{ result.date|date:"F d, Y" }}</div></td>
-                                        <td class="small">{{ result.score }} <span class="text-muted">/ {{ result.max_score }}</span></td>
+                                    <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+                                        <td class="ps-3 py-4">
+                                            <div class="fw-800 text-dark small">{{ result.exam_type|title }}</div>
+                                            <div class="text-muted extra-small fw-bold text-uppercase opa-5">{{ result.date|date:"M d, Y" }}</div>
+                                        </td>
+                                        <td class="small fw-800 text-dark">{{ result.score }} <span class="text-muted fw-bold">/ {{ result.max_score }}</span></td>
                                         <td>
                                             {% widthratio result.score result.max_score 100 as percentage %}
-                                            <div class="fw-bold text-primary">{{ percentage }}%</div>
+                                            <div class="fw-800 text-primary small">{{ percentage }}% Mastery</div>
                                         </td>
-                                        <td class="text-end">
+                                        <td class="text-end pe-3">
                                             {% if percentage|add:"0" >= 80 %}
-                                                <span class="p-badge p-badge-medium" style="font-size: 0.65rem;">EXCELLENT</span>
+                                                <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-a">EXCEPTIONAL</span>
                                             {% elif percentage|add:"0" >= 60 %}
-                                                <span class="p-badge p-badge-high" style="font-size: 0.65rem;">PASSING</span>
+                                                <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-c">PROFICIENT</span>
                                             {% else %}
-                                                <span class="p-badge p-badge-critical" style="font-size: 0.65rem;">RETENTION RISK</span>
+                                                <span class="badge rounded-pill extra-small fw-800 px-3 py-2 text-uppercase nexus-grade-f">CRITICAL VARIANCE</span>
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -129,12 +157,13 @@
                 </div>
                 {% endfor %}
             {% else %}
-                <div class="premium-table-container text-center py-5">
-                    <i class="fas fa-folder-open text-muted fs-1 mb-3 opacity-25"></i>
-                    <p class="text-muted mb-0">No archived results found in your academic record.</p>
+                <div class="nexus-glass-card text-center py-5">
+                    <i class="fas fa-folder-open text-muted fs-1 mb-3 opa-25"></i>
+                    <p class="text-muted fw-bold text-uppercase extra-small">Null Record Matrix. No academic markers identified.</p>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
 {% endblock %}
+%}
