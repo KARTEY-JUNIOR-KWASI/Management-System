@@ -3,94 +3,97 @@
 {% block title %}Manage Teachers{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 style="font-weight:800; margin:0; color:var(--text-dark);">Manage Teachers</h2>
-            <p style="color:var(--text-muted); margin:0; font-size:0.85rem;">View and manage all teachers in the system.</p>
-        </div>
-        <a href="{% url 'teacher_create' %}" class="btn btn-primary-akkhor">
-            <i class="fas fa-plus me-1"></i> Add New Teacher
-        </a>
-    </div>
-
-    <div class="reg-card">
-        <div class="reg-card-header d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-                <div class="card-icon-wrap" style="background:#eff3ff;">
-                    <i class="fas fa-chalkboard-teacher" style="color:var(--primary);"></i>
-                </div>
-                <div>
-                    <h5 style="margin:0; font-weight:700; font-size:0.95rem;">Teacher Directory</h5>
+<div class="row layout-spacing">
+    <div class="col-12 mb-5">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="fw-800 mb-1" style="letter-spacing: -1.5px; color: var(--text-dark); font-size: 2.2rem;">Faculty Directory</h2>
+                <div class="d-flex align-items-center gap-2 text-muted fw-bold extra-small text-uppercase opa-7" style="letter-spacing: 1px;">
+                    <i class="fas fa-chalkboard-teacher text-primary"></i> Institutional Educators <span class="mx-2">|</span> 
+                    <i class="fas fa-microchip text-primary"></i> Sector: Faculty Management
                 </div>
             </div>
+            <a href="{% url 'teacher_create' %}" class="btn btn-primary rounded-pill px-5 py-2 fw-800 shadow-lg border-0 extra-small text-uppercase" style="background: var(--p-nexus-primary); letter-spacing: 1px;">
+                <i class="fas fa-plus me-2"></i> NEW APPOINTMENT
+            </a>
         </div>
-        <div class="reg-card-body p-0">
+
+        <div class="nexus-glass-card overflow-hidden border-0 shadow-sm animate-fade-up">
             <div class="table-responsive">
-                <table class="table-akkhor">
+                <table class="table table-hover align-middle mb-0 nexus-premium-table">
                     <thead>
-                        <tr>
-                            <th>Teacher</th>
-                            <th>Employee ID</th>
-                            <th>Department</th>
-                            <th>Email</th>
-                            <th class="text-end" style="padding-right:1.5rem;">Actions</th>
+                        <tr class="bg-light bg-opacity-50">
+                            <th class="ps-4 py-4 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Faculty Designation</th>
+                            <th class="py-4 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Employee ID</th>
+                            <th class="py-4 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Department Protocol</th>
+                            <th class="py-4 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Digital Contact</th>
+                            <th class="pe-4 py-4 text-end extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Operational Commands</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for teacher in teachers %}
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
+                        <tr class="animate-fade-in" style="border-bottom: 1px solid rgba(0,0,0,0.03) !important;">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center gap-3">
                                     {% if teacher.user.profile_picture %}
-                                        <img src="{{ teacher.user.profile_picture.url }}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;" alt="">
+                                        <img src="{{ teacher.user.profile_picture.url }}" class="p-avatar shadow-sm" style="width:40px; height:40px; object-fit:cover;" alt="">
                                     {% else %}
-                                        <div style="width:32px; height:32px; border-radius:50%; background:var(--primary-light); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.75rem;">
+                                        <div class="p-avatar shadow-sm" style="background: var(--p-nexus-primary); width: 40px; height: 40px; font-size: 0.8rem;">
                                             {{ teacher.user.get_full_name|slice:":2"|upper }}
                                         </div>
                                     {% endif %}
-                                    <div style="font-weight:600; color:var(--text-dark);">{{ teacher.user.get_full_name }}</div>
+                                    <div class="fw-800 text-dark small" style="font-size: 0.88rem;">{{ teacher.user.get_full_name }}</div>
                                 </div>
                             </td>
-                            <td><span style="font-family:monospace; background:#e9ecef; padding:0.2rem 0.5rem; border-radius:4px; font-size:0.8rem; color:var(--text-dark);">{{ teacher.teacher_id }}</span></td>
-                            <td><span class="badge badge-akkhor badge-primary">{{ teacher.department }}</span></td>
-                            <td><span style="font-size:0.8rem; color:var(--text-medium);">{{ teacher.user.email }}</span></td>
-                            <td class="text-end" style="padding-right:1.5rem;">
-                                <a href="{% url 'teacher_detail' teacher.pk %}" class="card-action-btn d-inline-flex border-0 bg-light text-info me-1" style="width:28px; height:28px; font-size:0.8rem;" title="View">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{% url 'teacher_update' teacher.pk %}" class="card-action-btn d-inline-flex border-0 bg-light text-muted me-1" style="width:28px; height:28px; font-size:0.8rem;" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="{% url 'teacher_delete' teacher.pk %}" class="card-action-btn d-inline-flex border-0 bg-light text-danger" style="width:28px; height:28px; font-size:0.8rem;" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </a>
+                            <td>
+                                <span class="extra-small text-primary fw-bold text-uppercase" style="letter-spacing: 0.5px; font-family: 'JetBrains Mono', monospace;">
+                                    {{ teacher.teacher_id }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-2 fw-800 text-uppercase opa-7" style="font-size: 0.65rem; border-color: rgba(0,0,0,0.1) !important;">
+                                    {{ teacher.department }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="extra-small text-muted fw-bold opa-7">{{ teacher.user.email }}</div>
+                            </td>
+                            <td class="pe-4 text-end">
+                                <div class="d-flex justify-content-end gap-3">
+                                    <a href="{% url 'teacher_detail' teacher.pk %}" class="btn btn-sm p-btn-icon shadow-sm" style="width: 36px; height: 36px;" title="View Dossier">
+                                        <i class="fas fa-fingerprint text-primary" style="font-size: 0.9rem;"></i>
+                                    </a>
+                                    <a href="{% url 'teacher_update' teacher.pk %}" class="btn btn-sm p-btn-icon shadow-sm" style="width: 36px; height: 36px;" title="Modify Record">
+                                        <i class="fas fa-key text-warning" style="font-size: 0.85rem;"></i>
+                                    </a>
+                                    <a href="{% url 'teacher_delete' teacher.pk %}" class="btn btn-sm p-btn-icon shadow-sm" style="width: 36px; height: 36px;" title="Terminate Contract">
+                                        <i class="fas fa-trash-alt text-danger" style="font-size: 0.85rem;"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3" style="opacity:0.4;"></i>
-                                <p class="text-muted mb-0">No teachers found.</p>
-                            </td>
-                        </tr>
+                        <tr><td colspan="5" class="p-5 text-center text-muted fw-bold extra-small text-uppercase opa-5">Null dataset. No faculty members recorded.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
             
-            <!-- Pagination Controls -->
+            <!-- Pagination Protocol -->
             {% if page_obj.has_other_pages %}
-            <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
-                <span class="text-muted-sm">Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            <div class="d-flex justify-content-between align-items-center px-4 py-4 border-top" style="background: rgba(0,0,0,0.01);">
+                <div class="extra-small text-muted fw-800 text-uppercase d-flex align-items-center gap-2" style="letter-spacing: 1px;">
+                    <i class="fas fa-layer-group text-primary"></i> SECTOR {{ page_obj.number }} OF {{ page_obj.paginator.num_pages }}
+                </div>
                 <div class="d-flex gap-2">
                     {% if page_obj.has_previous %}
-                    <a href="?page=1" class="btn btn-sm btn-outline-akkhor">&laquo; First</a>
-                    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-outline-akkhor">Previous</a>
+                    <a href="?page=1" class="btn btn-sm nexus-glass-card shadow-sm px-3 py-2 text-primary extra-small fw-800 border">FIRST</a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm nexus-glass-card shadow-sm px-3 py-2 text-primary extra-small fw-800 border">PREV</a>
                     {% endif %}
+                    <span class="btn btn-sm btn-primary rounded-pill px-4 extra-small fw-800 shadow-lg border-0" style="cursor:default; background: var(--p-nexus-primary);">{{ page_obj.number }}</span>
                     {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-outline-akkhor">Next</a>
-                    <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm btn-outline-akkhor">Last &raquo;</a>
+                    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm nexus-glass-card shadow-sm px-3 py-2 text-primary extra-small fw-800 border">NEXT</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm nexus-glass-card shadow-sm px-3 py-2 text-primary extra-small fw-800 border">LAST</a>
                     {% endif %}
                 </div>
             </div>
