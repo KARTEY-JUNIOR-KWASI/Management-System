@@ -7,9 +7,9 @@ def school_config(request):
 
 def unread_notifications(request):
     if request.user.is_authenticated:
-        # Get notifications where user is in recipients and is_read is False
-        # Since is_read is on the Notification, we'll just check that.
-        unread = Notification.objects.filter(recipients=request.user, is_read=False).order_by('-created_at')
+        from analytics.models import Notification as AnalyticsNotification
+        # Use the Analytics Notification model for individual unread tracking
+        unread = AnalyticsNotification.objects.filter(recipient=request.user, is_read=False).order_by('-created_at')
         return {
             'unread_notifications': unread[:5],  # Top 5 for dropdown
             'unread_notifications_count': unread.count()

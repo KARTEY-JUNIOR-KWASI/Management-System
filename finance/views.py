@@ -7,6 +7,7 @@ from .models import FeeCategory, FeeStructure, Invoice, InvoiceItem, Payment
 from students.models import Student
 from core.models import Class, AcademicTerm, SchoolConfiguration
 from .services import FinanceService
+from .forms import FeeCategoryForm, FeeStructureForm
 
 from django.http import HttpResponse
 from reportlab.lib import colors
@@ -39,9 +40,52 @@ def finance_hub(request):
     
     recent_payments = Payment.objects.select_related('invoice__student__user').order_by('-date_paid')[:10]
     
-    classes = Class.objects.all()
-    categories = FeeCategory.objects.all()
+    classes = Class.objects.all().order_by('grade', 'name')
+    categories = FeeCategory.objects.all().order_by('name')
+    structures = FeeStructure.objects.select_related('class_name', 'category').order_by('class_name__grade', 'category__name')
     
+    # Financial Velocity Pulse Aggregation (Last 6 Months)
+    from django.db.models.functions import TruncMonth
+    from datetime import datetime, timedelta
+    
+    # Calculate start date for 6 months ago
+    six_months_ago = datetime.now().replace(day=1) - timedelta(days=150) # Approx 6 months
+    
+    # Aggregate Collections (Payments)
+    monthly_collected_qs = Payment.objects.filter(
+        date_paid__gte=six_months_ago
+    ).annotate(
+        month=TruncMonth('date_paid')
+    ).values('month').annotate(
+        total=Sum('amount_paid')
+    ).order_by('month')
+    
+    # Aggregate Projections (Invoices)
+    monthly_expected_qs = Invoice.objects.filter(
+        created_at__gte=six_months_ago
+    ).annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(
+        total=Sum('total_amount')
+    ).order_by('month')
+    
+    # Prepare Data for Chart.js
+    chart_labels = []
+    chart_expected = []
+    chart_collected = []
+    
+    # Create a map for easy lookup
+    collected_map = {item['month'].strftime('%b %Y'): float(item['total']) for item in monthly_collected_qs}
+    expected_map = {item['month'].strftime('%b %Y'): float(item['total']) for item in monthly_expected_qs}
+    
+    # Generate labels for last 6 months
+    for i in range(5, -1, -1):
+        d = datetime.now() - timedelta(days=i*30)
+        label = d.strftime('%b %Y')
+        chart_labels.append(label)
+        chart_expected.append(expected_map.get(label, 0.0))
+        chart_collected.append(collected_map.get(label, 0.0))
+
     context = {
         'total_expected': total_expected,
         'total_collected': total_collected,
@@ -52,6 +96,13 @@ def finance_hub(request):
         'active_term': active_term,
         'classes': classes,
         'categories': categories,
+        'structures': structures,
+        'category_form': FeeCategoryForm(),
+        'structure_form': FeeStructureForm(),
+        # Chart Data
+        'chart_labels': chart_labels,
+        'chart_expected': chart_expected,
+        'chart_collected': chart_collected,
     }
     return render(request, 'admin_dashboard/finance_hub.html', context)
 
@@ -154,10 +205,11 @@ def generate_payment_receipt(request, payment_id):
 
     # Amount Table
     story.append(Paragraph("AMOUNT SUMMARY", styles['SectionHeader']))
+    currency = config.currency_symbol or "GH₵"
     a_data = [
         ['DESCRIPTION', 'AMOUNT'],
-        [f"Payment for Invoice {payment.invoice.invoice_number}", f"${payment.amount_paid}"],
-        ['<b>TOTAL PAID</b>', f"<b>${payment.amount_paid}</b>"],
+        [f"Payment for Invoice {payment.invoice.invoice_number}", f"{currency}{payment.amount_paid}"],
+        ['<b>TOTAL PAID</b>', f"<b>{currency}{payment.amount_paid}</b>"],
     ]
     a_table = Table(a_data, colWidths=[8.5*cm, 3*cm])
     a_table.setStyle(TableStyle([
@@ -180,3 +232,44 @@ def generate_payment_receipt(request, payment_id):
 
     doc.build(story)
     return response
+
+@admin_required
+def manage_fee_category(request, pk=None):
+    """CRUD view for individual fee category definitions."""
+    category = get_object_or_404(FeeCategory, pk=pk) if pk else None
+    
+    if request.method == 'POST':
+        form = FeeCategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Fee category {"updated" if category else "created"} successfully.')
+        else:
+            messages.error(request, 'Failed to save fee category. Please check your inputs.')
+    elif request.method == 'DELETE' or (request.method == 'POST' and '_delete' in request.POST):
+        if category:
+            name = category.name
+            category.delete()
+            messages.warning(request, f'Fee category "{name}" has been decommissioned.')
+            
+    return redirect('finance:finance_hub')
+
+@admin_required
+def manage_fee_structure(request, pk=None):
+    """CRUD view for class-specific fee structure amounts."""
+    structure = get_object_or_404(FeeStructure, pk=pk) if pk else None
+    
+    if request.method == 'POST':
+        # Handle deletion
+        if '_delete' in request.POST and structure:
+            structure.delete()
+            messages.warning(request, 'Fee structure removed.')
+            return redirect('finance:finance_hub')
+            
+        form = FeeStructureForm(request.POST, instance=structure)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Fee structure {"updated" if structure else "created"} successfully.')
+        else:
+            messages.error(request, 'Failed to save fee structure. Please check your inputs.')
+            
+    return redirect('finance:finance_hub')

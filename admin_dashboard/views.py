@@ -99,14 +99,31 @@ def create_notice(request):
         is_pinned = request.POST.get('is_pinned') == 'on'
 
         if title and content:
-            NoticeBoard.objects.create(
+            notice = NoticeBoard.objects.create(
                 title=title,
                 category=category,
                 content=content,
                 is_pinned=is_pinned,
                 author=request.user
             )
-            messages.success(request, 'Notice published successfully on the institutional board.')
+            
+            # Dispatch notifications to ALL users for institutional awareness
+            from accounts.models import User
+            from analytics.models import Notification
+            
+            users = User.objects.all()
+            notifications = [
+                Notification(
+                    recipient=u,
+                    notification_type='announcement',
+                    title=f"New Notice: {title}",
+                    message=content[:100],
+                    priority='high' if is_pinned else 'medium'
+                ) for u in users
+            ]
+            Notification.objects.bulk_create(notifications)
+            
+            messages.success(request, 'Notice published and dispatched to all school protocols.')
         else:
             messages.error(request, 'Failed to publish notice. Title and content are required.')
             

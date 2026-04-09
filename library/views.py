@@ -78,7 +78,30 @@ def upload_resource(request):
             if class_id:
                 resource.target_class_id = class_id
             resource.save()
-            messages.success(request, f'Resource "{title}" uploaded successfully!')
+            
+            # Dispatch notifications to interested students
+            from analytics.models import Notification
+            from accounts.models import User
+            
+            if resource.target_class:
+                students_to_notify = User.objects.filter(student__class_enrolled=resource.target_class)
+                scope = f"for {resource.target_class.name}"
+            else:
+                students_to_notify = User.objects.filter(role='student')
+                scope = "globally"
+                
+            notifications = [
+                Notification(
+                    recipient=u,
+                    notification_type='resource',
+                    title=f"New Resource Available: {resource.title}",
+                    message=f"A new {resource.resource_type} has been uploaded {scope} for {resource.subject.name if resource.subject else 'general study'}.",
+                    priority='medium'
+                ) for u in students_to_notify
+            ]
+            Notification.objects.bulk_create(notifications)
+            
+            messages.success(request, f'Resource "{title}" uploaded successfully and students notified!')
             return redirect('teacher_library')
         else:
             for err in errors:

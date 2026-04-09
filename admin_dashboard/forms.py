@@ -221,7 +221,11 @@ class SchoolSettingsForm(forms.ModelForm):
     """Form to manage global institutional configuration."""
     class Meta:
         model = SchoolConfiguration
-        fields = ['name', 'motto', 'logo', 'contact_email', 'phone', 'address', 'current_academic_year', 'established_year']
+        fields = [
+            'name', 'motto', 'logo', 'contact_email', 'phone', 
+            'address', 'current_academic_year', 'established_year',
+            'currency_symbol', 'currency_code'
+        ]
         widgets = {
             'address': forms.Textarea(attrs={'rows': 3}),
         }

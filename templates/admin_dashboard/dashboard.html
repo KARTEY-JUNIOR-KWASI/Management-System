@@ -130,12 +130,12 @@
                 <div class="d-flex gap-5 align-items-center px-lg-5">
                     <div class="text-center">
                         <div class="opa-7 extra-small fw-bold text-uppercase mb-1" style="letter-spacing: 1.5px;">Projected</div>
-                        <div class="fw-800 h4 mb-0" style="font-size: 1.5rem;">${{ total_revenue_expected|floatformat:2 }}</div>
+                        <div class="fw-800 h4 mb-0" style="font-size: 1.5rem;">{{ school_config.currency_symbol|default:"GH₵" }}{{ total_revenue_expected|floatformat:2 }}</div>
                     </div>
                     <div class="vr bg-white opacity-25" style="height:40px;"></div>
                     <div class="text-center">
                         <div class="opa-7 extra-small fw-bold text-uppercase mb-1" style="letter-spacing: 1.5px;">Liquidity</div>
-                        <div class="fw-800 h4 mb-0 text-white" style="font-size: 1.5rem;">${{ total_revenue_collected|floatformat:2 }}</div>
+                        <div class="fw-800 h4 mb-0 text-white" style="font-size: 1.5rem;">{{ school_config.currency_symbol|default:"GH₵" }}{{ total_revenue_collected|floatformat:2 }}</div>
                     </div>
                     <div class="vr bg-white opacity-25" style="height:40px;"></div>
                     <div class="text-center d-none d-lg-block">

@@ -11,6 +11,7 @@ class Notification(models.Model):
         ('attendance', 'Attendance'),
         ('announcement', 'Announcement'),
         ('reminder', 'Reminder'),
+        ('resource', 'Resource Material'),
     ]
 
     PRIORITY_LEVELS = [

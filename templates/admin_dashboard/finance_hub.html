@@ -1,5 +1,9 @@
 {% extends "admin_dashboard/dashboard.html" %}
 
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="row layout-top-spacing animate-fade-up">
     <!-- Institutional Finance Command Header -->
@@ -19,189 +23,322 @@
             </div>
         </div>
         <div class="d-flex gap-3 pb-1">
-            <button class="btn btn-light rounded-pill px-4 fw-800 extra-small border shadow-sm" onclick="window.print()">
-                <i class="fas fa-file-export me-2 text-primary"></i> FISCAL EXPORT
-            </button>
+            <ul class="nav nav-pills nexus-nav-pills p-1 bg-light rounded-pill border shadow-sm me-3" id="financeTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active rounded-pill px-4 fw-800 extra-small text-uppercase" id="ledger-tab" data-bs-toggle="tab" data-bs-target="#ledger-pane" type="button" role="tab" aria-selected="true">
+                        <i class="fas fa-file-invoice me-2"></i> Fiscal Ledger
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill px-4 fw-800 extra-small text-uppercase" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-pane" type="button" role="tab" aria-selected="false">
+                        <i class="fas fa-sliders me-2"></i> Fiscal Settings
+                    </button>
+                </li>
+            </ul>
             <button class="btn btn-primary rounded-pill px-4 fw-800 shadow-lg border-0" data-bs-toggle="modal" data-bs-target="#bulkBillingModal" style="background: var(--p-nexus-primary);">
                 <i class="fas fa-bolt me-2"></i> LAUNCH BILLING ENGINE
             </button>
         </div>
     </div>
 
-    <!-- Executive Revenue Radar -->
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
-        <div class="nexus-glass-card h-100 nexus-stat-glow border-0" style="background: var(--p-nexus-dark) !important;">
-            <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
-                <div class="d-flex justify-content-between mb-4">
-                    <div class="bg-white bg-opacity-10 rounded-pill d-flex align-items-center justify-content-center" style="width:48px; height:48px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                        <i class="fas fa-brain fs-5 text-white"></i>
-                    </div>
-                </div>
-                <h6 class="opa-6 extra-small fw-800 text-uppercase mb-1" style="letter-spacing: 1.5px;">Gross Intelligence</h6>
-                <h3 class="fw-800 mb-1" style="font-size: 1.8rem;">${{ total_expected|floatformat:2 }}</h3>
-                <div class="mt-2 extra-small opa-5 fw-bold text-uppercase">Projected Fiscal Intake</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4 delay-1">
-        <div class="nexus-glass-card h-100 nexus-stat-glow border-0" style="background: var(--p-nexus-success) !important;">
-            <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
-                <div class="d-flex justify-content-between mb-4">
-                    <div class="bg-white bg-opacity-20 rounded-pill d-flex align-items-center justify-content-center" style="width:48px; height:48px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
-                        <i class="fas fa-faucet-drip fs-5"></i>
-                    </div>
-                </div>
-                <h6 class="opa-8 extra-small fw-800 text-uppercase mb-1" style="letter-spacing: 1.5px;">Liquid Capital</h6>
-                <h3 class="fw-800 mb-3" style="font-size: 1.8rem;">${{ total_collected|floatformat:2 }}</h3>
-                <div class="mt-2 d-flex align-items-center">
-                    <div class="progress flex-grow-1 me-2" style="height:6px; background:rgba(255,255,255,0.15); border-radius: 10px;">
-                        <div class="progress-bar bg-white js-progress-bar" style="border-radius: 10px;" data-progress="{{ collection_rate|default:0 }}"></div>
-                    </div>
-                    <span class="extra-small fw-800">{{ collection_rate }}%</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4 delay-2">
-        <div class="nexus-glass-card h-100 nexus-stat-glow border-0" style="background: var(--p-nexus-danger) !important; box-shadow: 0 15px 35px rgba(220, 38, 38, 0.25) !important;">
-            <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
-                <div class="d-flex justify-content-between mb-4">
-                    <div class="bg-white bg-opacity-20 rounded-pill d-flex align-items-center justify-content-center" style="width:48px; height:48px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
-                        <i class="fas fa-fire-flame-curved fs-5"></i>
-                    </div>
-                </div>
-                <h6 class="opa-8 extra-small fw-800 text-uppercase mb-1" style="letter-spacing: 1.5px;">Exposure Target</h6>
-                <h3 class="fw-800 mb-1" style="font-size: 1.8rem;">${{ outstanding_debt|floatformat:2 }}</h3>
-                <div class="mt-2 extra-small opa-8 fw-bold text-uppercase"><i class="fas fa-biohazard me-1"></i> Critical Variance Logged</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Optimization Dashboard -->
-    <div class="col-xl-3 col-lg-6 col-md-6 mb-4 delay-3">
-        <div class="nexus-glass-card h-100 d-flex flex-column align-items-center justify-content-center text-center p-4 border-2 border-primary border-dashed" style="background: rgba(67, 97, 238, 0.03);">
-            <div class="p-avatar shadow-lg mb-3" style="background: var(--p-nexus-primary); width: 56px; height: 56px;">
-                <i class="fas fa-microchip"></i>
-            </div>
-            <h6 class="fw-800 extra-small text-uppercase mb-2 text-primary" style="letter-spacing: 1px;">Fiscal Engine</h6>
-            <button class="btn btn-primary rounded-pill btn-sm px-4 fw-800 shadow-lg border-0" data-bs-toggle="modal" data-bs-target="#bulkBillingModal" style="background: var(--p-nexus-primary);">
-                INITIATE PROTOCOL
-            </button>
-        </div>
-    </div>
-
-    <!-- Institutional Transaction Ledger -->
-    <div class="col-xl-8 col-lg-12 mb-4 delay-4">
-        <div class="nexus-glass-card h-100 p-0 overflow-hidden">
-            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
-                <div>
-                    <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Institutional Transaction Ledger</h5>
-                    <p class="text-muted extra-small mb-0 fw-medium">Neural synchronization of fiscal events</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-light border rounded-pill px-3 fw-bold extra-small text-uppercase"><i class="fas fa-microchip me-1 text-primary"></i> ANALYTICS</button>
-                </div>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 nexus-premium-table">
-                    <thead>
-                        <tr class="bg-light bg-opacity-50">
-                            <th class="ps-4 py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Entity Designation</th>
-                            <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Fiscal Value</th>
-                            <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Protocol</th>
-                            <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Temporal Marker</th>
-                            <th class="pe-4 py-3 text-end">Operation</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for payment in recent_payments %}
-                        <tr class="animate-fade-in" style="border-bottom: 1px solid rgba(0,0,0,0.03) !important;">
-                            <td class="ps-4 py-3">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="p-avatar-sm shadow-sm" style="background: var(--p-nexus-primary); width: 36px; height: 36px; font-size: 0.75rem;">
-                                        {{ payment.invoice.student.user.first_name|slice:":1" }}{{ payment.invoice.student.user.last_name|slice:":1" }}
-                                    </div>
-                                    <div>
-                                        <div class="fw-800 text-dark small" style="font-size: 0.82rem;">{{ payment.invoice.student.user.get_full_name }}</div>
-                                        <div class="extra-small text-muted fw-bold text-uppercase opa-5">LOG-{{ payment.id|stringformat:"05d" }}</div>
+    <div class="col-12">
+        <div class="tab-content" id="financeTabContent">
+            <!-- PANE 1: FISCAL LEDGER (Existing Dashboard) -->
+            <div class="tab-pane fade show active" id="ledger-pane" role="tabpanel">
+                <div class="row">
+                    <!-- Executive Revenue Radar -->
+                    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+                        <div class="nexus-glass-card h-100 nexus-stat-glow border-0" style="background: var(--p-nexus-dark) !important;">
+                            <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
+                                <div class="d-flex justify-content-between mb-4">
+                                    <div class="bg-white bg-opacity-10 rounded-pill d-flex align-items-center justify-content-center" style="width:48px; height:48px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                                        <i class="fas fa-brain fs-5 text-white"></i>
                                     </div>
                                 </div>
-                            </td>
-                            <td><span class="fw-800 text-success small" style="font-size: 0.85rem;">+ ${{ payment.amount_paid }}</span></td>
-                            <td>
-                                <span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-2 fw-800 text-uppercase opa-7" style="font-size: 0.65rem; border-color: rgba(0,0,0,0.1) !important;">
-                                    {{ payment.get_method_display }}
-                                </span>
-                            </td>
-                            <td class="extra-small text-muted fw-bold text-uppercase opa-7">{{ payment.date_paid|date:"M d, H:i" }}</td>
-                            <td class="pe-4 text-end">
-                                <a href="{% url 'finance:generate_receipt' payment.id %}" class="btn btn-sm p-btn-icon shadow-sm" title="Secure Receipt Download">
-                                    <i class="fas fa-shield-halved text-primary" style="font-size: 0.9rem;"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr><td colspan="5" class="p-5 text-center opa-5 fw-bold text-uppercase extra-small">Null Dataset. No fiscal events detected.</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+                                <h6 class="opa-6 extra-small fw-800 text-uppercase mb-1" style="letter-spacing: 1.5px;">Gross Intelligence</h6>
+                                <h3 class="fw-800 mb-1" style="font-size: 1.8rem;">{{ school_config.currency_symbol|default:"GH₵" }}{{ total_expected|floatformat:2 }}</h3>
+                                <div class="mt-2 extra-small opa-5 fw-bold text-uppercase">Projected Fiscal Intake</div>
+                            </div>
+                        </div>
+                    </div>
 
-    <!-- Node Risk Monitor -->
-    <div class="col-xl-4 col-lg-12 mb-4 delay-5">
-        <div class="nexus-glass-card h-100 p-0 overflow-hidden border-top border-4 border-danger" style="border-top-color: var(--p-nexus-danger) !important;">
-            <div class="p-4 border-bottom d-flex align-items-center gap-3" style="background: rgba(220, 38, 38, 0.02);">
-                <div class="p-avatar-sm shadow-sm" style="background: var(--p-nexus-danger); width: 40px; height: 40px;">
-                    <i class="fas fa-microchip-ai"></i>
-                </div>
-                <div>
-                    <h5 class="fw-800 mb-0 text-danger" style="letter-spacing: -0.5px;">Node Risk Monitor</h5>
-                    <p class="text-muted extra-small mb-0 fw-medium">Authorized exposure tracking</p>
+                    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+                        <div class="nexus-glass-card h-100 nexus-stat-glow border-0" style="background: var(--p-nexus-success) !important;">
+                            <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
+                                <div class="d-flex justify-content-between mb-4">
+                                    <div class="bg-white bg-opacity-20 rounded-pill d-flex align-items-center justify-content-center" style="width:48px; height:48px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
+                                        <i class="fas fa-faucet-drip fs-5"></i>
+                                    </div>
+                                </div>
+                                <h6 class="opa-8 extra-small fw-800 text-uppercase mb-1" style="letter-spacing: 1.5px;">Liquid Capital</h6>
+                                <h3 class="fw-800 mb-3" style="font-size: 1.8rem;">{{ school_config.currency_symbol|default:"GH₵" }}{{ total_collected|floatformat:2 }}</h3>
+                                <div class="mt-2 d-flex align-items-center">
+                                    <div class="progress flex-grow-1 me-2" style="height:6px; background:rgba(255,255,255,0.15); border-radius: 10px;">
+                                        <div class="progress-bar bg-white js-progress-bar" style="border-radius: 10px;" data-progress="{{ collection_rate|default:0 }}"></div>
+                                    </div>
+                                    <span class="extra-small fw-800">{{ collection_rate }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+                        <div class="nexus-glass-card h-100 nexus-stat-glow border-0" style="background: var(--p-nexus-danger) !important; box-shadow: 0 15px 35px rgba(220, 38, 38, 0.25) !important;">
+                            <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
+                                <div class="d-flex justify-content-between mb-4">
+                                    <div class="bg-white bg-opacity-20 rounded-pill d-flex align-items-center justify-content-center" style="width:48px; height:48px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
+                                        <i class="fas fa-fire-flame-curved fs-5"></i>
+                                    </div>
+                                </div>
+                                <h6 class="opa-8 extra-small fw-800 text-uppercase mb-1" style="letter-spacing: 1.5px;">Exposure Target</h6>
+                                <h3 class="fw-800 mb-1" style="font-size: 1.8rem;">{{ school_config.currency_symbol|default:"GH₵" }}{{ outstanding_debt|floatformat:2 }}</h3>
+                                <div class="mt-2 extra-small opa-8 fw-bold text-uppercase"><i class="fas fa-biohazard me-1"></i> Critical Variance Logged</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
+                        <div class="nexus-glass-card h-100 d-flex flex-column align-items-center justify-content-center text-center p-4 border-2 border-primary border-dashed" style="background: rgba(67, 97, 238, 0.03);">
+                            <div class="p-avatar shadow-lg mb-3" style="background: var(--p-nexus-primary); width: 56px; height: 56px;">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <h6 class="fw-800 extra-small text-uppercase mb-2 text-primary" style="letter-spacing: 1px;">Fiscal Engine</h6>
+                            <button class="btn btn-primary rounded-pill btn-sm px-4 fw-800 shadow-lg border-0" data-bs-toggle="modal" data-bs-target="#bulkBillingModal" style="background: var(--p-nexus-primary);">
+                                INITIATE PROTOCOL
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Fiscal Velocity Radar -->
+                    <div class="col-12 mb-4">
+                        <div class="nexus-glass-card p-4 overflow-hidden border-0 shadow-sm" style="background: white !important;">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Fiscal Velocity Radar</h5>
+                                    <p class="text-muted extra-small mb-0 fw-medium">Projected Protocol vs. Liquidity Sync [Last 6 Months]</p>
+                                </div>
+                                <div class="d-flex gap-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="p-avatar-sm" style="width:10px; height:10px; background: #4361ee; border-radius: 2px;"></span>
+                                        <span class="extra-small fw-800 text-uppercase opa-7">Expected</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="p-avatar-sm" style="width:10px; height:10px; background: #00d394; border-radius: 2px;"></span>
+                                        <span class="extra-small fw-800 text-uppercase opa-7">Collected</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="height: 320px; width: 100%;">
+                                <canvas id="financeVelocityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Institutional Transaction Ledger -->
+                    <div class="col-xl-8 col-lg-12 mb-4">
+                        <div class="nexus-glass-card h-100 p-0 overflow-hidden">
+                            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
+                                <div>
+                                    <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Institutional Transaction Ledger</h5>
+                                    <p class="text-muted extra-small mb-0 fw-medium">Neural synchronization of fiscal events</p>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                                    <thead>
+                                        <tr class="bg-light bg-opacity-50">
+                                            <th class="ps-4 py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Entity Designation</th>
+                                            <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Fiscal Value</th>
+                                            <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Protocol</th>
+                                            <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Temporal Marker</th>
+                                            <th class="pe-4 py-3 text-end">Operation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for payment in recent_payments %}
+                                        <tr class="animate-fade-in" style="border-bottom: 1px solid rgba(0,0,0,0.03) !important;">
+                                            <td class="ps-4 py-3">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div class="p-avatar-sm shadow-sm" style="background: var(--p-nexus-primary); width: 36px; height: 36px; font-size: 0.75rem;">
+                                                        {{ payment.invoice.student.user.first_name|slice:":1" }}{{ payment.invoice.student.user.last_name|slice:":1" }}
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-800 text-dark small" style="font-size: 0.82rem;">{{ payment.invoice.student.user.get_full_name }}</div>
+                                                        <div class="extra-small text-muted fw-bold text-uppercase opa-5">LOG-{{ payment.id|stringformat:"05d" }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="fw-800 text-success small" style="font-size: 0.85rem;">+ {{ school_config.currency_symbol|default:"GH₵" }}{{ payment.amount_paid }}</span></td>
+                                            <td>
+                                                <span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-2 fw-800 text-uppercase opa-7" style="font-size: 0.65rem; border-color: rgba(0,0,0,0.1) !important;">
+                                                    {{ payment.get_method_display }}
+                                                </span>
+                                            </td>
+                                            <td class="extra-small text-muted fw-bold text-uppercase opa-7">{{ payment.date_paid|date:"M d, H:i" }}</td>
+                                            <td class="pe-4 text-end">
+                                                <a href="{% url 'finance:generate_receipt' payment.id %}" class="btn btn-sm p-btn-icon shadow-sm" title="Secure Receipt Download">
+                                                    <i class="fas fa-shield-halved text-primary" style="font-size: 0.9rem;"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr><td colspan="5" class="p-5 text-center opa-5 fw-bold text-uppercase extra-small">Null Dataset. No fiscal events detected.</td></tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Node Risk Monitor -->
+                    <div class="col-xl-4 col-lg-12 mb-4">
+                        <div class="nexus-glass-card h-100 p-0 overflow-hidden border-top border-4 border-danger" style="border-top-color: var(--p-nexus-danger) !important;">
+                            <div class="p-4 border-bottom d-flex align-items-center gap-3" style="background: rgba(220, 38, 38, 0.02);">
+                                <div class="p-avatar-sm shadow-sm" style="background: var(--p-nexus-danger); width: 40px; height: 40px;">
+                                    <i class="fas fa-microchip-ai"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-800 mb-0 text-danger" style="letter-spacing: -0.5px;">Node Risk Monitor</h5>
+                                    <p class="text-muted extra-small mb-0 fw-medium">Authorized exposure tracking</p>
+                                </div>
+                            </div>
+                            <div class="list-group list-group-flush">
+                                {% for invoice in unpaid_invoices %}
+                                <div class="list-group-item p-4 border-0 border-bottom bg-transparent hover-bg-light transition-smooth">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <span class="fw-800 text-dark d-block" style="font-size: 0.85rem;">{{ invoice.student.user.get_full_name }}</span>
+                                            <span class="extra-small text-muted fw-bold text-uppercase opa-6" style="letter-spacing: 0.5px;">{{ invoice.term.name }} protocol</span>
+                                        </div>
+                                        <div class="p-badge p-badge-critical extra-small shadow-sm">
+                                            {{ school_config.currency_symbol|default:"GH₵" }}{{ invoice.balance_due }}
+                                        </div>
+                                    </div>
+                                    <div class="nexus-mastery-container p-0 border-0 bg-transparent mb-3">
+                                        <div class="nexus-mastery-bar-wrapper" style="height: 6px;">
+                                            <div class="nexus-mastery-bar mastery-low js-progress-bar" data-progress="{% widthratio invoice.balance_due invoice.total_amount 100 %}"></div>
+                                        </div>
+                                        <div class="d-flex justify-content-between mt-2">
+                                            <span class="extra-small text-muted fw-bold text-uppercase opa-5">Exposure Level</span>
+                                            <span class="extra-small text-danger fw-800">{% widthratio invoice.balance_due invoice.total_amount 100 %}% Remaining</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <button class="btn btn-primary btn-sm rounded-pill px-4 fw-800 extra-small text-uppercase shadow-sm border-0" data-bs-toggle="modal" data-bs-target="#recordPayment-{{ invoice.id }}" style="background: var(--p-nexus-primary);">
+                                            SYNC PAYMENT
+                                        </button>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="p-5 text-center">
+                                    <div class="mx-auto mb-3 opa-2" style="font-size: 3rem; color: var(--p-nexus-success);">
+                                        <i class="fas fa-shield-check"></i>
+                                    </div>
+                                    <div class="opa-5 fw-bold text-uppercase extra-small" style="letter-spacing: 1px;">Asset integrity verified.</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="list-group list-group-flush">
-                {% for invoice in unpaid_invoices %}
-                <div class="list-group-item p-4 border-0 border-bottom bg-transparent hover-bg-light transition-smooth">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <span class="fw-800 text-dark d-block" style="font-size: 0.85rem;">{{ invoice.student.user.get_full_name }}</span>
-                            <span class="extra-small text-muted fw-bold text-uppercase opa-6" style="letter-spacing: 0.5px;">{{ invoice.term.name }} protocol</span>
-                        </div>
-                        <div class="p-badge p-badge-critical extra-small shadow-sm">
-                            ${{ invoice.balance_due }}
+
+            <!-- PANE 2: FISCAL SETTINGS (Fee Categories & Structures) -->
+            <div class="tab-pane fade" id="settings-pane" role="tabpanel">
+                <div class="row">
+                    <!-- Fee Categories Management -->
+                    <div class="col-xl-5 col-lg-12 mb-4">
+                        <div class="nexus-glass-card h-100 p-0 overflow-hidden">
+                            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
+                                <div>
+                                    <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Fee Classification Node</h5>
+                                    <p class="text-muted extra-small mb-0 fw-medium">Universal billing labels (e.g. PTA, Lab)</p>
+                                </div>
+                                <button class="btn btn-sm btn-primary rounded-pill px-3 fw-800 extra-small" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                    <i class="fas fa-plus me-1"></i> ADD CATEGORY
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                                    <thead>
+                                        <tr class="bg-light bg-opacity-50">
+                                            <th class="ps-4 py-3 extra-small text-uppercase text-muted fw-800 opa-7">Category Name</th>
+                                            <th class="pe-4 py-3 text-end">Operation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for cat in categories %}
+                                        <tr class="animate-fade-in">
+                                            <td class="ps-4 py-3">
+                                                <div class="fw-800 text-dark small">{{ cat.name }}</div>
+                                                <div class="extra-small text-muted opa-5">{{ cat.description|truncatechars:40 }}</div>
+                                            </td>
+                                            <td class="pe-4 text-end">
+                                                <button class="btn btn-sm p-btn-icon" title="Edit Category" data-bs-toggle="modal" data-bs-target="#editCategory-{{ cat.id }}">
+                                                    <i class="fas fa-edit text-primary"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr><td colspan="2" class="p-5 text-center opa-5 fw-bold extra-small text-uppercase">No categories defined.</td></tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                    <div class="nexus-mastery-container p-0 border-0 bg-transparent mb-3">
-                        <div class="nexus-mastery-bar-wrapper" style="height: 6px;">
-                            <div class="nexus-mastery-bar mastery-low js-progress-bar" data-progress="{% widthratio invoice.balance_due invoice.total_amount 100 %}"></div>
+
+                    <!-- Fee Structures Management -->
+                    <div class="col-xl-7 col-lg-12 mb-4">
+                        <div class="nexus-glass-card h-100 p-0 overflow-hidden">
+                            <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: rgba(0,0,0,0.01);">
+                                <div>
+                                    <h5 class="fw-800 mb-0" style="letter-spacing: -0.5px;">Fiscal Structure Matrix</h5>
+                                    <p class="text-muted extra-small mb-0 fw-medium">Class-based amount definitions</p>
+                                </div>
+                                <button class="btn btn-sm btn-primary rounded-pill px-3 fw-800 extra-small" data-bs-toggle="modal" data-bs-target="#addStructureModal">
+                                    <i class="fas fa-plus me-1"></i> ADD STRUCTURE
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                                    <thead>
+                                        <tr class="bg-light bg-opacity-50">
+                                            <th class="ps-4 py-3 extra-small text-uppercase text-muted fw-800 opa-7">Cohort</th>
+                                            <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7">Category</th>
+                                            <th class="py-3 extra-small text-uppercase text-muted fw-800 opa-7">Amount</th>
+                                            <th class="pe-4 py-3 text-end">Operation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for fee in structures %}
+                                        <tr class="animate-fade-in">
+                                            <td class="ps-4 py-3">
+                                                <div class="fw-800 text-dark small">{{ fee.class_name }}</div>
+                                            </td>
+                                            <td><span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-2 fw-800 text-uppercase">{{ fee.category.name }}</span></td>
+                                            <td><span class="fw-800 text-primary small">{{ school_config.currency_symbol|default:"GH₵" }}{{ fee.amount }}</span></td>
+                                            <td class="pe-4 text-end">
+                                                <button class="btn btn-sm p-btn-icon" title="Edit Amount" data-bs-toggle="modal" data-bs-target="#editStructure-{{ fee.id }}">
+                                                    <i class="fas fa-edit text-primary"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr><td colspan="4" class="p-5 text-center opa-5 fw-bold extra-small text-uppercase">No structures active.</td></tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between mt-2">
-                            <span class="extra-small text-muted fw-bold text-uppercase opa-5">Exposure Level</span>
-                            <span class="extra-small text-danger fw-800">{% widthratio invoice.balance_due invoice.total_amount 100 %}% Remaining</span>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-end">
-                        <button class="btn btn-primary btn-sm rounded-pill px-4 fw-800 extra-small text-uppercase shadow-sm border-0" data-bs-toggle="modal" data-bs-target="#recordPayment-{{ invoice.id }}" style="background: var(--p-nexus-primary);">
-                            SYNC PAYMENT
-                        </button>
                     </div>
                 </div>
-                {% empty %}
-                <div class="p-5 text-center">
-                    <div class="p-avatar mx-auto mb-3 opa-2" style="background: var(--p-nexus-success); width: 60px; height: 60px;">
-                        <i class="fas fa-shield-check"></i>
-                    </div>
-                    <div class="opa-5 fw-bold text-uppercase extra-small" style="letter-spacing: 1px;">Asset integrity verified.<br>No outstanding exposure.</div>
-                </div>
-                {% endfor %}
             </div>
         </div>
     </div>
 </div>
+
+<!-- MODALS SECION -->
 
 <!-- Institutional Billing Terminal -->
 <div class="modal fade animate-fade-in" id="bulkBillingModal" tabindex="-1" aria-hidden="true">
@@ -220,7 +357,7 @@
                 {% csrf_token %}
                 <div class="modal-body p-4">
                     <div class="nexus-glass-card p-3 mb-4 border-start border-4 border-primary shadow-none" style="background: rgba(67, 97, 238, 0.05); border-radius: 12px;">
-                        <p class="extra-small text-muted mb-0 fw-bold"><i class="fas fa-circle-info text-primary me-2"></i> PROTOCOL INSTRUCTION: Generate termly invoices for class cohorts based on pre-defined structures.</p>
+                        <p class="extra-small text-muted mb-0 fw-bold"><i class="fas fa-circle-info text-primary me-2"></i> PROTOCOL INSTRUCTION: Generate termly invoices based on current settings.</p>
                     </div>
                     <div class="mb-4">
                         <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Cohort Designation (Class)</label>
@@ -234,18 +371,137 @@
                     <div class="mb-3">
                         <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Target Fiscal Term</label>
                         <select name="term_id" class="form-select nexus-input-terminal px-3 fw-medium" required style="height: 48px; border-radius: 12px;">
-                            <option value="{{ active_term.id }}">{{ active_term.name }} (Authorized Protocol)</option>
+                            <option value="{{ active_term.id }}">{{ active_term.name }}</option>
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer p-4 border-top bg-light bg-opacity-30">
+                <div class="modal-footer p-4 border-top">
                     <button type="button" class="btn btn-light rounded-pill px-4 fw-800 extra-small border" data-bs-dismiss="modal">ABORT</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-800 shadow-lg border-0" style="background: var(--p-nexus-primary);">EXECUTE BILLING RUN</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-800 shadow-lg border-0" style="background: var(--p-nexus-primary);">EXECUTE BILLING</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- Add Category Modal -->
+<div class="modal fade animate-fade-in" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="nexus-glass-card modal-content border-0 p-0 overflow-hidden shadow-lg">
+            <div class="modal-header p-4 border-bottom bg-primary text-white" style="background: var(--p-nexus-primary) !important;">
+                <h5 class="modal-title fw-800">New Fee Classification</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'finance:add_category' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    {{ category_form.as_p }}
+                </div>
+                <div class="modal-footer p-4 border-top">
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-800">SAVE CATEGORY</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Structure Modal -->
+<div class="modal fade animate-fade-in" id="addStructureModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="nexus-glass-card modal-content border-0 p-0 overflow-hidden shadow-lg">
+            <div class="modal-header p-4 border-bottom bg-primary text-white" style="background: var(--p-nexus-primary) !important;">
+                <h5 class="modal-title fw-800">New Fiscal Structure</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'finance:add_structure' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    {{ structure_form.as_p }}
+                </div>
+                <div class="modal-footer p-4 border-top">
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-800">CREATE STRUCTURE</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% for cat in categories %}
+<!-- Edit Category Modal: {{ cat.id }} -->
+<div class="modal fade animate-fade-in" id="editCategory-{{ cat.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="nexus-glass-card modal-content border-0 p-0 overflow-hidden shadow-lg">
+            <div class="modal-header p-4 border-bottom bg-primary text-white" style="background: var(--p-nexus-primary) !important;">
+                <h5 class="modal-title fw-800">Edit Classification: {{ cat.name }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'finance:edit_category' cat.id %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="nexus-label-terminal small mb-1">Name</label>
+                        <input type="text" name="name" class="form-control nexus-input-terminal" value="{{ cat.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="nexus-label-terminal small mb-1">Description</label>
+                        <textarea name="description" class="form-control nexus-input-terminal" rows="3">{{ cat.description }}</textarea>
+                    </div>
+                    <div class="form-check mt-4">
+                        <input class="form-check-input" type="checkbox" name="_delete" id="delete-cat-{{ cat.id }}">
+                        <label class="form-check-label text-danger fw-800 extra-small text-uppercase" for="delete-cat-{{ cat.id }}">
+                            DECOMMISSION CLASSIFICATION
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer p-4 border-top">
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-800">UPDATE SETTINGS</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% for fee in structures %}
+<!-- Edit Structure Modal: {{ fee.id }} -->
+<div class="modal fade animate-fade-in" id="editStructure-{{ fee.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="nexus-glass-card modal-content border-0 p-0 overflow-hidden shadow-lg">
+            <div class="modal-header p-4 border-bottom bg-primary text-white" style="background: var(--p-nexus-primary) !important;">
+                <h5 class="modal-title fw-800">Edit Amount: {{ fee.class_name }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'finance:edit_structure' fee.id %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body p-4 text-center">
+                    <div class="p-avatar mx-auto mb-3 shadow-sm bg-light text-primary" style="width: 50px; height: 50px;">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <h6 class="fw-800 text-uppercase extra-small text-muted">{{ fee.category.name }} protocol</h6>
+                    
+                    <input type="hidden" name="class_name" value="{{ fee.class_name.id }}">
+                    <input type="hidden" name="category" value="{{ fee.category.id }}">
+                    
+                    <div class="mt-4 text-start">
+                        <label class="nexus-label-terminal small mb-1">Amount ({{ school_config.currency_symbol|default:"GH₵" }})</label>
+                        <input type="number" name="amount" step="0.01" class="form-control nexus-input-terminal fw-800 text-center text-primary" value="{{ fee.amount }}" style="font-size: 2rem; height: 75px; border-radius: 16px;" required>
+                    </div>
+                    
+                    <div class="form-check mt-5 text-start">
+                        <input class="form-check-input" type="checkbox" name="_delete" id="delete-struct-{{ fee.id }}">
+                        <label class="form-check-label text-danger fw-800 extra-small text-uppercase" for="delete-struct-{{ fee.id }}">
+                            REMOVE FROM MATRIX
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer p-4 border-top">
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-800">FORCE UPDATE</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 {% for invoice in unpaid_invoices %}
 <!-- Transaction Synchronization Terminal: {{ invoice.id }} -->
@@ -269,13 +525,12 @@
                     </div>
                     <h5 class="fw-800 text-dark mb-1" style="letter-spacing: -0.5px;">{{ invoice.student.user.get_full_name }}</h5>
                     <div class="p-badge p-badge-critical extra-small shadow-sm mb-5">
-                        PENDING EXPOSURE: ${{ invoice.balance_due }}
+                        PENDING EXPOSURE: {{ school_config.currency_symbol|default:"GH₵" }}{{ invoice.balance_due }}
                     </div>
 
                     <div class="text-start mb-4">
-                        <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Payment Value ($)</label>
+                        <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Payment Value ({{ school_config.currency_symbol|default:"GH₵" }})</label>
                         <input type="number" name="amount" step="0.01" max="{{ invoice.balance_due }}" min="0.01" class="form-control nexus-input-terminal px-3 fw-800 text-success text-center" style="height: 65px; font-size: 1.8rem; border-radius: 16px;" value="{{ invoice.balance_due }}" required>
-                        <div class="extra-small text-muted mt-2 fw-bold text-center text-uppercase opa-5"><i class="fas fa-circle-exclamation me-1"></i> Authorized synchronization only</div>
                     </div>
                     <div class="text-start mb-3">
                         <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Method Protocol</label>
@@ -287,7 +542,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer p-4 border-top bg-light bg-opacity-30">
+                <div class="modal-footer p-4 border-top">
                     <button type="button" class="btn btn-light rounded-pill px-4 fw-800 extra-small border" data-bs-dismiss="modal">ABORT</button>
                     <button type="submit" class="btn btn-success rounded-pill px-5 fw-800 shadow-lg border-0 text-white" style="background: var(--p-nexus-success);">COMMIT REGISTRY</button>
                 </div>
@@ -302,9 +557,114 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Shared Progress Bar Logic
         document.querySelectorAll('.js-progress-bar').forEach(function(bar) {
             const progress = bar.getAttribute('data-progress');
             bar.style.width = progress + '%';
+        });
+
+        // Persistent Tabs after save
+        const activeTab = localStorage.getItem('activeFinanceTab');
+        if (activeTab) {
+            const tabEl = document.querySelector(`#${activeTab}`);
+            if (tabEl) {
+                bootstrap.Tab.getInstance(tabEl)?.show() || new bootstrap.Tab(tabEl).show();
+            }
+        }
+
+        document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(tab => {
+            tab.addEventListener('shown.bs.tab', (e) => {
+                localStorage.setItem('activeFinanceTab', e.target.id);
+            });
+        });
+
+        // --- Financial Velocity Chart Logic ---
+        const ctx = document.getElementById('financeVelocityChart').getContext('2d');
+        
+        // Create Gradients
+        const purpleGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        purpleGradient.addColorStop(0, 'rgba(67, 97, 238, 0.4)');
+        purpleGradient.addColorStop(1, 'rgba(67, 97, 238, 0)');
+
+        const greenGradient = ctx.createLinearGradient(0, 0, 0, 400);
+        greenGradient.addColorStop(0, 'rgba(0, 211, 148, 0.4)');
+        greenGradient.addColorStop(1, 'rgba(0, 211, 148, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels|safe }},
+                datasets: [
+                    {
+                        label: 'Projected Protocol',
+                        data: {{ chart_expected|safe }},
+                        borderColor: '#4361ee',
+                        backgroundColor: purpleGradient,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#4361ee',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Liquidity Sync',
+                        data: {{ chart_collected|safe }},
+                        borderColor: '#00d394',
+                        backgroundColor: greenGradient,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#00d394',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        padding: 12,
+                        titleFont: { family: 'Inter', size: 13, weight: '700' },
+                        bodyFont: { family: 'Inter', size: 12 },
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                if (context.parsed.y !== null) {
+                                    label += '{{ school_config.currency_symbol|default:"GH₵" }}' + context.parsed.y.toLocaleString();
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { borderDash: [5, 5], drawBorder: false, color: 'rgba(0,0,0,0.05)' },
+                        ticks: {
+                            font: { family: 'Inter', size: 11, weight: '600' },
+                            color: '#64748b',
+                            callback: function(value) { return '{{ school_config.currency_symbol|default:"GH₵" }}' + value.toLocaleString(); }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter', size: 11, weight: '600' }, color: '#64748b' }
+                    }
+                }
+            }
         });
     });
 </script>

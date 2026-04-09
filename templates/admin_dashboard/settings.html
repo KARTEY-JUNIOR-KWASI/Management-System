@@ -142,6 +142,14 @@
                             <label class="p-label">Physical Coordinates (Address)</label>
                             {{ form.address|add_class:"p-input" }}
                         </div>
+                        <div class="col-md-6 mt-3">
+                            <label class="p-label">Institutional Currency Symbol</label>
+                            {{ form.currency_symbol|add_class:"p-input"|attr:"placeholder:e.g. GH₵" }}
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <label class="p-label">Institutional Currency Code</label>
+                            {{ form.currency_code|add_class:"p-input"|attr:"placeholder:e.g. GHS" }}
+                        </div>
                     </div>
 
                     <div class="mt-5 pt-4 d-flex justify-content-end gap-3 border-top">

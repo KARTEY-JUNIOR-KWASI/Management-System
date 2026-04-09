@@ -422,7 +422,24 @@ def create_assignment(request):
             assignment = form.save(commit=False)
             assignment.teacher = request.user
             assignment.save()
-            messages.success(request, f'Assignment "{assignment.title}" created successfully!')
+            
+            # Dispatch notifications to all students in the class
+            from analytics.models import Notification
+            from accounts.models import User
+            
+            students_to_notify = User.objects.filter(student__class_enrolled=assignment.class_assigned)
+            notifications = [
+                Notification(
+                    recipient=student_user,
+                    notification_type='assignment',
+                    title=f"New Assignment: {assignment.title}",
+                    message=f"New assignment in {assignment.subject.name}. Due on {assignment.due_date}.",
+                    priority='high'
+                ) for student_user in students_to_notify
+            ]
+            Notification.objects.bulk_create(notifications)
+            
+            messages.success(request, f'Assignment "{assignment.title}" created and students notified!')
             return redirect('manage_assignments')
         else:
             for field, errors in form.errors.items():

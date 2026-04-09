@@ -191,6 +191,10 @@ class SchoolConfiguration(models.Model):
     established_year = models.IntegerField(default=2024)
     active_term = models.ForeignKey(AcademicTerm, on_delete=models.SET_NULL, null=True, blank=True)
     
+    # 🌍 Financial Localization Node
+    currency_symbol = models.CharField(max_length=10, default="GH₵")
+    currency_code = models.CharField(max_length=10, default="GHS")
+    
     class Meta:
         verbose_name = "Institutional Configuration"
         verbose_name_plural = "Institutional Configuration"
