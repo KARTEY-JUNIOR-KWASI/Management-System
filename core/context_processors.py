@@ -15,3 +15,20 @@ def unread_notifications(request):
             'unread_notifications_count': unread.count()
         }
     return {}
+
+def infrastructure_status(request):
+    """Identifies the active institutional infrastructure for the dashboard."""
+    from django.conf import settings
+    db_engine = settings.DATABASES['default']['ENGINE']
+    
+    if 'postgresql' in db_engine:
+        engine_type = 'PostgreSQL (Enterprise)'
+    elif 'sqlite' in db_engine:
+        engine_type = 'SQLite (Local/Ephemeral)'
+    else:
+        engine_type = 'External Engine'
+        
+    return {
+        'DATABASE_ENGINE_TYPE': engine_type,
+        'IS_PERSISTENT': 'postgresql' in db_engine
+    }

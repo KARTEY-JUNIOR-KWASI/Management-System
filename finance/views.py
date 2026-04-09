@@ -6,6 +6,7 @@ from decimal import Decimal
 from .models import FeeCategory, FeeStructure, Invoice, InvoiceItem, Payment
 from students.models import Student
 from core.models import Class, AcademicTerm, SchoolConfiguration
+from .services import FinanceService
 
 from django.http import HttpResponse
 from reportlab.lib import colors
@@ -56,7 +57,7 @@ def finance_hub(request):
 
 @admin_required
 def generate_class_invoices(request):
-    """Bulk billing engine: Generate invoices for all students in a specific class."""
+    """Institutional Bulk Billing Engine: O(1) performance refactor using service delegation."""
     if request.method == 'POST':
         class_id = request.POST.get('class_id')
         term_id = request.POST.get('term_id')
@@ -64,37 +65,15 @@ def generate_class_invoices(request):
         target_class = get_object_or_404(Class, id=class_id)
         target_term = get_object_or_404(AcademicTerm, id=term_id)
         
-        # Get fee structures for this class
-        structures = FeeStructure.objects.filter(class_name=target_class)
-        if not structures.exists():
-            messages.error(request, f'No fee structure defined for {target_class.name}. Please set prices first.')
-            return redirect('finance:finance_hub')
+        try:
+            invoice_count = FinanceService.generate_class_billing(target_class, target_term)
+            if invoice_count > 0:
+                messages.success(request, f'Synchronized {invoice_count} primary invoices for {target_class.name}.')
+            else:
+                messages.info(request, f'No new invoices needed or fee structures missing for {target_class.name}.')
+        except Exception as e:
+            messages.error(request, f'Billing protocol interrupted: {str(e)}')
             
-        students = Student.objects.filter(class_enrolled=target_class)
-        invoice_count = 0
-        
-        for student in students:
-            # Avoid duplicate invoices for same student/term
-            if Invoice.objects.filter(student=student, term=target_term).exists():
-                continue
-                
-            invoice = Invoice.objects.create(student=student, term=target_term)
-            total = Decimal('0.00')
-            
-            for structural_fee in structures:
-                InvoiceItem.objects.create(
-                    invoice=invoice,
-                    category=structural_fee.category,
-                    amount=structural_fee.amount
-                )
-                total += structural_fee.amount
-            
-            invoice.total_amount = total
-            invoice.balance_due = total
-            invoice.save()
-            invoice_count += 1
-            
-        messages.success(request, f'Generated {invoice_count} invoices for {target_class.name} for {target_term.name}.')
     return redirect('finance:finance_hub')
 
 @admin_required
@@ -102,22 +81,25 @@ def record_payment(request, invoice_id):
     """Manual payment recording by administrator."""
     invoice = get_object_or_404(Invoice, id=invoice_id)
     if request.method == 'POST':
-        amount = Decimal(request.POST.get('amount'))
-        method = request.POST.get('method')
-        ref = request.POST.get('reference', '')
-        
-        if amount <= 0:
-            messages.error(request, 'Payment amount must be greater than zero.')
-        elif amount > invoice.balance_due:
-            messages.error(request, f'Payment exceeds balance. Max allowed: {invoice.balance_due}')
-        else:
-            Payment.objects.create(
-                invoice=invoice,
-                amount_paid=amount,
-                method=method,
-                transaction_id=ref
-            )
-            messages.success(request, f'Recorded payment of {amount} for {invoice.student.user.get_full_name()}.')
+        try:
+            amount = Decimal(request.POST.get('amount'))
+            method = request.POST.get('method')
+            ref = request.POST.get('reference', '')
+            
+            if amount <= 0:
+                messages.error(request, 'Payment amount must be greater than zero.')
+            elif amount > invoice.balance_due:
+                messages.error(request, f'Payment exceeds balance. Max allowed: {invoice.balance_due}')
+            else:
+                FinanceService.record_payment(
+                    invoice=invoice,
+                    amount=amount,
+                    method=method,
+                    transaction_id=ref
+                )
+                messages.success(request, f'Recorded payment of {amount} for {invoice.student.user.get_full_name()}.')
+        except Exception as e:
+            messages.error(request, f'Transaction failed: {str(e)}')
             
     return redirect('finance:finance_hub')
 

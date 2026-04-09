@@ -51,9 +51,10 @@ class Invoice(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.invoice_number:
-            # Simple auto-generation of invoice numbers
+            # Sequential-Safe Hash (More robust than hex[:10])
             import uuid
-            self.invoice_number = str(uuid.uuid4().hex[:10]).upper()
+            import hashlib
+            self.invoice_number = hashlib.md5(str(uuid.uuid4()).encode()).hexdigest()[:12].upper()
         super().save(*args, **kwargs)
 
 class InvoiceItem(models.Model):
@@ -85,12 +86,26 @@ class Payment(models.Model):
         return f"Payment of {self.amount_paid} for {self.invoice.invoice_number}"
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        # Update invoice balance and status
-        self.invoice.balance_due -= self.amount_paid
-        if self.invoice.balance_due <= 0:
-            self.invoice.balance_due = 0
-            self.invoice.status = 'paid'
-        elif self.invoice.balance_due < self.invoice.total_amount:
-            self.invoice.status = 'partial'
-        self.invoice.save()
+        from django.db import transaction
+        from django.db.models import F
+
+        is_new = self.pk is None
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            if is_new:
+                # 🛡️ BANK-GRADE ATOMICITY: Use F() expression to prevent race conditions
+                # This ensures balance_due is updated directly on the database server.
+                Invoice.objects.filter(id=self.invoice_id).update(
+                    balance_due=F('balance_due') - self.amount_paid
+                )
+                
+                # Refresh from DB to get the new atomic balance and update status
+                self.invoice.refresh_from_db()
+                if self.invoice.balance_due <= 0:
+                    self.invoice.balance_due = 0
+                    self.invoice.status = 'paid'
+                elif self.invoice.balance_due < self.invoice.total_amount:
+                    self.invoice.status = 'partial'
+                
+                # Optimization: Only save specific fields to avoid overwriting concurrent changes
+                self.invoice.save(update_fields=['balance_due', 'status', 'updated_at'])

@@ -121,6 +121,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.unread_notifications',
                 'core.context_processors.school_config',
+                'core.context_processors.infrastructure_status',
             ],
         },
     },
@@ -129,15 +130,25 @@ TEMPLATES = [
 WSGI_APPLICATION = 'school_management.wsgi.application'
 
 
-# Database
+# Database Configuration
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-# 🔄 Production-Ready: Use PostgreSQL if configured, fallback to SQLite for local development
+# 🛡️ Nexus Infrastructure Guard: Strict Engine Requirements
+DATABASE_URL = os.getenv('DATABASE_URL')
+DB_NAME = os.getenv('DB_NAME')
+
+if not DATABASE_URL and not DB_NAME and not DEBUG:
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured(
+        "CRITICAL: No persistent database (DATABASE_URL or DB_NAME) detected in production. "
+        "Silent fallback to ephemeral SQLite has been disabled to prevent data loss."
+    )
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL') if os.getenv('DATABASE_URL') else (
-            f"postgres://{os.getenv('DB_USER', 'postgres')}:{os.getenv('DB_PASSWORD', 'postgres')}@{os.getenv('DB_HOST', '127.0.0.1')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME', 'school_db')}"
-            if os.getenv('DB_NAME') else f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+        default=DATABASE_URL if DATABASE_URL else (
+            f"postgres://{os.getenv('DB_USER', 'postgres')}:{os.getenv('DB_PASSWORD', 'postgres')}@{os.getenv('DB_HOST', '127.0.0.1')}:{os.getenv('DB_PORT', '5432')}/{DB_NAME}"
+            if DB_NAME else f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
         ),
         conn_max_age=600,
         conn_health_checks=True,

@@ -3,7 +3,8 @@ from students.models import Student
 from teachers.models import Teacher
 from core.models import Subject, Class, Timetable, SchoolConfiguration
 from accounts.models import User
-from accounts.utils import generate_user_id, generate_random_password
+from students.services import StudentService
+from teachers.services import TeacherService
 
 class StudentForm(forms.ModelForm):
     # Account fields
@@ -46,53 +47,35 @@ class StudentForm(forms.ModelForm):
         return super().clean()
 
     def save(self, commit=True):
-        if self.instance and self.instance.pk:
-            user = self.instance.user
-            user.first_name = self.cleaned_data['first_name']
-            user.last_name = self.cleaned_data['last_name']
-            if self.cleaned_data.get('password'):
-                user.set_password(self.cleaned_data['password'])
-            user.save()
-            student = super().save(commit=commit)
-        else:
-            username = generate_user_id('student')
-            password = generate_random_password(12)
-            user = User.objects.create_user(
-                username=username,
-                first_name=self.cleaned_data['first_name'],
-                last_name=self.cleaned_data['last_name'],
-                password=password,
-                role='student'
-            )
-            self.generated_password = password
-            self.generated_username = username
-            student, created = Student.objects.get_or_create(user=user)
-            student.student_id = username
-            student.class_enrolled = self.cleaned_data.get('class_enrolled')
-            
-            # Automated Institutional House Assignment Protocol
-            from core.models import House
-            if not student.house:
-                houses = list(House.objects.all().order_by('id'))
-                if houses:
-                    student_count = Student.objects.exclude(pk=student.pk).count()
-                    next_house_index = student_count % len(houses)
-                    student.house = houses[next_house_index]
+        if not commit:
+            return super().save(commit=False)
 
-            student.enrollment_date = self.cleaned_data.get('enrollment_date')
-            student.age = self.cleaned_data.get('age')
-            student.gender = self.cleaned_data.get('gender', '')
-            student.status = self.cleaned_data.get('status', 'active')
-            student.hobbies = self.cleaned_data.get('hobbies', '')
-            student.parent_name = self.cleaned_data.get('parent_name', '')
-            student.parent_phone = self.cleaned_data.get('parent_phone', '')
-            student.parent_email = self.cleaned_data.get('parent_email', '')
-            student.parent_relationship = self.cleaned_data.get('parent_relationship', '')
-            student.emergency_contact_name = self.cleaned_data.get('emergency_contact_name', '')
-            student.emergency_contact_phone = self.cleaned_data.get('emergency_contact_phone', '')
-            student.emergency_contact_relationship = self.cleaned_data.get('emergency_contact_relationship', '')
-            if commit:
-                student.save()
+        user_data = {
+            'first_name': self.cleaned_data['first_name'],
+            'last_name': self.cleaned_data['last_name'],
+            'password': self.cleaned_data.get('password'),
+        }
+
+        if self.instance and self.instance.pk:
+            # Update existing student via service
+            student_data = self.cleaned_data.copy()
+            for key in ['first_name', 'last_name', 'password']:
+                student_data.pop(key, None)
+            
+            student = StudentService.update_student(
+                student_instance=self.instance,
+                user_data=user_data,
+                student_data=student_data
+            )
+        else:
+            # Create new student via service
+            student_data = self.cleaned_data.copy()
+            student = StudentService.enroll_student(student_data)
+            
+            # Capture generated credentials for UI feedback (from service metadata)
+            self.generated_password = getattr(student, '_generated_password', None)
+            self.generated_username = getattr(student, '_generated_username', None)
+
         return student
 
 class TeacherForm(forms.ModelForm):
@@ -141,50 +124,50 @@ class TeacherForm(forms.ModelForm):
         return super().clean()
 
     def save(self, commit=True):
+        if not commit:
+            return super().save(commit=False)
+
+        user_data = {
+            'first_name': self.cleaned_data['first_name'],
+            'last_name': self.cleaned_data['last_name'],
+            'email': self.cleaned_data['email'],
+            'gender': self.cleaned_data.get('gender'),
+            'phone': self.cleaned_data.get('phone'),
+            'address': self.cleaned_data.get('address'),
+            'date_of_birth': self.cleaned_data.get('date_of_birth'),
+            'profile_picture': self.cleaned_data.get('profile_picture'),
+            'password': self.cleaned_data.get('password'),
+        }
+
+        teacher_data = {
+            'teacher_id': self.cleaned_data.get('teacher_id'),
+            'department': self.cleaned_data.get('department'),
+            'qualification': self.cleaned_data.get('qualification'),
+            'specialization': self.cleaned_data.get('specialization'),
+            'emergency_contact_name': self.cleaned_data.get('emergency_contact_name'),
+            'emergency_contact_phone': self.cleaned_data.get('emergency_contact_phone'),
+            'emergency_contact_relationship': self.cleaned_data.get('emergency_contact_relationship'),
+        }
+
+        subject_ids = [s.pk for s in self.cleaned_data.get('subjects', [])]
+
         if self.instance and self.instance.pk:
-            user = self.instance.user
-            user.first_name = self.cleaned_data['first_name']
-            user.last_name = self.cleaned_data['last_name']
-            user.email = self.cleaned_data['email']
-            user.gender = self.cleaned_data['gender']
-            user.phone = self.cleaned_data['phone']
-            user.address = self.cleaned_data['address']
-            user.date_of_birth = self.cleaned_data['date_of_birth']
-            if self.cleaned_data.get('profile_picture'):
-                user.profile_picture = self.cleaned_data['profile_picture']
-            if self.cleaned_data.get('password'):
-                user.set_password(self.cleaned_data['password'])
-            user.save()
-            teacher = super().save(commit=commit)
-            teacher.subjects.set(self.cleaned_data.get('subjects', []))
-        else:
-            username = generate_user_id('teacher')
-            password = generate_random_password(12)
-            user = User.objects.create_user(
-                username=username,
-                email=self.cleaned_data['email'],
-                first_name=self.cleaned_data['first_name'],
-                last_name=self.cleaned_data['last_name'],
-                password=password,
-                role='teacher'
+            teacher = TeacherService.update_teacher(
+                teacher_instance=self.instance,
+                user_data=user_data,
+                teacher_data=teacher_data,
+                subject_ids=subject_ids
             )
-            self.generated_password = password
-            self.generated_username = username
-            user.gender = self.cleaned_data['gender']
-            user.phone = self.cleaned_data['phone']
-            user.address = self.cleaned_data['address']
-            user.date_of_birth = self.cleaned_data['date_of_birth']
-            if self.cleaned_data.get('profile_picture'):
-                user.profile_picture = self.cleaned_data['profile_picture']
-            user.save()
-            teacher, created = Teacher.objects.get_or_create(user=user)
-            teacher.teacher_id = username
-            teacher.department = self.cleaned_data.get('department', '')
-            teacher.qualification = self.cleaned_data.get('qualification', '')
-            teacher.specialization = self.cleaned_data.get('specialization', '')
-            teacher.save()
-            if self.cleaned_data.get('subjects'):
-                teacher.subjects.set(self.cleaned_data.get('subjects'))
+        else:
+            teacher = TeacherService.onboard_teacher(
+                user_data=user_data,
+                teacher_data=teacher_data,
+                subject_ids=subject_ids
+            )
+            # Capture generated credentials for UI feedback
+            self.generated_password = getattr(teacher, '_generated_password', None)
+            self.generated_username = getattr(teacher, '_generated_username', None)
+
         return teacher
 
 class SubjectForm(forms.ModelForm):

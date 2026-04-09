@@ -20,8 +20,18 @@
                     </h2>
                 </div>
                 <div class="d-flex align-items-center gap-2 text-muted fw-bold extra-small text-uppercase opa-7" style="letter-spacing: 1px;">
-                    <i class="fas fa-satellite-dish text-primary animate-pulse"></i> Global Infrastructure Sync Status: <span class="text-success">Optimal</span> <span class="mx-2">|</span> 
-                    <i class="fas fa-terminal text-primary ms-1"></i> Authorized Core Access Only
+                    <i class="fas fa-satellite-dish text-primary animate-pulse"></i> Sync: <span class="text-success">Optimal</span> <span class="mx-2">|</span> 
+                    <i class="fas fa-database text-primary"></i> Nexus Intel: 
+                    <span class="{% if IS_PERSISTENT %}text-success{% else %}text-danger{% endif %} fw-900 shadow-glow">
+                        {{ DATABASE_ENGINE_TYPE }}
+                    </span>
+                    {% if not IS_PERSISTENT %}
+                        <i class="fas fa-triangle-exclamation text-danger ms-1 animate-pulse"></i>
+                    {% else %}
+                        <i class="fas fa-check-circle text-success ms-1"></i>
+                    {% endif %}
+                    <span class="mx-2">|</span> 
+                    <i class="fas fa-terminal text-primary ms-1"></i> Secure Core Access
                 </div>
             </div>
             <div class="d-flex gap-3 pb-1">
