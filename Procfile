@@ -1,1 +1,1 @@
-web: gunicorn school_management.wsgi:application
+web: gunicorn school_management.wsgi:application --workers 2 --threads 4 --worker-class gthread --max-requests 500 --max-requests-jitter 50 --timeout 120
