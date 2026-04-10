@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib import messages
 from datetime import date, timedelta
 from accounts.decorators import student_required
@@ -36,6 +37,13 @@ def student_dashboard(request):
         due_date__gte=date.today()
     ).order_by('due_date')[:5]
 
+    actions_data = [
+        {'url': reverse('view_grades'), 'icon': 'bar-chart-3', 'label': 'Grades', 'desc': 'Academic performance', 'icon_bg': 'rgba(79, 70, 229, 0.1)', 'icon_color': '#4f46e5'},
+        {'url': reverse('view_attendance'), 'icon': 'scan-line', 'label': 'Attendance', 'desc': 'Presence analytics', 'icon_bg': 'rgba(16, 185, 129, 0.1)', 'icon_color': '#10b981'},
+        {'url': reverse('view_assignments'), 'icon': 'clipboard-list', 'label': 'Assignments', 'desc': 'Active objectives', 'icon_bg': 'rgba(245, 158, 11, 0.1)', 'icon_color': '#f59e0b'},
+        {'url': reverse('student_timetable'), 'icon': 'calendar', 'label': 'Timetable', 'desc': 'Schedule overview', 'icon_bg': 'rgba(14, 165, 233, 0.1)', 'icon_color': '#0ea5e9'},
+    ]
+
     context = {
         'student': student,
         'attendance_percentage': performance_data.get('attendance_rate', 0),
@@ -44,6 +52,7 @@ def student_dashboard(request):
         'predictions': predictions,
         'insights': insights,
         'upcoming_assignments': upcoming_assignments,
+        'actions_data': actions_data,
     }
     return render(request, 'students/dashboard.html', context)
 

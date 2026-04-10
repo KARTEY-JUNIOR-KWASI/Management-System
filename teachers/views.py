@@ -76,6 +76,13 @@ def teacher_dashboard(request):
     
     assignment_stats = _calculate_assignment_stats(teacher)
 
+    actions_data = [
+        {'url': reverse('mark_attendance'), 'icon': 'scan-line', 'label': 'Mark Attendance', 'desc': 'Daily presence protocol', 'icon_bg': 'rgba(16, 185, 129, 0.1)', 'icon_color': '#10b981'},
+        {'url': reverse('manage_grades'), 'icon': 'bar-chart-3', 'label': 'Manage Grades', 'desc': 'Assessment engine', 'icon_bg': 'rgba(79, 70, 229, 0.1)', 'icon_color': '#4f46e5'},
+        {'url': reverse('manage_assignments'), 'icon': 'clipboard-list', 'label': 'Assignments', 'desc': 'Task operations', 'icon_bg': 'rgba(245, 158, 11, 0.1)', 'icon_color': '#f59e0b'},
+        {'url': reverse('attendance_report'), 'icon': 'file-bar-chart', 'label': 'Reports', 'desc': 'Analytics & insights', 'icon_bg': 'rgba(239, 68, 68, 0.1)', 'icon_color': '#ef4444'},
+    ]
+
     context = {
         'teacher': teacher,
         'classes': classes,
@@ -86,6 +93,7 @@ def teacher_dashboard(request):
         'at_risk_students': my_at_risk[:5],
         'total_at_risk': len(my_at_risk),
         'assignment_stats': assignment_stats,
+        'actions_data': actions_data,
     }
     return render(request, 'teachers/dashboard.html', context)
 

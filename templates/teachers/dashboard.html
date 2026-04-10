@@ -11,9 +11,7 @@
       <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Mastery Sync Active</span>
     </div>
     
-    {% with teacher_actions=actions_data|default:default_teacher_actions %}
-      {% include 'components/action_grid.html' with actions=teacher_actions %}
-    {% endwith %}
+    {% include 'components/action_grid.html' with actions=actions_data %}
   </section>
 
   <!-- ── Diagnostics & Alert Feed ─────────────────────────────── -->

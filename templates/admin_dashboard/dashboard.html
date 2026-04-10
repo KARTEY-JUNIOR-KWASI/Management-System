@@ -11,9 +11,7 @@
       <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Protocol Active</span>
     </div>
     
-    {% with actions=actions_data|default:default_actions %}
-      {% include 'components/action_grid.html' with actions=actions %}
-    {% endwith %}
+    {% include 'components/action_grid.html' with actions=actions_data %}
   </section>
 
   <!-- ── Intelligence Feed & Summary ─────────────────────────────── -->
@@ -72,10 +70,7 @@
 
 </div>
 
-<!-- Define the Default Actions within the template for the demo -->
-{% if not actions_data %}
-  {% comment %} This block would normally be set in the view, but we'll simulate it with a with block above {% endcomment %}
-{% endif %}
+
 
 <!-- Create Notice Modal (Refactored to Tailwind) -->
 <div id="createNoticeModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">

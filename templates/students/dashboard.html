@@ -35,9 +35,7 @@
 
   <!-- ── Operational Hub (Action Grid) ────────────────────────── -->
   <section class="animate-card" style="animation-delay: 0.1s;">
-    {% with student_actions=actions_data|default:default_student_actions %}
-      {% include 'components/action_grid.html' with actions=student_actions %}
-    {% endwith %}
+    {% include 'components/action_grid.html' with actions=actions_data %}
   </section>
 
   <!-- ── Forecast & Objectives ─────────────────────────────── -->

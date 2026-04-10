@@ -36,6 +36,15 @@ def admin_dashboard(request):
     
     students = Student.objects.with_performance_stats().select_related('user', 'class_enrolled').order_by('-user__date_joined')[:10]
     
+    actions_data = [
+        {'url': reverse('student_list'), 'icon': 'users', 'label': 'Students', 'desc': 'Manage student records', 'icon_bg': 'rgba(79, 70, 229, 0.1)', 'icon_color': '#4f46e5'},
+        {'url': reverse('teacher_list'), 'icon': 'briefcase', 'label': 'Teachers', 'desc': 'Staff operations', 'icon_bg': 'rgba(16, 185, 129, 0.1)', 'icon_color': '#10b981'},
+        {'url': reverse('class_list'), 'icon': 'layout-grid', 'label': 'Classes', 'desc': 'Academic sectors', 'icon_bg': 'rgba(245, 158, 11, 0.1)', 'icon_color': '#f59e0b'},
+        {'url': reverse('subject_list'), 'icon': 'book-open', 'label': 'Subjects', 'desc': 'Curriculum domains', 'icon_bg': 'rgba(239, 68, 68, 0.1)', 'icon_color': '#ef4444'},
+        {'url': reverse('finance:finance_hub'), 'icon': 'wallet', 'label': 'Finance', 'desc': 'Revenue intelligence', 'icon_bg': 'rgba(99, 102, 241, 0.1)', 'icon_color': '#6366f1'},
+        {'url': reverse('manage_timetable'), 'icon': 'calendar', 'label': 'Timetable', 'desc': 'Schedule management', 'icon_bg': 'rgba(14, 165, 233, 0.1)', 'icon_color': '#0ea5e9'},
+    ]
+
     context = {
         'total_students': total_students,
         'total_teachers': total_teachers,
@@ -53,6 +62,7 @@ def admin_dashboard(request):
         'total_revenue_expected': total_expected,
         'total_revenue_collected': total_collected,
         'collection_percentage': round(collection_percentage, 1),
+        'actions_data': actions_data,
     }
     return render(request, 'admin_dashboard/dashboard.html', context)
 
