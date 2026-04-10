@@ -43,6 +43,17 @@
   
   <style>
     [x-cloak] { display: none !important; }
+    
+    /* 🛡️ Institutional Layout Guard: Stabilizing horizontal alignment */
+    html, body {
+      width: 100% !important;
+      max-width: 100vw !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      display: block !important; /* Force block to kill legacy flexbox conflicts */
+      overflow-x: hidden !important;
+    }
+
     .glass-effect {
       background: rgba(255, 255, 255, 0.7);
       backdrop-filter: blur(12px);
