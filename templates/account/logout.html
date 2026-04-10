@@ -1,35 +1,34 @@
 {% extends 'base.html' %}
 
-{% block title %}Sign Out — EduSystem{% endblock %}
+{% block title %}Sign Out — EduMS Intelligence{% endblock %}
 
-{% block noauth_content %}
-<div class="auth-page">
-  <div class="auth-box fade-in" style="max-width: 420px; text-align: center;">
-
-    <div class="mb-4 text-center">
-      <div class="d-inline-flex align-items-center justify-content-center bg-primary-light text-primary rounded-circle mb-3" style="width: 70px; height: 70px; font-size: 2rem;">
-        <i class="fas fa-sign-out-alt"></i>
-      </div>
-      <h2 style="font-weight: 700; color: var(--text-dark);">Sign Out</h2>
-      <p style="color: var(--text-muted); font-size: 0.95rem;">Are you sure you want to sign out from EduSystem?</p>
+{% block content %}
+<div class="flex items-center justify-center py-12">
+  <div class="bg-white rounded-4xl shadow-xl w-full max-w-md p-8 text-center animate-scale-up border border-gray-100">
+    
+    <div class="w-16 h-16 bg-red-50 text-red-500 rounded-3xl mx-auto flex items-center justify-center mb-6 shadow-inner">
+      <i data-lucide="log-out" class="w-8 h-8"></i>
     </div>
+    
+    <h2 class="font-display font-bold text-2xl text-gray-900 mb-2">Protocol Termination</h2>
+    <p class="text-sm text-gray-500 mb-8 font-medium">Are you sure you wish to disconnect your session from the Intelligence Nexus?</p>
 
-    <form method="post" action="{% url 'account_logout' %}" class="akkhor-form">
+    <form method="post" action="{% url 'account_logout' %}">
       {% csrf_token %}
       {% if redirect_field_value %}
       <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
       {% endif %}
 
-      <div class="d-flex gap-3 justify-content-center mt-4">
-        <a href="javascript:history.back()" class="btn-akkhor btn-outline-akkhor w-50 justify-content-center">
+      <div class="flex gap-3">
+        <a href="javascript:history.back()" class="flex-1 py-3.5 px-4 rounded-2xl border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 hover:text-gray-900 transition-colors">
           Cancel
         </a>
-        <button type="submit" class="btn-akkhor btn-danger-akkhor w-50 justify-content-center">
-          <i class="fas fa-power-off"></i> Sign Out
+        <button type="submit" class="flex-1 py-3.5 px-4 bg-red-500 hover:bg-red-600 text-white font-bold text-sm tracking-wider uppercase rounded-2xl shadow-lg shadow-red-500/30 transition-all flex items-center justify-center gap-2">
+          Confirm Exit
         </button>
       </div>
     </form>
 
   </div>
 </div>
-{% endblock noauth_content %}
+{% endblock content %}
