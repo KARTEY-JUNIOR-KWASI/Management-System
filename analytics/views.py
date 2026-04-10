@@ -639,7 +639,7 @@ def _generate_grade_predictions(student):
             # Simple prediction based on trend and attendance
             attendance_records = Attendance.objects.filter(
                 student=student,
-                class_attended=subject.class_assigned
+                class_attended=student.class_enrolled
             ).order_by('-date')[:10]
 
             attendance_rate = (attendance_records.filter(status='present').count() / attendance_records.count() * 100) if attendance_records.exists() else 100

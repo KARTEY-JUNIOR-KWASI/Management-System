@@ -29,6 +29,16 @@ def student_dashboard(request):
     # Advanced analytics data
     performance_data = _calculate_student_performance(student)
     predictions = _generate_grade_predictions(student)
+    
+    chart_predictions = [
+        {
+            'subject_name': p['subject'].name,
+            'current_average': float(p['current_average']),
+            'predicted_score': float(p['predicted_score'])
+        }
+        for p in predictions
+    ]
+    
     insights = LearningInsight.objects.filter(student=student, is_active=True)[:3]
     
     # Upcoming Assignments
@@ -50,6 +60,7 @@ def student_dashboard(request):
         'gpa': performance_data.get('gpa', 0),
         'performance_data': performance_data,
         'predictions': predictions,
+        'chart_predictions': chart_predictions,
         'insights': insights,
         'upcoming_assignments': upcoming_assignments,
         'actions_data': actions_data,

@@ -1,27 +1,68 @@
 {% extends 'base.html' %}
 
-{% block title %}Delete Student{% endblock %}
+{% block title %}Expel Student — Intelligence Nexus{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <h2 class="mb-4">Delete Student</h2>
-    <div class="card card-akkhor" style="max-width: 600px; margin: 0 auto;">
-        <div class="card-body text-center p-5">
-            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-            <h4>Are you sure you want to delete <strong>{{ student.user.get_full_name }}</strong>?</h4>
-            <p class="text-muted">Student ID: {{ student.student_id }}</p>
-            <p class="text-danger mb-4">This action cannot be undone and will permanently delete the associated user account.</p>
-            <form method="post">
-                {% csrf_token %}
-                <div class="d-flex justify-content-center gap-3">
-                    <a href="{% url 'student_list' %}" class="btn btn-outline-akkhor" style="text-decoration:none;">
-                        <i class="fas fa-arrow-left"></i> Cancel
-                    </a>
-                    <button type="submit" class="btn btn-danger" style="border-radius: 8px; padding: 10px 24px; font-weight: 500;">
-                        <i class="fas fa-trash"></i> Yes, Delete
-                    </button>
+<div class="row layout-spacing animate-fade-up justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="nexus-glass-card overflow-hidden border-0 shadow-lg" style="border: 1px solid rgba(220, 38, 38, 0.1) !important;">
+            
+            <!-- Warning Header Protocol -->
+            <div class="p-4 border-bottom d-flex align-items-center gap-3" style="background: rgba(220, 38, 38, 0.03);">
+                <div class="p-avatar-sm shadow-sm" style="background: var(--text-dark);">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 1.1rem;"></i>
                 </div>
-            </form>
+                <div>
+                    <h5 class="fw-800 mb-0 text-danger" style="letter-spacing: -0.5px;">Student Expulsion Protocol</h5>
+                    <p class="text-muted extra-small mb-0 fw-bold text-uppercase opa-7" style="letter-spacing: 1px;">Critical System Action</p>
+                </div>
+            </div>
+
+            <!-- Student Intel Summary -->
+            <div class="p-5 text-center">
+                <div class="d-inline-flex align-items-center justify-content-center mb-4 shadow-sm" style="width: 80px; height: 80px; border-radius: 50%; background: rgba(220, 38, 38, 0.05); color: #dc2626; font-size: 2rem; border: 1px solid rgba(220, 38, 38, 0.1);">
+                    <i class="fas fa-user-times"></i>
+                </div>
+                
+                <h3 class="fw-800 text-dark mb-1" style="letter-spacing: -1px;">{{ student.user.get_full_name }}</h3>
+                
+                <div class="d-flex align-items-center justify-content-center gap-2 mb-4">
+                    <span class="badge bg-light border text-dark extra-small rounded-pill px-3 py-2 fw-800 text-uppercase opa-7" style="font-family: 'JetBrains Mono', monospace;">
+                        ID: {{ student.student_id }}
+                    </span>
+                    <span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-2 fw-800 text-uppercase opa-7">
+                        {% if student.class_enrolled %}{{ student.class_enrolled.name }}{% else %}Unassigned{% endif %}
+                    </span>
+                </div>
+
+                <div class="alert alert-danger border-0 ext-start p-4 mx-auto text-start" style="background: rgba(220, 38, 38, 0.05); border-radius: 16px; max-width: 90%;">
+                    <div class="d-flex gap-3">
+                        <i class="fas fa-info-circle text-danger mt-1"></i>
+                        <div>
+                            <span class="fw-800 text-danger extra-small text-uppercase d-block mb-1" style="letter-spacing: 1px;">Irreversible Action</span>
+                            <span class="small fw-medium text-muted">You are about to permanently purge this student's access matrix. All associated operational data, academic records, and institutional links will be expunged. This command cannot be countermanded.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-flex gap-3 justify-content-center">
+                        <a href="{% url 'student_list' %}" class="btn btn-light rounded-pill px-5 py-3 fw-800 shadow-sm extra-small text-uppercase" style="letter-spacing: 1px;">
+                            <i class="fas fa-arrow-left me-2"></i> ABORT
+                        </a>
+                        <button type="submit" class="btn btn-danger rounded-pill px-5 py-3 fw-800 shadow-lg extra-small text-uppercase" style="letter-spacing: 1px; background: #dc2626;">
+                            <i class="fas fa-trash-alt me-2"></i> EXECUTE EXPULSION
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="px-4 py-3 border-top" style="background: rgba(0,0,0,0.02);">
+                <div class="extra-small text-muted fw-bold text-center text-uppercase opa-5" style="letter-spacing: 0.5px;">
+                    <i class="fas fa-fingerprint me-2"></i> Operational Sequence requires Admin clearance
+                </div>
+            </div>
         </div>
     </div>
 </div>

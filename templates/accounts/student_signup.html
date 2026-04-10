@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load widget_tweaks %}
+{% load core_tags %}
 
-{% block title %}Student Enrollment — Intelligence Portal{% endblock %}
+{% block title %}Student Enrollment — Intelligence Nexus{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
@@ -10,66 +11,75 @@
     .auth-bg {
         position: relative;
         min-height: 100vh;
-        background: #f8fafc;
+        background: #f1f5f9;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 3rem 1rem;
+        padding: 4rem 1rem;
         overflow-x: hidden;
     }
     .auth-glass-container {
         width: 100%;
-        max-width: 550px;
+        max-width: 600px;
         position: relative;
         z-index: 10;
     }
     .auth-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        border-radius: 32px;
-        padding: 3.5rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 40px;
+        padding: 4rem;
+        box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.08);
     }
     .p-form-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
     }
     .p-label {
         display: block;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 1.2px;
-        color: var(--text-muted);
-        margin-bottom: 0.6rem;
-        padding-left: 0.25rem;
+        letter-spacing: 1.5px;
+        color: var(--p-nexus-gray);
+        margin-bottom: 0.75rem;
+        padding-left: 0.5rem;
+        font-family: 'Outfit', sans-serif;
     }
     .p-field {
         width: 100%;
-        height: 52px;
-        padding: 0 1.25rem;
-        border-radius: 12px;
-        border: 1px solid rgba(0, 64, 103, 0.1);
-        background: rgba(255, 255, 255, 0.6);
-        font-weight: 500;
-        transition: var(--p-transition-smooth);
+        height: 56px;
+        padding: 0 1.5rem;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 64, 103, 0.08);
+        background: rgba(255, 255, 255, 0.8);
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        font-size: 0.95rem;
     }
     .p-field:focus {
         background: white;
-        border-color: var(--p-primary-hsl);
-        box-shadow: 0 0 0 4px rgba(0, 64, 103, 0.05);
+        border-color: var(--p-nexus-primary);
+        box-shadow: 0 0 0 5px rgba(67, 97, 238, 0.1);
         outline: none;
+        transform: translateY(-2px);
     }
     .bg-animation-blob {
         position: absolute;
-        width: 600px;
-        height: 600px;
-        background: radial-gradient(circle, rgba(111, 177, 63, 0.08), transparent 70%);
-        top: -300px;
-        left: -300px;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(67, 97, 238, 0.05), transparent 70%);
+        top: -400px;
+        left: -400px;
         border-radius: 50%;
         z-index: 1;
+        animation: pulse 10s infinite alternate ease-in-out;
+    }
+    @keyframes pulse {
+        0% { transform: scale(1) translate(0, 0); }
+        100% { transform: scale(1.1) translate(50px, 50px); }
     }
 </style>
 {% endblock %}
@@ -77,55 +87,57 @@
 {% block noauth_content %}
 <div class="auth-bg">
     <div class="bg-animation-blob"></div>
+    <div class="bg-animation-blob" style="top: auto; bottom: -400px; left: auto; right: -400px; background: radial-gradient(circle, rgba(16, 185, 129, 0.05), transparent 70%);"></div>
     
     <div class="auth-glass-container animate-fade-up">
         <div class="auth-card">
             <div class="text-center mb-5">
-                <div class="p-badge p-badge-high mb-3" style="padding: 0.5rem 1.5rem; font-size: 0.7rem; letter-spacing: 1px;">STUDENT ENROLLMENT</div>
-                <h2 class="fw-bold text-dark" style="letter-spacing: -1px;">Join the Intelligence Network</h2>
-                <p class="text-muted small">Begin your institutional journey today.</p>
+                <div class="p-badge p-badge-high mb-4 shadow-sm" style="padding: 0.6rem 2rem; font-size: 0.75rem; letter-spacing: 2px;">STUDENT ENROLLMENT</div>
+                <h2 class="fw-800 text-dark font-display" style="letter-spacing: -2px; font-size: 2.25rem;">Join the Intelligence Network</h2>
+                <p class="text-muted fw-bold extra-small text-uppercase mt-2 opa-7" style="letter-spacing: 1px;">Initialize Your Institutional Matrix</p>
             </div>
 
             <form method="post" enctype="multipart/form-data" class="premium-form">
                 {% csrf_token %}
                 
                 {% for field in form %}
-                    <div class="p-form-group">
+                    <div class="p-form-group animate-fade-up" style="animation-delay: {{ forloop.counter0|add:1|multiply:0.1 }}s;">
                         <label class="p-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                         {{ field|add_class:"p-field" }}
                         
                         {% if field.help_text %}
-                            <p class="text-muted mt-1 px-1" style="font-size: 0.7rem;">{{ field.help_text }}</p>
+                            <p class="text-muted mt-2 px-2 fw-medium" style="font-size: 0.7rem;">{{ field.help_text }}</p>
                         {% endif %}
                         
                         {% if field.errors %}
                             {% for error in field.errors %}
-                                <div class="text-danger x-small mt-2 px-1 fw-bold"><i class="fas fa-exclamation-circle me-1"></i> {{ error }}</div>
+                                <div class="text-danger extra-small mt-2 px-2 fw-bold"><i class="fas fa-exclamation-circle me-1"></i> {{ error }}</div>
                             {% endfor %}
                         {% endif %}
                     </div>
                 {% endfor %}
 
                 {% if form.non_field_errors %}
-                    <div class="p-2 bg-danger-soft text-danger small rounded-3 mb-4 px-3 border border-danger">
+                    <div class="p-3 bg-danger bg-opacity-10 text-danger extra-small fw-800 rounded-3 mb-4 px-4 border border-danger border-opacity-20 animate-shake">
                         <i class="fas fa-triangle-exclamation me-2"></i> {{ form.non_field_errors|join:", " }}
                     </div>
                 {% endif %}
 
-                <button type="submit" class="btn btn-primary-akkhor w-100 py-3 rounded-3 shadow-sm mt-3" style="font-weight: 700;">
+                <button type="submit" class="btn w-100 py-3 rounded-pill shadow-lg mt-4 text-white fw-800 extra-small text-uppercase transition-all transform hover:scale-105 active:scale-95" style="background: var(--p-nexus-primary); letter-spacing: 1.5px;">
                     Initialize Account <i class="fas fa-arrow-right ms-2"></i>
                 </button>
             </form>
 
-            <div class="text-center mt-5 pt-3">
-                <p class="text-muted small">Already registered? <a href="{% url 'account_login' %}" class="fw-bold text-primary text-decoration-none">Secure Login</a></p>
-                <p class="text-muted small mt-2">Are you an educator? <a href="{% url 'teacher_signup' %}" class="fw-bold text-success text-decoration-none">Teacher Onboarding</a></p>
+            <div class="text-center mt-5 pt-4 border-top" style="border-color: rgba(0,0,0,0.05) !important;">
+                <p class="text-muted extra-small fw-bold text-uppercase" style="letter-spacing: 1px;">Already registered? <a href="{% url 'account_login' %}" class="fw-800 text-primary text-decoration-none ms-1">Secure Login</a></p>
+                <p class="text-muted extra-small fw-bold text-uppercase mt-3" style="letter-spacing: 1px;">Are you an educator? <a href="{% url 'teacher_signup' %}" class="fw-800 text-success text-decoration-none ms-1">Teacher Onboarding</a></p>
             </div>
         </div>
         
         <div class="text-center mt-4">
-            <p class="text-muted" style="font-size: 0.75rem;">&copy; 2026 EduMS. Empowering Education Intelligence.</p>
+            <p class="text-muted fw-bold text-uppercase opa-5" style="font-size: 0.65rem; letter-spacing: 2px;">&copy; 2026 EduMS. Empowering Education Intelligence.</p>
         </div>
     </div>
 </div>
 {% endblock noauth_content %}
+

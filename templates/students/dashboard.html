@@ -79,7 +79,7 @@
 </div>
 
 <!-- Context Data for Chart -->
-{{ predictions|json_script:"prediction-data" }}
+{{ chart_predictions|json_script:"prediction-data" }}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -90,7 +90,7 @@
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: predictionData.map(p => p.subject.name.substring(0,8)),
+                labels: predictionData.map(p => p.subject_name.substring(0,8)),
                 datasets: [
                     {
                         label: 'Current',

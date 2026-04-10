@@ -69,6 +69,16 @@ def teacher_dashboard(request):
 
     # Analytics Data
     class_performance = _calculate_class_performance(teacher)
+    
+    chart_class_performance = [
+        {
+            'class_name': cp['class'].name,
+            'avg_gpa': float(cp['avg_gpa']),
+            'attendance_rate': float(cp['attendance_rate'])
+        }
+        for cp in class_performance
+    ]
+    
     at_risk_students = _identify_at_risk_students()
     # Filter at-risk students to only those in THIS teacher's classes
     teacher_class_ids = set(classes.values_list('id', flat=True))
@@ -90,6 +100,7 @@ def teacher_dashboard(request):
         'total_students': Student.objects.filter(class_enrolled__in=classes).count(),
         'total_classes': classes.count(),
         'class_performance': class_performance,
+        'chart_class_performance': chart_class_performance,
         'at_risk_students': my_at_risk[:5],
         'total_at_risk': len(my_at_risk),
         'assignment_stats': assignment_stats,

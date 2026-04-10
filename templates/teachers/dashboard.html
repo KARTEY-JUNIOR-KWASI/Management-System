@@ -67,7 +67,7 @@
 </div>
 
 <!-- Context Data for Chart -->
-{{ class_performance|json_script:"class-performance-data" }}
+{{ chart_class_performance|json_script:"class-performance-data" }}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -78,7 +78,7 @@
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: performanceData.map(cp => cp.class.name),
+                labels: performanceData.map(cp => cp.class_name),
                 datasets: [
                     {
                         label: 'GPA',

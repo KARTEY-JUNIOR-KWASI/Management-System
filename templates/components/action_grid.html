@@ -1,22 +1,26 @@
 <!-- templates/components/action_grid.html -->
-<div class="grid grid-cols-2 gap-3 lg:gap-4 my-2">
+{% load core_tags %}
+<div class="grid grid-cols-2 gap-4 lg:gap-6 my-4">
   {% for action in actions %}
     <a href="{{ action.url }}" 
-       class="flex flex-col items-center justify-center gap-3 p-6 rounded-3xl border border-gray-100 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md active:scale-95 group relative overflow-hidden"
-       style="background: {{ action.bg|default:'white' }}">
+       class="flex flex-col items-center justify-center gap-4 p-8 rounded-[2rem] border border-white/40 shadow-sm transition-all hover:scale-[1.05] hover:shadow-xl active:scale-95 group relative overflow-hidden backdrop-blur-xl animate-fade-up"
+       style="background: {{ action.bg|default:'rgba(255, 255, 255, 0.7)' }}; animation-delay: {{ forloop.counter0|add:1|multiply:0.1 }}s;">
       
-      <div class="p-3 rounded-2xl transition-transform group-hover:scale-110" 
-           style="background: {{ action.icon_bg|default:'rgba(79, 70, 229, 0.1)' }}; color: {{ action.icon_color|default:'#4f46e5' }}">
-        <i data-lucide="{{ action.icon|default:'activity' }}" class="w-7 h-7"></i>
+      <!-- Premium Glow Effect -->
+      <div class="absolute -top-10 -right-10 w-32 h-32 blur-3xl opacity-0 group-hover:opacity-20 transition-opacity bg-indigo-500 rounded-full"></div>
+
+      <div class="p-4 rounded-2xl transition-all group-hover:scale-110 group-hover:rotate-3 shadow-sm" 
+           style="background: {{ action.icon_bg|default:'rgba(67, 97, 238, 0.1)' }}; color: {{ action.icon_color|default:'#4361ee' }}">
+        <i data-lucide="{{ action.icon|default:'activity' }}" class="w-8 h-8"></i>
       </div>
       
-      <div class="text-center">
-        <h4 class="font-bold text-gray-800 text-sm tracking-tight leading-tight">{{ action.label }}</h4>
-        <p class="text-[10px] text-gray-400 font-medium mt-1 leading-tight">{{ action.desc }}</p>
+      <div class="text-center z-10">
+        <h4 class="font-display font-extrabold text-gray-800 text-sm tracking-tight leading-tight uppercase" style="letter-spacing: 0.5px;">{{ action.label }}</h4>
+        <p class="text-[10px] text-gray-500 font-bold mt-1.5 leading-tight uppercase opa-7" style="letter-spacing: 1px;">{{ action.desc }}</p>
       </div>
       
-      <!-- Subtle accent line -->
-      <div class="absolute bottom-0 left-0 right-0 h-1 transition-all group-hover:h-2 opacity-20" style="background: {{ action.icon_color|default:'#4f46e5' }}"></div>
+      <!-- Nexus Accent Line -->
+      <div class="absolute bottom-0 left-0 right-0 h-1.5 transition-all group-hover:h-2 opacity-30" style="background: {{ action.icon_color|default:'#4361ee' }}"></div>
     </a>
   {% endfor %}
 </div>
