@@ -79,17 +79,27 @@
   <div class="flex flex-col min-h-screen">
     
     <!-- Desktop Sidebar (Hidden on Mobile) -->
-    <aside class="hidden lg:flex lg:flex-shrink-0 lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-gray-100 bg-white">
+    <aside class="hidden lg:flex lg:flex-shrink-0 lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-gray-100 bg-white z-40">
       <div class="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
-        <div class="flex items-center flex-shrink-0 px-6 gap-3 mb-8">
-          <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-200">
-            {{ school_config.name|slice:":1" }}
+        <div class="flex items-center flex-shrink-0 px-6 gap-3 mb-6">
+          {% if school_config.logo %}
+            <img src="{{ school_config.logo.url }}" class="w-10 h-10 rounded-xl shadow-md" alt="Logo">
+          {% else %}
+            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-200">
+              {{ school_config.name|slice:":1" }}
+            </div>
+          {% endif %}
+          <div class="min-w-0">
+            <span class="font-display font-bold text-lg tracking-tight block truncate">{{ school_config.name|truncatechars:14 }}</span>
+            <span class="text-[9px] font-bold text-indigo-500 uppercase tracking-widest">Intelligence Nexus</span>
           </div>
-          <span class="font-display font-bold text-xl tracking-tight">{{ school_config.name|truncatechars:10 }}</span>
         </div>
         
-        <nav class="mt-5 flex-1 px-4 space-y-1">
-          <!-- Desktop Nav Links -->
+        <nav class="flex-1 px-3 space-y-1 overflow-y-auto">
+          
+          <!-- ── Section: Main ── -->
+          <p class="px-4 pt-4 pb-1 text-[9px] font-extrabold text-gray-300 uppercase tracking-[0.2em]">Main</p>
+          
           {% if user.role == 'admin' %}
             {% url 'admin_dashboard' as dash_url %}
           {% elif user.role == 'teacher' %}
@@ -97,41 +107,140 @@
           {% else %}
             {% url 'student_dashboard' as dash_url %}
           {% endif %}
+          
           <a href="{{ dash_url }}" 
-             class="group flex items-center px-4 py-3 text-sm font-bold rounded-2xl {% if 'dashboard' in request.resolver_match.url_name %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50{% endif %} transition-all">
-            <i data-lucide="layout-grid" class="mr-3 h-5 w-5"></i>
+             class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'admin_dashboard' or request.resolver_match.url_name == 'teacher_dashboard' or request.resolver_match.url_name == 'student_dashboard' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+            <i data-lucide="layout-grid" class="mr-3 h-5 w-5 flex-shrink-0"></i>
             Dashboard
           </a>
           
+          <!-- ── Section: Management ── -->
+          <p class="px-4 pt-5 pb-1 text-[9px] font-extrabold text-gray-300 uppercase tracking-[0.2em]">Management</p>
+          
           {% if user.role == 'admin' %}
-            <a href="{% url 'student_list' %}" class="group flex items-center px-4 py-3 text-sm font-bold text-gray-500 rounded-2xl hover:bg-gray-50 transition-all">
-              <i data-lucide="users" class="mr-3 h-5 w-5"></i>
-              Registry
+            <a href="{% url 'student_list' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'student_list' or request.resolver_match.url_name == 'student_create' or request.resolver_match.url_name == 'student_detail' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="graduation-cap" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Students
             </a>
-            <a href="{% url 'finance:finance_hub' %}" class="group flex items-center px-4 py-3 text-sm font-bold text-gray-500 rounded-2xl hover:bg-gray-50 transition-all">
-              <i data-lucide="wallet" class="mr-3 h-5 w-5"></i>
-              Treasury
+            <a href="{% url 'teacher_list' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'teacher_list' or request.resolver_match.url_name == 'teacher_create' or request.resolver_match.url_name == 'teacher_detail' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="briefcase" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Teachers
+            </a>
+            <a href="{% url 'class_list' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'class_list' or request.resolver_match.url_name == 'class_create' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="layout-list" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Classes
+            </a>
+            <a href="{% url 'subject_list' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'subject_list' or request.resolver_match.url_name == 'subject_create' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="book-open" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Subjects
+            </a>
+            <a href="{% url 'manage_timetable' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'manage_timetable' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="calendar" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Timetable
+            </a>
+          {% elif user.role == 'teacher' %}
+            <a href="{% url 'mark_attendance' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'mark_attendance' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="scan-line" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Mark Attendance
+            </a>
+            <a href="{% url 'manage_grades' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'manage_grades' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="bar-chart-3" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Manage Grades
+            </a>
+            <a href="{% url 'manage_assignments' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'manage_assignments' or request.resolver_match.url_name == 'create_assignment' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="clipboard-list" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Assignments
+            </a>
+            <a href="{% url 'teacher_timetable' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'teacher_timetable' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="calendar" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Timetable
+            </a>
+          {% else %}
+            <a href="{% url 'view_grades' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'view_grades' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="bar-chart-3" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              My Grades
+            </a>
+            <a href="{% url 'view_attendance' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'view_attendance' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="scan-line" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Attendance
+            </a>
+            <a href="{% url 'view_assignments' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'view_assignments' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="clipboard-list" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Assignments
+            </a>
+            <a href="{% url 'student_timetable' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'student_timetable' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="calendar" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Timetable
+            </a>
+          {% endif %}
+
+          <!-- ── Section: Intelligence ── -->
+          <p class="px-4 pt-5 pb-1 text-[9px] font-extrabold text-gray-300 uppercase tracking-[0.2em]">Intelligence</p>
+          
+          {% if user.role == 'admin' %}
+            <a href="{% url 'finance:finance_hub' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if 'finance' in request.path %}bg-green-50 text-green-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="wallet" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Finance Hub
             </a>
           {% endif %}
           
-          <a href="{% url 'analytics:analytics_dashboard' %}" class="group flex items-center px-4 py-3 text-sm font-bold text-gray-500 rounded-2xl hover:bg-gray-50 transition-all">
-            <i data-lucide="bar-chart-3" class="mr-3 h-5 w-5"></i>
-            Intelligence
+          <a href="{% url 'analytics:analytics_dashboard' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if 'analytics' in request.path %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+            <i data-lucide="activity" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+            Analytics
           </a>
+          
+          {% if user.role == 'admin' %}
+            <a href="{% url 'academic_diagnostics' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'academic_diagnostics' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="microscope" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Diagnostics
+            </a>
+            <a href="{% url 'audit_logs' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'audit_logs' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="file-text" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Audit Trail
+            </a>
+          {% elif user.role == 'teacher' %}
+            <a href="{% url 'attendance_report' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'attendance_report' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="file-bar-chart" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Attendance Report
+            </a>
+            <a href="{% url 'grade_report' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'grade_report' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="file-text" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Grade Report
+            </a>
+          {% endif %}
+          
+          <!-- ── Section: System ── -->
+          <p class="px-4 pt-5 pb-1 text-[9px] font-extrabold text-gray-300 uppercase tracking-[0.2em]">System</p>
+          
+          <a href="{% url 'profile' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'profile' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+            <i data-lucide="user-circle" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+            Profile
+          </a>
+          
+          {% if user.role == 'admin' %}
+            <a href="{% url 'system_settings' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'system_settings' %}bg-indigo-50 text-indigo-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+              <i data-lucide="settings" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Settings
+            </a>
+          {% endif %}
+
         </nav>
       </div>
       
-      <div class="flex-shrink-0 flex border-t border-gray-100 p-4">
-        <a href="{% url 'profile' %}" class="flex-shrink-0 w-full group block">
-          <div class="flex items-center">
-            <div class="inline-block h-9 w-9 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold uppercase">
-              {{ user.get_full_name|slice:":1" }}
-            </div>
-            <div class="ml-3">
-              <p class="text-xs font-bold text-gray-700 group-hover:text-gray-900">{{ user.get_full_name }}</p>
-              <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">{{ user.role }}</p>
-            </div>
+      <!-- Sidebar Footer: User + Logout -->
+      <div class="flex-shrink-0 border-t border-gray-100 p-4 space-y-3">
+        <a href="{% url 'profile' %}" class="flex items-center gap-3 group">
+          <div class="h-9 w-9 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold uppercase text-sm flex-shrink-0">
+            {{ user.get_full_name|slice:":1" }}
           </div>
+          <div class="min-w-0">
+            <p class="text-xs font-bold text-gray-700 group-hover:text-gray-900 truncate">{{ user.get_full_name }}</p>
+            <p class="text-[9px] font-bold text-indigo-500 uppercase tracking-widest">{{ user.role }}</p>
+          </div>
+        </a>
+        <a href="{% url 'account_logout' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-bold text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          Sign Out
         </a>
       </div>
     </aside>

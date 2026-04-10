@@ -1,5 +1,6 @@
 <!-- templates/components/header.html -->
-<header class="bg-indigo-600 text-white sticky top-0 z-50 rounded-b-3xl shadow-lg">
+<!-- Mobile Header: Full branded bar -->
+<header class="bg-indigo-600 text-white sticky top-0 z-50 rounded-b-3xl shadow-lg lg:hidden">
   <div class="px-5 py-4 flex justify-between items-center">
     <div class="flex items-center gap-3">
       {% if school_config.logo %}
@@ -23,6 +24,24 @@
       <a href="{% url 'account_logout' %}" class="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-all backdrop-blur-md">
         EXIT
       </a>
+    </div>
+  </div>
+</header>
+
+<!-- Desktop Header: Slim top bar since sidebar handles nav -->
+<header class="hidden lg:block sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+  <div class="px-8 py-3 flex justify-between items-center">
+    <div>
+      <h1 class="font-display font-bold text-lg text-gray-800 tracking-tight">{% block page_heading %}{{ title|default:"Dashboard" }}{% endblock %}</h1>
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ subtitle|default:"System Protocol Active" }}</p>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="relative p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
+        <i data-lucide="bell" class="w-5 h-5"></i>
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+      </button>
+      <div class="h-6 w-px bg-gray-200"></div>
+      <span class="text-xs font-bold text-gray-500">{{ user.get_full_name }}</span>
     </div>
   </div>
 </header>
