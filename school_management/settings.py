@@ -168,9 +168,15 @@ DATABASES = {
 }
 
 
+# 🛡️ CSRF & Host Trust Policy
+CSRF_TRUSTED_ORIGINS = []
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+    CSRF_TRUSTED_ORIGINS.append(f'http://{RENDER_EXTERNAL_HOSTNAME}')
+
 # Cache Configuration
 # 🚀 Performance Optimization: Use Redis for caching and sessions
-# Fallback to LocMemCache if Redis URL is missing or if connection fails in dev
+# Fallback to Database sessions if Redis URL is missing to ensure multi-worker coherency
 REDIS_URL = os.getenv('REDIS_URL')
 if REDIS_URL and not DEBUG:
     CACHES = {
@@ -184,6 +190,8 @@ if REDIS_URL and not DEBUG:
             }
         }
     }
+    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+    SESSION_CACHE_ALIAS = "default"
 else:
     # Use local memory cache for local development to avoid Redis dependency errors
     CACHES = {
@@ -192,9 +200,9 @@ else:
             "LOCATION": "edums-local-cache",
         }
     }
-    # Use cache for sessions in development as well to avoid DB bloat
-    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-    SESSION_CACHE_ALIAS = "default"
+    # RELIABILITY: Use Database sessions to ensure worker consistency when Redis is unavailable
+    SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
