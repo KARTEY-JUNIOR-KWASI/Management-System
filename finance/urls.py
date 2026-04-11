@@ -14,4 +14,5 @@ urlpatterns = [
     path('category/<int:pk>/edit/', views.manage_fee_category, name='edit_category'),
     path('structure/add/', views.manage_fee_structure, name='add_structure'),
     path('structure/<int:pk>/edit/', views.manage_fee_structure, name='edit_structure'),
+    path('student/', views.student_finance_hub, name='student_finance_hub'),
 ]

@@ -16,7 +16,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.units import cm
 from analytics.reporting_utils import draw_institutional_seal
-from accounts.decorators import admin_required
+from accounts.decorators import admin_required, student_required
 
 @admin_required
 def finance_hub(request):
@@ -273,3 +273,26 @@ def manage_fee_structure(request, pk=None):
             messages.error(request, 'Failed to save fee structure. Please check your inputs.')
             
     return redirect('finance:finance_hub')
+
+@student_required
+def student_finance_hub(request):
+    """Student-facing personal financial dashboard."""
+    student = get_object_or_404(Student, user=request.user)
+    invoices = Invoice.objects.filter(student=student).order_by("-created_at")
+    payments = Payment.objects.filter(invoice__student=student).order_by("-date_paid")
+    
+    total_invoiced = invoices.aggregate(Sum("total_amount"))["total_amount__sum"] or Decimal("0.00")
+    total_paid = payments.aggregate(Sum("amount_paid"))["amount_paid__sum"] or Decimal("0.00")
+    balance = total_invoiced - total_paid
+    
+    context = {
+        "student": student,
+        "invoices": invoices,
+        "payments": payments,
+        "total_invoiced": total_invoiced,
+        "total_paid": total_paid,
+        "balance": balance,
+    }
+    return render(request, "students/finance_hub.html", context)
+
+

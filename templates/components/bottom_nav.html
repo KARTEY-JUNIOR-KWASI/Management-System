@@ -19,7 +19,7 @@
     <span class="text-[10px] font-bold">Intel</span>
   </a>
   
-  <a href="{% url 'finance:finance_hub' %}" 
+  <a href="{% if user.role == 'student' %}{% url 'finance:student_finance_hub' %}{% else %}{% url 'finance:finance_hub' %}{% endif %}" 
      class="flex flex-col items-center gap-1 p-2 text-gray-400">
     <i data-lucide="wallet" class="w-6 h-6"></i>
     <span class="text-[10px] font-bold">Treasury</span>

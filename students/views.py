@@ -52,6 +52,7 @@ def student_dashboard(request):
         {'url': reverse('view_attendance'), 'icon': 'scan-line', 'label': 'Attendance', 'desc': 'Presence analytics', 'icon_bg': 'rgba(16, 185, 129, 0.1)', 'icon_color': '#10b981'},
         {'url': reverse('view_assignments'), 'icon': 'clipboard-list', 'label': 'Assignments', 'desc': 'Active objectives', 'icon_bg': 'rgba(245, 158, 11, 0.1)', 'icon_color': '#f59e0b'},
         {'url': reverse('student_timetable'), 'icon': 'calendar', 'label': 'Timetable', 'desc': 'Schedule overview', 'icon_bg': 'rgba(14, 165, 233, 0.1)', 'icon_color': '#0ea5e9'},
+        {'url': reverse('download_report_card_pdf'), 'icon': 'file-text', 'label': 'Report Card', 'desc': 'Download transcript', 'icon_bg': 'rgba(239, 68, 68, 0.1)', 'icon_color': '#ef4444'},
     ]
 
     context = {

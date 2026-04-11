@@ -150,19 +150,19 @@ def student_analytics_dashboard(request):
     performance_data = _calculate_student_performance(student)
 
     # Learning insights
-    insights = LearningInsight.objects.filter(
+    insights = list(LearningInsight.objects.filter(
         student=student,
         is_active=True
-    ).order_by('-confidence_score')[:5]
+    ).order_by('-confidence_score')[:5])
 
     # Grade predictions
-    predictions = _generate_grade_predictions(student)
+    predictions = list(_generate_grade_predictions(student))
 
     # Recent notifications
-    recent_notifications = Notification.objects.filter(
+    recent_notifications = list(Notification.objects.filter(
         recipient=request.user,
         created_at__gte=date.today() - timedelta(days=7)
-    ).order_by('-created_at')[:5]
+    ).order_by('-created_at')[:5])
 
     context = {
         'performance_data': performance_data,
@@ -590,9 +590,12 @@ def _calculate_student_performance(student):
         if subject_results:
             subject_avg = sum(r.score for r in subject_results) / len(subject_results)
             subject_performance.append({
-                'subject': subject,
-                'average_score': subject_avg,
-                'grade_points': min(4.0, subject_avg / 25),
+                'subject': {
+                    'id': subject.id,
+                    'name': subject.name
+                },
+                'average_score': float(subject_avg),
+                'grade_points': float(min(4.0, subject_avg / 25)),
             })
 
     # Attendance analysis

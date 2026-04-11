@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Treasury Operational Pulse — {{ student.user.get_full_name }}{% endblock %}
+
+{% block extra_head %}
+<!-- Use the same premium styling as the rest of the portal -->
+<link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
+<style>
+    .finance-stats { margin-bottom: 2rem; }
+    .balance-card {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white;
+        border-radius: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    .balance-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        pointer-events: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 min-h-screen">
+    
+    <!-- Navigation Header -->
+    <div class="d-flex justify-content-between align-items-center mb-5 animate-fade-up">
+        <div>
+            <h1 class="page-title with-sub mb-0">Treasury Vault</h1>
+            <p class="page-subtitle mb-0">Financial synchronization & institutional fee registry.</p>
+        </div>
+        <div class="actions">
+            <span class="badge border bg-white text-primary px-4 py-2 rounded-pill extra-small fw-800">SECURE SESSION: ACTIVE</span>
+        </div>
+    </div>
+
+    <!-- Financial Pulse Indicators -->
+    <div class="row g-4 finance-stats animate-fade-up delay-1">
+        <div class="col-lg-4">
+            <div class="balance-card p-5 shadow-xl h-100">
+                <div class="relative z-10">
+                    <p class="extra-small fw-800 text-uppercase tracking-widest opacity-70 mb-2">Operational Balance</p>
+                    <h2 class="display-5 fw-900 mb-0">GH₵ {{ balance|floatformat:2 }}</h2>
+                    <div class="mt-4 pt-4 border-top border-white border-opacity-10 d-flex justify-content-between">
+                        <div>
+                            <span class="extra-small opacity-60 d-block uppercase font-bold">Total Invoiced</span>
+                            <span class="fw-800">GH₵ {{ total_invoiced|floatformat:2 }}</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="extra-small opacity-60 d-block uppercase font-bold">Total Settled</span>
+                            <span class="fw-800">GH₵ {{ total_paid|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="row g-4 h-100">
+                <div class="col-md-6">
+                    <div class="nexus-glass-card p-5 h-100 border-0 flex flex-col justify-center">
+                        <div class="p-avatar-sm bg-indigo-50 text-indigo-600 mb-4">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <h3 class="text-2xl font-display font-extrabold text-gray-800">{{ invoices.count }}</h3>
+                        <p class="extra-small font-bold text-gray-400 uppercase tracking-widest">Active Invoices</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="nexus-glass-card p-5 h-100 border-0 flex flex-col justify-center">
+                        <div class="p-avatar-sm bg-green-50 text-green-600 mb-4">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <h3 class="text-2xl font-display font-extrabold text-gray-800">{{ payments.count }}</h3>
+                        <p class="extra-small font-bold text-gray-400 uppercase tracking-widest">Transactions Signed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Ledger -->
+    <div class="row g-6 animate-fade-up delay-2">
+        <!-- Invoices List -->
+        <div class="col-lg-7">
+            <div class="nexus-glass-card overflow-hidden">
+                <div class="p-5 border-b border-gray-50 flex justify-between items-center">
+                    <h3 class="text-gray-800 font-bold tracking-tight">Invoice History</h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                        <thead class="bg-gray-50 bg-opacity-30">
+                            <tr>
+                                <th class="ps-5 py-3 small text-uppercase text-muted fw-800">Invoice ID</th>
+                                <th class="py-3 small text-uppercase text-muted fw-800">Operational Term</th>
+                                <th class="py-3 small text-uppercase text-muted fw-800">Amount</th>
+                                <th class="text-end pe-5 small text-uppercase text-muted fw-800">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invoice in invoices %}
+                            <tr class="border-bottom" style="border-color: rgba(0,0,0,0.02) !important;">
+                                <td class="ps-5 py-4">
+                                    <div class="fw-800 text-dark small">{{ invoice.invoice_number }}</div>
+                                    <div class="extra-small text-muted">{{ invoice.created_at|date:"M d, Y" }}</div>
+                                </td>
+                                <td><span class="badge border bg-white text-muted rounded-pill px-3 extra-small fw-800">{{ invoice.term.name }}</span></td>
+                                <td class="fw-800 text-dark small">GH₵ {{ invoice.total_amount }}</td>
+                                <td class="text-end pe-5">
+                                    {% if invoice.status == 'paid' %}
+                                        <span class="badge bg-green-500/10 text-green-600 rounded-pill px-3 py-2 extra-small fw-800">SETTLED</span>
+                                    {% elif invoice.status == 'partial' %}
+                                        <span class="badge bg-yellow-500/10 text-yellow-600 rounded-pill px-3 py-2 extra-small fw-800">PARTIAL</span>
+                                    {% else %}
+                                        <span class="badge bg-red-500/10 text-red-600 rounded-pill px-3 py-2 extra-small fw-800">UNPAID</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-5 text-muted extra-small fw-bold">NO FISCAL LOGS DETECTED.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments List -->
+        <div class="col-lg-5">
+            <div class="nexus-glass-card overflow-hidden">
+                <div class="p-5 border-b border-gray-50">
+                    <h3 class="text-gray-800 font-bold tracking-tight">Recent Transactions</h3>
+                </div>
+                <div class="p-5">
+                    {% for payment in payments %}
+                    <div class="d-flex align-items-center mb-4 pb-4 border-bottom border-gray-50">
+                        <div class="p-avatar-sm me-4" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="extra-small text-muted fw-bold text-uppercase opa-5">{{ payment.date_paid|date:"M d, Y" }}</div>
+                            <div class="small fw-800 text-dark">{{ payment.get_method_display }}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-800 text-green-600">+ GH₵ {{ payment.amount_paid }}</div>
+                            <a href="{% url 'finance:generate_receipt' payment.id %}" class="extra-small text-primary fw-bold hover:underline">RECEIPT</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5">
+                        <i data-lucide="info" class="w-12 h-12 mx-auto mb-3 text-gray-200"></i>
+                        <p class="extra-small font-bold text-gray-400 uppercase tracking-widest">Null Transaction Flux</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
