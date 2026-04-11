@@ -75,7 +75,7 @@
                 <div class="col-md-3">
                     <div class="card text-white bg-danger">
                         <div class="card-body text-center">
-                            <h5 class="card-title">{{ notifications|length|add:unread_count|sub:notifications|length }}</h5>
+                            <h5 class="card-title">{{ urgent_count }}</h5>
                             <p class="card-text">Urgent</p>
                         </div>
                     </div>
@@ -83,7 +83,7 @@
                 <div class="col-md-3">
                     <div class="card text-white bg-success">
                         <div class="card-body text-center">
-                            <h5 class="card-title">{{ notifications.filter(priority='low')|length }}</h5>
+                            <h5 class="card-title">{{ low_priority_count }}</h5>
                             <p class="card-text">Low Priority</p>
                         </div>
                     </div>

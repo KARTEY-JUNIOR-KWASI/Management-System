@@ -82,10 +82,10 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a href="{% url 'teachers:manage_grades' %}?subject={{ class_data.subject.id }}" class="btn btn-primary btn-sm">
+                            <a href="{% url 'manage_grades' %}?subject={{ class_data.subject.id }}" class="btn btn-primary btn-sm">
                                 <i class="fas fa-graduation-cap"></i> Manage Grades
                             </a>
-                            <a href="{% url 'teachers:manage_assignments' %}" class="btn btn-outline-secondary btn-sm ms-1">
+                            <a href="{% url 'manage_assignments' %}" class="btn btn-outline-secondary btn-sm ms-1">
                                 <i class="fas fa-book"></i> Assignments
                             </a>
                         </div>
@@ -176,7 +176,7 @@
                         </div>
                         <div class="card-body">
                             <div class="d-grid gap-2">
-                                <a href="{% url 'teachers:create_assignment' %}" class="btn btn-primary">
+                                <a href="{% url 'create_assignment' %}" class="btn btn-primary">
                                     <i class="fas fa-plus"></i> New Assignment
                                 </a>
                                 <a href="{% url 'analytics:create_notification' %}" class="btn btn-info">

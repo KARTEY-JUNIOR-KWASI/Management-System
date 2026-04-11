@@ -125,10 +125,10 @@ def teacher_analytics_dashboard(request):
     assignment_stats = _calculate_assignment_stats(teacher)
 
     # Recent notifications
-    recent_notifications = Notification.objects.filter(
+    recent_notifications = list(Notification.objects.filter(
         recipient=request.user,
         created_at__gte=date.today() - timedelta(days=7)
-    ).order_by('-created_at')[:5]
+    ).order_by('-created_at')[:5])
 
     context = {
         'class_performance': class_performance,
@@ -251,11 +251,15 @@ def notifications_list(request):
 
     # Mark unread notifications as read
     unread_count = notifications.filter(is_read=False).count()
+    urgent_count = notifications.filter(priority='urgent').count()
+    low_priority_count = notifications.filter(priority='low').count()
     notifications.filter(is_read=False).update(is_read=True)
 
     context = {
         'notifications': notifications,
         'unread_count': unread_count,
+        'urgent_count': urgent_count,
+        'low_priority_count': low_priority_count,
     }
     return render(request, 'analytics/notifications.html', context)
 
@@ -500,7 +504,7 @@ def _generate_student_insights(teacher):
         students = Student.objects.filter(class_enrolled=class_obj)
 
         for student in students:
-            recent_results = Result.objects.filter(student=student).order_by('-date')[:3]
+            recent_results = list(Result.objects.filter(student=student).order_by('-date')[:3])
             if len(recent_results) >= 2:
                 scores = [r.score for r in recent_results]
                 if scores[0] < scores[-1] - 10:  # Declining by more than 10 points
@@ -525,7 +529,7 @@ def _generate_student_insights(teacher):
                     'severity': 'medium',
                 })
 
-    return insights[:10]  # Return top 10 insights
+    return list(insights[:10])  # Return top 10 insights as a list
 
 def _calculate_assignment_stats(teacher):
     """Calculate assignment statistics for teacher"""

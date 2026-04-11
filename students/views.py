@@ -39,13 +39,13 @@ def student_dashboard(request):
         for p in predictions
     ]
     
-    insights = LearningInsight.objects.filter(student=student, is_active=True)[:3]
+    insights = list(LearningInsight.objects.filter(student=student, is_active=True)[:3])
     
     # Upcoming Assignments
-    upcoming_assignments = Assignment.objects.filter(
+    upcoming_assignments = list(Assignment.objects.filter(
         class_assigned=student.class_enrolled,
         due_date__gte=date.today()
-    ).order_by('due_date')[:5]
+    ).order_by('due_date')[:5])
 
     actions_data = [
         {'url': reverse('view_grades'), 'icon': 'bar-chart-3', 'label': 'Grades', 'desc': 'Academic performance', 'icon_bg': 'rgba(79, 70, 229, 0.1)', 'icon_color': '#4f46e5'},

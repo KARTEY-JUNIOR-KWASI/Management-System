@@ -65,7 +65,7 @@ def teacher_dashboard(request):
     
     teacher = _get_or_create_teacher(request.user)
     classes = _get_teacher_classes(request.user)
-    recent_assignments = Assignment.objects.filter(teacher=request.user).order_by('-created_at')[:5]
+    recent_assignments = list(Assignment.objects.filter(teacher=request.user).order_by('-created_at')[:5])
 
     # Analytics Data
     class_performance = _calculate_class_performance(teacher)
