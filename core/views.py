@@ -5,6 +5,14 @@ from django.http import JsonResponse
 from .models import Notification
 
 def home(request):
+    if request.user.is_authenticated and not request.user.is_anonymous:
+        role = getattr(request.user, 'role', None)
+        if role == 'admin':
+            return redirect('admin_dashboard')
+        elif role == 'teacher':
+            return redirect('teacher_dashboard')
+        elif role == 'student':
+            return redirect('student_dashboard')
     return render(request, 'core/home.html')
 
 @login_required

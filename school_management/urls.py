@@ -23,7 +23,6 @@ from accounts import views as account_views
 from django.views.generic import RedirectView
 
 urlpatterns = [
-    path('accounts/logout/', RedirectView.as_view(pattern_name='account_logout'), name='logout'),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('profile/', include('accounts.urls')),

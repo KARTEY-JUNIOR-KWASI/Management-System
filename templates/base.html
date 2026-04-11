@@ -238,10 +238,13 @@
             <p class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">{{ user.role }}</p>
           </div>
         </a>
-        <a href="{% url 'account_logout' %}" class="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-xl transition-all border border-transparent hover:border-red-900/50">
-          <i data-lucide="log-out" class="w-4 h-4"></i>
-          Sign Out
-        </a>
+        <form method="post" action="{% url 'account_logout' %}" class="w-full">
+          {% csrf_token %}
+          <button type="submit" class="flex items-center w-full gap-2 px-4 py-2.5 text-xs font-bold text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded-xl transition-all border border-transparent hover:border-red-900/50">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            Sign Out
+          </button>
+        </form>
       </div>
     </aside>
 
