@@ -460,8 +460,7 @@ def _calculate_class_performance(teacher):
             })
             continue
 
-        # Average GPA for this class in one aggregate query
-        avg_score = Result.objects.filter(student__in=students_in_class).aggregate(avg=Avg('score'))['avg'] or 0
+        avg_score = float(Result.objects.filter(student__in=students_in_class).aggregate(avg=Avg('score'))['avg'] or 0)
         avg_gpa = min(4.0, (avg_score / 25))
 
         # Attendance rate in one aggregate query
@@ -640,7 +639,7 @@ def _generate_grade_predictions(student):
         # Evaluate results to list to avoid slicing restrictions
         recent_list = list(recent_results)
         if recent_list:
-            avg_recent_score = sum(r.score for r in recent_list) / len(recent_list)
+            avg_recent_score = float(sum(r.score for r in recent_list) / len(recent_list))
 
             # Simple prediction based on trend and attendance
             attendance_records = list(Attendance.objects.filter(
