@@ -511,12 +511,12 @@ def _generate_student_insights(teacher):
                         'severity': 'high',
                     })
 
-            recent_attendance = Attendance.objects.filter(
+            recent_attendance = list(Attendance.objects.filter(
                 student=student,
                 class_attended=class_obj
-            ).order_by('-date')[:5]
+            ).order_by('-date')[:5])
 
-            absent_count = recent_attendance.filter(status='absent').count()
+            absent_count = len([r for r in recent_attendance if r.status == 'absent'])
             if absent_count >= 3:
                 insights.append({
                     'student': student,
@@ -633,16 +633,20 @@ def _generate_grade_predictions(student):
             subject=subject
         ).order_by('-date')[:5]
 
-        if recent_results.exists():
-            avg_recent_score = recent_results.aggregate(avg=Avg('score'))['avg'] or 0
+        # Evaluate results to list to avoid slicing restrictions
+        recent_list = list(recent_results)
+        if recent_list:
+            avg_recent_score = sum(r.score for r in recent_list) / len(recent_list)
 
             # Simple prediction based on trend and attendance
-            attendance_records = Attendance.objects.filter(
+            attendance_records = list(Attendance.objects.filter(
                 student=student,
                 class_attended=student.class_enrolled
-            ).order_by('-date')[:10]
+            ).order_by('-date')[:10])
 
-            attendance_rate = (attendance_records.filter(status='present').count() / attendance_records.count() * 100) if attendance_records.exists() else 100
+            total_count = len(attendance_records)
+            present_count = len([r for r in attendance_records if r.status == 'present'])
+            attendance_rate = (present_count / total_count * 100) if total_count > 0 else 100
 
             # Prediction algorithm (simplified)
             base_prediction = avg_recent_score
