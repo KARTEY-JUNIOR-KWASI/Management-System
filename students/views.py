@@ -31,14 +31,14 @@ def student_dashboard(request):
     performance_data = _calculate_student_performance(student)
     predictions = _generate_grade_predictions(student)
     
-    chart_predictions = [
-        {
-            'subject_name': p['subject_name'],
-            'current_average': float(p['current_average']),
-            'predicted_score': float(p['predicted_score'])
-        }
-        for p in predictions
-    ]
+    chart_predictions = []
+    for p in predictions:
+        if isinstance(p, dict) and 'subject_name' in p:
+            chart_predictions.append({
+                'subject_name': p['subject_name'],
+                'current_average': float(p.get('current_average', 0)),
+                'predicted_score': float(p.get('predicted_score', 0))
+            })
     
     insights = list(LearningInsight.objects.filter(student=student, is_active=True)[:3])
     

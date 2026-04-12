@@ -470,21 +470,21 @@ def _calculate_subject_heatmap(teacher):
     for subject in subjects:
         row = []
         for class_obj in teacher_classes:
-            avg_score = Result.objects.filter(
+            results_in_context = Result.objects.filter(
                 subject=subject,
                 student__class_enrolled=class_obj,
                 teacher=teacher.user
-            ).aggregate(avg=Avg('score'))['avg'] or 0
+            )
             
-            # Assuming score is out of 100 for percentage visibility
-            # If scores vary, we'd need to normalize by max_score
-            normalized_avg = Result.objects.filter(
-                subject=subject,
-                student__class_enrolled=class_obj,
-                teacher=teacher.user
-            ).annotate(
-                ratio=ExpressionWrapper(F('score') * 100.0 / F('max_score'), output_field=FloatField())
-            ).aggregate(avg=Avg('ratio'))['avg'] or 0
+            if results_in_context.exists():
+                # Correct way to aggregate an expression in modern Django
+                # Or use a simpler approach if ratio is causing visibility issues
+                stats = results_in_context.annotate(
+                    item_ratio=ExpressionWrapper(F('score') * 100.0 / F('max_score'), output_field=FloatField())
+                ).aggregate(avg_ratio=Avg('item_ratio'))
+                normalized_avg = stats['avg_ratio'] or 0
+            else:
+                normalized_avg = 0
 
             row.append(float(normalized_avg))
         heatmap_data['matrix'].append(row)
