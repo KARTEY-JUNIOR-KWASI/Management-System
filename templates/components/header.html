@@ -6,9 +6,7 @@
       {% if school_config.logo %}
         <img src="{{ school_config.logo.url }}" class="w-10 h-10 rounded-xl" alt="Logo">
       {% else %}
-        <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center font-bold text-lg">
-          {{ school_config.name|slice:":1" }}
-        </div>
+        <img src="https://i.ibb.co/kVqZ4rt5/Edu-MS-logo-with-educational-symbols.png" class="w-10 h-10 rounded-xl" alt="EduMS Logo">
       {% endif %}
       <div class="min-w-0">
         <h1 class="font-bold text-lg leading-tight tracking-tight truncate">{{ title|default:school_config.name }}</h1>
