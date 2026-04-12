@@ -240,5 +240,8 @@ def download_report_card_pdf(request):
     Standalone view to download the PDF report card.
     Defaults to the last 90 days if no dates specified.
     """
+    end_date = request.GET.get('end_date', date.today().isoformat())
+    start_date = request.GET.get('start_date', (date.today() - timedelta(days=90)).isoformat())
+    
     from analytics.views import _generate_progress_report
     return _generate_progress_report(request, start_date, end_date)
