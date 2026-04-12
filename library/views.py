@@ -2,13 +2,17 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
-from accounts.decorators import teacher_required, student_required
+from accounts.decorators import (
+    teacher_required, 
+    student_required, 
+    role_required
+)
 from .models import Resource
 from core.models import Subject, Class
 from students.models import Student
 
 
-@teacher_required
+@role_required('teacher', 'admin')
 def teacher_library(request):
     """Teacher's library — view all resources they uploaded."""
     resources = Resource.objects.filter(uploaded_by=request.user).select_related('subject', 'target_class').order_by('-created_at')
@@ -40,7 +44,7 @@ def teacher_library(request):
     return render(request, 'library/teacher_library.html', context)
 
 
-@teacher_required
+@role_required('teacher', 'admin')
 def upload_resource(request):
     """Teacher uploads a new resource."""
     subjects = Subject.objects.all()
@@ -115,7 +119,7 @@ def upload_resource(request):
     return render(request, 'library/upload_resource.html', context)
 
 
-@teacher_required
+@role_required('teacher', 'admin')
 def delete_resource(request, pk):
     resource = get_object_or_404(Resource, pk=pk, uploaded_by=request.user)
     if request.method == 'POST':
@@ -125,7 +129,7 @@ def delete_resource(request, pk):
     return redirect('teacher_library')
 
 
-@teacher_required
+@role_required('teacher', 'admin')
 def edit_resource(request, pk):
     resource = get_object_or_404(Resource, pk=pk, uploaded_by=request.user)
     subjects = Subject.objects.all()
@@ -156,7 +160,7 @@ def edit_resource(request, pk):
     return render(request, 'library/edit_resource.html', context)
 
 
-@student_required
+@role_required('student', 'admin', 'teacher')
 def student_library(request):
     """Student's library — browse published resources available to them."""
     try:
@@ -196,7 +200,7 @@ def student_library(request):
     return render(request, 'library/student_library.html', context)
 
 
-@student_required
+@role_required('student', 'admin', 'teacher')
 def view_resource(request, pk):
     """Student views / accesses a resource."""
     try:
