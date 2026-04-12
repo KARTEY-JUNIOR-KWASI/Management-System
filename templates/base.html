@@ -111,6 +111,12 @@
             <i data-lucide="layout-grid" class="mr-3 h-5 w-5 flex-shrink-0"></i>
             Dashboard
           </a>
+
+          <a href="{% if user.role == 'teacher' %}{% url 'teacher_library' %}{% else %}{% url 'student_library' %}{% endif %}" 
+             class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if 'library' in request.path %}bg-indigo-900/60 text-yellow-400 shadow-sm border border-indigo-800/50{% else %}text-indigo-200 hover:bg-white/5 hover:text-white{% endif %}">
+            <i data-lucide="library" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+            Library Vault
+          </a>
           
           <!-- ── Section: Management ── -->
           <p class="px-4 pt-5 pb-1 text-[9px] font-extrabold text-indigo-400 uppercase tracking-[0.2em]">Management</p>

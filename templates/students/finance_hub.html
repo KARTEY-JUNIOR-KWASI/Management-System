@@ -86,7 +86,7 @@
                 <div class="col-md-6">
                     <div class="nexus-glass-card p-5 h-100 border-0 flex flex-col justify-center">
                         <div class="p-avatar-sm bg-indigo-50 text-indigo-600 mb-4">
-                            <i class="fas fa-file-invoice-dollar"></i>
+                            <i data-lucide="file-text"></i>
                         </div>
                         <h3 class="text-2xl font-display font-extrabold text-gray-800">{{ invoices.count }}</h3>
                         <p class="extra-small font-bold text-gray-400 uppercase tracking-widest">Active Invoices</p>
@@ -95,7 +95,7 @@
                 <div class="col-md-6">
                     <div class="nexus-glass-card p-5 h-100 border-0 flex flex-col justify-center">
                         <div class="p-avatar-sm bg-green-50 text-green-600 mb-4">
-                            <i class="fas fa-receipt"></i>
+                            <i data-lucide="receipt"></i>
                         </div>
                         <h3 class="text-2xl font-display font-extrabold text-gray-800">{{ payments.count }}</h3>
                         <p class="extra-small font-bold text-gray-400 uppercase tracking-widest">Transactions Signed</p>
@@ -161,7 +161,7 @@
                     {% for payment in payments %}
                     <div class="d-flex align-items-center mb-4 pb-4 border-bottom border-gray-50">
                         <div class="p-avatar-sm me-4" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                            <i class="fas fa-check"></i>
+                            <i data-lucide="check"></i>
                         </div>
                         <div class="flex-grow-1">
                             <div class="extra-small text-muted fw-bold text-uppercase opa-5">{{ payment.date_paid|date:"M d, Y" }}</div>
