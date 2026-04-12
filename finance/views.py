@@ -290,6 +290,7 @@ def student_finance_hub(request):
     
     context = {
         "student": student,
+        "school_config": SchoolConfiguration.get_config(),
         "invoices": invoices,
         "payments": payments,
         "total_invoiced": total_invoiced,

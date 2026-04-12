@@ -48,16 +48,17 @@
             <div class="balance-card p-5 shadow-xl h-100 flex flex-col justify-center relative overflow-hidden">
                 <div class="relative z-10 d-flex align-items-center justify-content-between gap-4">
                     <div class="flex-grow-1">
-                        <p class="extra-small fw-800 text-uppercase tracking-widest opacity-70 mb-2">Operational Balance</p>
-                        <h2 class="display-6 fw-900 mb-0">GH₵ {{ balance|floatformat:2 }}</h2>
-                        <div class="mt-4 pt-4 border-top border-white border-opacity-10 d-flex gap-4">
-                            <div>
-                                <span class="extra-small opacity-60 d-block uppercase font-bold">Invoiced</span>
-                                <span class="small fw-800">GH₵ {{ total_invoiced|floatformat:0 }}</span>
+                        <h6 class="extra-small font-bold text-indigo-100 uppercase tracking-widest opacity-80 mb-4">Total Outstanding Flux</h6>
+                        <h2 class="display-6 fw-900 mb-0">{{ school_config.currency_symbol|default:"&#8373;" }} {{ balance|floatformat:2 }}</h2>
+                        
+                        <div class="row mt-5 pt-4 border-top border-white/10">
+                            <div class="col-6">
+                                <p class="extra-small font-bold text-indigo-200 uppercase mb-1">Invoiced</p>
+                                <span class="small fw-800">{{ school_config.currency_symbol|default:"&#8373;" }} {{ total_invoiced|floatformat:0 }}</span>
                             </div>
-                            <div>
-                                <span class="extra-small opacity-60 d-block uppercase font-bold">Settled</span>
-                                <span class="small fw-800">GH₵ {{ total_paid|floatformat:0 }}</span>
+                            <div class="col-6">
+                                <p class="extra-small font-bold text-indigo-200 uppercase mb-1">Satisfied</p>
+                                <span class="small fw-800">{{ school_config.currency_symbol|default:"&#8373;" }} {{ total_paid|floatformat:0 }}</span>
                             </div>
                         </div>
                     </div>
@@ -134,11 +135,11 @@
                                 <td class="fw-800 text-dark small">GH₵ {{ invoice.total_amount }}</td>
                                 <td class="text-end pe-5">
                                     {% if invoice.status == 'paid' %}
-                                        <span class="badge bg-green-500/10 text-green-600 rounded-pill px-3 py-2 extra-small fw-800">SETTLED</span>
+                                        <span class="badge rounded-pill px-3 py-2 extra-small fw-800" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">SETTLED</span>
                                     {% elif invoice.status == 'partial' %}
-                                        <span class="badge bg-yellow-500/10 text-yellow-600 rounded-pill px-3 py-2 extra-small fw-800">PARTIAL</span>
+                                        <span class="badge rounded-pill px-3 py-2 extra-small fw-800" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">PARTIAL</span>
                                     {% else %}
-                                        <span class="badge bg-red-500/10 text-red-600 rounded-pill px-3 py-2 extra-small fw-800">UNPAID</span>
+                                        <span class="badge rounded-pill px-3 py-2 extra-small fw-800" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">UNPAID</span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -168,7 +169,7 @@
                             <div class="small fw-800 text-dark">{{ payment.get_method_display }}</div>
                         </div>
                         <div class="text-end">
-                            <div class="fw-800 text-green-600">+ GH₵ {{ payment.amount_paid }}</div>
+                            <div class="fw-800 text-green-600">+ {{ school_config.currency_symbol|default:"&#8373;" }} {{ payment.amount_paid }}</div>
                             <a href="{% url 'finance:generate_receipt' payment.id %}" class="extra-small text-primary fw-bold hover:underline">RECEIPT</a>
                         </div>
                     </div>
@@ -183,10 +184,11 @@
         </div>
     </div>
 </div>
+{{ settlement_rate|default:0|json_script:"settlement-data" }}
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const rate = {{ settlement_rate|default:0 }};
+        const rate = JSON.parse(document.getElementById('settlement-data').textContent);
         const circumference = 2 * Math.PI * 56; // r=56
         const offset = circumference - (rate / 100 * circumference);
         

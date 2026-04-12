@@ -10,15 +10,15 @@
     <div class="col-12 mb-5 d-flex justify-content-between align-items-end">
         <div>
             <div class="d-flex align-items-center gap-3 mb-2">
-                <div class="p-avatar shadow-none" style="background: var(--p-nexus-primary); width: 50px; height: 50px; font-size: 1.2rem;">
-                    <i class="fas fa-vault"></i>
+                <div class="p-avatar shadow-none" style="background: var(--p-nexus-primary); width: 50px; height: 50px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; border-radius: 15px;">
+                    <i data-lucide="shield-check" class="text-white"></i>
                 </div>
                 <h2 class="fw-800 mb-0" style="letter-spacing: -1.5px; color: var(--text-dark); font-size: 2.2rem;">
                     Institutional Finance Command
                 </h2>
             </div>
             <div class="d-flex align-items-center gap-2 text-muted fw-bold extra-small text-uppercase opa-7" style="letter-spacing: 1px;">
-                <i class="fas fa-radar text-primary animate-pulse"></i> Fiscal Diagnostic Radar Active <span class="mx-2">|</span> 
+                <i data-lucide="radar" class="text-primary animate-pulse w-4 h-4"></i> Fiscal Diagnostic Radar Active <span class="mx-2">|</span> 
                 <span class="text-primary">{{ active_term.name|default:"Institutional Protocol" }}</span>
             </div>
         </div>
@@ -26,17 +26,17 @@
             <ul class="nav nav-pills nexus-nav-pills p-1 bg-light rounded-pill border shadow-sm me-3" id="financeTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active rounded-pill px-4 fw-800 extra-small text-uppercase" id="ledger-tab" data-bs-toggle="tab" data-bs-target="#ledger-pane" type="button" role="tab" aria-selected="true">
-                        <i class="fas fa-file-invoice me-2"></i> Fiscal Ledger
+                        <i data-lucide="file-text" class="me-2 w-4 h-4 inline"></i> Fiscal Ledger
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link rounded-pill px-4 fw-800 extra-small text-uppercase" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-pane" type="button" role="tab" aria-selected="false">
-                        <i class="fas fa-sliders me-2"></i> Fiscal Settings
+                        <i data-lucide="settings-2" class="me-2 w-4 h-4 inline"></i> Fiscal Settings
                     </button>
                 </li>
             </ul>
             <button class="btn btn-primary rounded-pill px-4 fw-800 shadow-lg border-0" data-bs-toggle="modal" data-bs-target="#bulkBillingModal" style="background: var(--p-nexus-primary);">
-                <i class="fas fa-bolt me-2"></i> LAUNCH BILLING ENGINE
+                <i data-lucide="zap" class="me-2 w-4 h-4 inline"></i> LAUNCH BILLING ENGINE
             </button>
         </div>
     </div>
@@ -52,11 +52,11 @@
                             <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
                                 <div class="d-flex justify-content-between mb-4">
                                     <div class="bg-white bg-opacity-10 rounded-pill d-flex align-items-center justify-content-center" style="width:48px; height:48px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                                        <i class="fas fa-brain fs-5 text-white"></i>
+                                        <i data-lucide="cpu" class="text-white"></i>
                                     </div>
                                 </div>
                                 <h6 class="opa-6 extra-small fw-800 text-uppercase mb-1" style="letter-spacing: 1.5px;">Gross Intelligence</h6>
-                                <h3 class="fw-800 mb-1" style="font-size: 1.8rem;">{{ school_config.currency_symbol|default:"GH₵" }}{{ total_expected|floatformat:2 }}</h3>
+                                <h3 class="fw-800 mb-1" style="font-size: 1.8rem;">{{ school_config.currency_symbol|default:"&#8373;" }}{{ total_expected|floatformat:2 }}</h3>
                                 <div class="mt-2 extra-small opa-5 fw-bold text-uppercase">Projected Fiscal Intake</div>
                             </div>
                         </div>
@@ -67,11 +67,11 @@
                             <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
                                 <div class="d-flex justify-content-between mb-4">
                                     <div class="bg-white bg-opacity-20 rounded-pill d-flex align-items-center justify-content-center" style="width:48px; height:48px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
-                                        <i class="fas fa-faucet-drip fs-5"></i>
+                                        <i data-lucide="droplet"></i>
                                     </div>
                                 </div>
                                 <h6 class="opa-8 extra-small fw-800 text-uppercase mb-1" style="letter-spacing: 1.5px;">Liquid Capital</h6>
-                                <h3 class="fw-800 mb-3" style="font-size: 1.8rem;">{{ school_config.currency_symbol|default:"GH₵" }}{{ total_collected|floatformat:2 }}</h3>
+                                <h3 class="fw-800 mb-3" style="font-size: 1.8rem;">{{ school_config.currency_symbol|default:"&#8373;" }}{{ total_collected|floatformat:2 }}</h3>
                                 <div class="mt-2 d-flex align-items-center">
                                     <div class="progress flex-grow-1 me-2" style="height:6px; background:rgba(255,255,255,0.15); border-radius: 10px;">
                                         <div class="progress-bar bg-white js-progress-bar" style="border-radius: 10px;" data-progress="{{ collection_rate|default:0 }}"></div>
@@ -87,20 +87,20 @@
                             <div class="card-body p-4 text-white position-relative" style="z-index: 1;">
                                 <div class="d-flex justify-content-between mb-4">
                                     <div class="bg-white bg-opacity-20 rounded-pill d-flex align-items-center justify-content-center" style="width:48px; height:48px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
-                                        <i class="fas fa-fire-flame-curved fs-5"></i>
+                                        <i data-lucide="flame"></i>
                                     </div>
                                 </div>
                                 <h6 class="opa-8 extra-small fw-800 text-uppercase mb-1" style="letter-spacing: 1.5px;">Exposure Target</h6>
-                                <h3 class="fw-800 mb-1" style="font-size: 1.8rem;">{{ school_config.currency_symbol|default:"GH₵" }}{{ outstanding_debt|floatformat:2 }}</h3>
-                                <div class="mt-2 extra-small opa-8 fw-bold text-uppercase"><i class="fas fa-biohazard me-1"></i> Critical Variance Logged</div>
+                                <h3 class="fw-800 mb-1" style="font-size: 1.8rem;">{{ school_config.currency_symbol|default:"&#8373;" }}{{ outstanding_debt|floatformat:2 }}</h3>
+                                <div class="mt-2 extra-small opa-8 fw-bold text-uppercase"><i data-lucide="alert-triangle" class="w-3 h-3 inline me-1"></i> Critical Variance Logged</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-xl-3 col-lg-6 col-md-6 mb-4">
                         <div class="nexus-glass-card h-100 d-flex flex-column align-items-center justify-content-center text-center p-4 border-2 border-primary border-dashed" style="background: rgba(67, 97, 238, 0.03);">
-                            <div class="p-avatar shadow-lg mb-3" style="background: var(--p-nexus-primary); width: 56px; height: 56px;">
-                                <i class="fas fa-microchip"></i>
+                            <div class="p-avatar shadow-lg mb-3" style="background: var(--p-nexus-primary); width: 56px; height: 56px; display:flex; align-items:center; justify-content:center; border-radius: 16px;">
+                                <i data-lucide="settings" class="text-white"></i>
                             </div>
                             <h6 class="fw-800 extra-small text-uppercase mb-2 text-primary" style="letter-spacing: 1px;">Fiscal Engine</h6>
                             <button class="btn btn-primary rounded-pill btn-sm px-4 fw-800 shadow-lg border-0" data-bs-toggle="modal" data-bs-target="#bulkBillingModal" style="background: var(--p-nexus-primary);">
@@ -159,7 +159,7 @@
                                         <tr class="animate-fade-in" style="border-bottom: 1px solid rgba(0,0,0,0.03) !important;">
                                             <td class="ps-4 py-3" data-label="Entity Designation">
                                                 <div class="d-flex align-items-center gap-3">
-                                                    <div class="p-avatar-sm shadow-sm" style="background: var(--p-nexus-primary); width: 36px; height: 36px; font-size: 0.75rem;">
+                                                    <div class="p-avatar-sm shadow-sm" style="background: var(--p-nexus-primary); width: 36px; height: 36px; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
                                                         {{ payment.invoice.student.user.first_name|slice:":1" }}{{ payment.invoice.student.user.last_name|slice:":1" }}
                                                     </div>
                                                     <div class="text-start">
@@ -168,7 +168,7 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td data-label="Fiscal Value"><span class="fw-800 text-success small" style="font-size: 0.85rem;">+ {{ school_config.currency_symbol|default:"GH₵" }}{{ payment.amount_paid }}</span></td>
+                                            <td data-label="Fiscal Value"><span class="fw-800 text-success small" style="font-size: 0.85rem;">+ {{ school_config.currency_symbol|default:"&#8373;" }}{{ payment.amount_paid }}</span></td>
                                             <td data-label="Protocol">
                                                 <span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-2 fw-800 text-uppercase opa-7" style="font-size: 0.65rem; border-color: rgba(0,0,0,0.1) !important;">
                                                     {{ payment.get_method_display }}
@@ -176,8 +176,8 @@
                                             </td>
                                             <td data-label="Temporal Marker" class="extra-small text-muted fw-bold text-uppercase opa-7">{{ payment.date_paid|date:"M d, H:i" }}</td>
                                             <td class="pe-4 text-end">
-                                                <a href="{% url 'finance:generate_receipt' payment.id %}" class="btn btn-sm p-btn-icon shadow-sm" title="Secure Receipt Download">
-                                                    <i class="fas fa-shield-halved text-primary" style="font-size: 0.9rem;"></i>
+                                                <a href="{% url 'finance:generate_receipt' payment.id %}" class="btn btn-sm p-btn-icon shadow-sm" title="Secure Receipt Download" style="background: rgba(67, 97, 238, 0.05); border-radius: 8px;">
+                                                    <i data-lucide="shield-check" class="text-primary w-4 h-4"></i>
                                                 </a>
                                             </td>
                                         </tr>
@@ -194,8 +194,8 @@
                     <div class="col-xl-4 col-lg-12 mb-4">
                         <div class="nexus-glass-card h-100 p-0 overflow-hidden border-top border-4 border-danger" style="border-top-color: var(--p-nexus-danger) !important;">
                             <div class="p-4 border-bottom d-flex align-items-center gap-3" style="background: rgba(220, 38, 38, 0.02);">
-                                <div class="p-avatar-sm shadow-sm" style="background: var(--p-nexus-danger); width: 40px; height: 40px;">
-                                    <i class="fas fa-microchip-ai"></i>
+                                <div class="p-avatar-sm shadow-sm" style="background: var(--p-nexus-danger); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+                                    <i data-lucide="activity" class="text-white"></i>
                                 </div>
                                 <div>
                                     <h5 class="fw-800 mb-0 text-danger" style="letter-spacing: -0.5px;">Node Risk Monitor</h5>
@@ -211,7 +211,7 @@
                                             <span class="extra-small text-muted fw-bold text-uppercase opa-6" style="letter-spacing: 0.5px;">{{ invoice.term.name }} protocol</span>
                                         </div>
                                         <div class="p-badge p-badge-critical extra-small shadow-sm">
-                                            {{ school_config.currency_symbol|default:"GH₵" }}{{ invoice.balance_due }}
+                                            {{ school_config.currency_symbol|default:"&#8373;" }}{{ invoice.balance_due }}
                                         </div>
                                     </div>
                                     <div class="nexus-mastery-container p-0 border-0 bg-transparent mb-3">
@@ -255,7 +255,7 @@
                                     <p class="text-muted extra-small mb-0 fw-medium">Universal billing labels (e.g. PTA, Lab)</p>
                                 </div>
                                 <button class="btn btn-sm btn-primary rounded-pill px-3 fw-800 extra-small" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                                    <i class="fas fa-plus me-1"></i> ADD CATEGORY
+                                    <i data-lucide="plus" class="me-1 w-3 h-3 inline"></i> ADD CATEGORY
                                 </button>
                             </div>
                             <div class="table-responsive">
@@ -275,7 +275,7 @@
                                             </td>
                                             <td class="pe-4 text-end">
                                                 <button class="btn btn-sm p-btn-icon" title="Edit Category" data-bs-toggle="modal" data-bs-target="#editCategory-{{ cat.id }}">
-                                                    <i class="fas fa-edit text-primary"></i>
+                                                    <i data-lucide="edit-3" class="text-primary w-4 h-4"></i>
                                                 </button>
                                             </td>
                                         </tr>
@@ -317,10 +317,10 @@
                                                 <div class="fw-800 text-dark small">{{ fee.class_name }}</div>
                                             </td>
                                             <td data-label="Category"><span class="badge border bg-white text-dark extra-small rounded-pill px-3 py-2 fw-800 text-uppercase">{{ fee.category.name }}</span></td>
-                                            <td data-label="Amount"><span class="fw-800 text-primary small">{{ school_config.currency_symbol|default:"GH₵" }}{{ fee.amount }}</span></td>
+                                            <td data-label="Amount"><span class="fw-800 text-primary small">{{ school_config.currency_symbol|default:"&#8373;" }}{{ fee.amount }}</span></td>
                                             <td class="pe-4 text-end">
                                                 <button class="btn btn-sm p-btn-icon" title="Edit Amount" data-bs-toggle="modal" data-bs-target="#editStructure-{{ fee.id }}">
-                                                    <i class="fas fa-edit text-primary"></i>
+                                                    <i data-lucide="edit-3" class="text-primary w-4 h-4"></i>
                                                 </button>
                                             </td>
                                         </tr>
@@ -346,8 +346,8 @@
         <div class="nexus-glass-card modal-content border-0 p-0 overflow-hidden shadow-lg">
             <div class="modal-header p-4 border-bottom bg-primary text-white" style="background: var(--p-nexus-primary) !important;">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="p-avatar-sm bg-white bg-opacity-20 shadow-none">
-                        <i class="fas fa-microchip"></i>
+                    <div class="p-avatar-sm bg-white bg-opacity-20 shadow-none" style="display:flex; align-items:center; justify-content:center; border-radius: 10px;">
+                        <i data-lucide="cpu" class="text-white"></i>
                     </div>
                     <h5 class="modal-title fw-800" style="letter-spacing: -0.5px;">Institutional Billing Terminal</h5>
                 </div>
@@ -357,7 +357,7 @@
                 {% csrf_token %}
                 <div class="modal-body p-4">
                     <div class="nexus-glass-card p-3 mb-4 border-start border-4 border-primary shadow-none" style="background: rgba(67, 97, 238, 0.05); border-radius: 12px;">
-                        <p class="extra-small text-muted mb-0 fw-bold"><i class="fas fa-circle-info text-primary me-2"></i> PROTOCOL INSTRUCTION: Generate termly invoices based on current settings.</p>
+                        <p class="extra-small text-muted mb-0 fw-bold"><i data-lucide="info" class="text-primary me-2 w-4 h-4 inline"></i> PROTOCOL INSTRUCTION: Generate termly invoices based on current settings.</p>
                     </div>
                     <div class="mb-4">
                         <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Cohort Designation (Class)</label>
@@ -474,8 +474,8 @@
             <form action="{% url 'finance:edit_structure' fee.id %}" method="POST">
                 {% csrf_token %}
                 <div class="modal-body p-4 text-center">
-                    <div class="p-avatar mx-auto mb-3 shadow-sm bg-light text-primary" style="width: 50px; height: 50px;">
-                        <i class="fas fa-tag"></i>
+                    <div class="p-avatar mx-auto mb-3 shadow-sm bg-light text-primary" style="width: 50px; height: 50px; display:flex; align-items:center; justify-content:center; border-radius: 12px;">
+                        <i data-lucide="tag" class="w-6 h-6"></i>
                     </div>
                     <h6 class="fw-800 text-uppercase extra-small text-muted">{{ fee.category.name }} protocol</h6>
                     
@@ -483,7 +483,7 @@
                     <input type="hidden" name="category" value="{{ fee.category.id }}">
                     
                     <div class="mt-4 text-start">
-                        <label class="nexus-label-terminal small mb-1">Amount ({{ school_config.currency_symbol|default:"GH₵" }})</label>
+                        <label class="nexus-label-terminal small mb-1">Amount ({{ school_config.currency_symbol|default:"&#8373;" }})</label>
                         <input type="number" name="amount" step="0.01" class="form-control nexus-input-terminal fw-800 text-center text-primary" value="{{ fee.amount }}" style="font-size: 2rem; height: 75px; border-radius: 16px;" required>
                     </div>
                     
@@ -510,8 +510,8 @@
         <div class="nexus-glass-card modal-content border-0 p-0 overflow-hidden shadow-lg">
             <div class="modal-header p-4 border-bottom bg-success text-white" style="background: var(--p-nexus-success) !important;">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="p-avatar-sm bg-white bg-opacity-20 shadow-none">
-                        <i class="fas fa-hand-holding-usd"></i>
+                    <div class="p-avatar-sm bg-white bg-opacity-20 shadow-none" style="display:flex; align-items:center; justify-content:center; border-radius: 10px;">
+                        <i data-lucide="landmark" class="text-white"></i>
                     </div>
                     <h5 class="modal-title fw-800" style="letter-spacing: -0.5px;">Liquidity Synchronization</h5>
                 </div>
@@ -520,16 +520,16 @@
             <form action="{% url 'finance:record_payment' invoice.id %}" method="POST">
                 {% csrf_token %}
                 <div class="modal-body p-4 text-center">
-                    <div class="p-avatar mx-auto mb-3 shadow-lg" style="background: var(--p-nexus-success); width: 64px; height: 64px;">
-                        <i class="fas fa-user-shield"></i>
+                    <div class="p-avatar mx-auto mb-3 shadow-lg" style="background: var(--p-nexus-success); width: 64px; height: 64px; display:flex; align-items:center; justify-content:center; border-radius: 16px;">
+                        <i data-lucide="user-check" class="text-white"></i>
                     </div>
                     <h5 class="fw-800 text-dark mb-1" style="letter-spacing: -0.5px;">{{ invoice.student.user.get_full_name }}</h5>
                     <div class="p-badge p-badge-critical extra-small shadow-sm mb-5">
-                        PENDING EXPOSURE: {{ school_config.currency_symbol|default:"GH₵" }}{{ invoice.balance_due }}
+                        PENDING EXPOSURE: {{ school_config.currency_symbol|default:"&#8373;" }}{{ invoice.balance_due }}
                     </div>
 
                     <div class="text-start mb-4">
-                        <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Payment Value ({{ school_config.currency_symbol|default:"GH₵" }})</label>
+                        <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Payment Value ({{ school_config.currency_symbol|default:"&#8373;" }})</label>
                         <input type="number" name="amount" step="0.01" max="{{ invoice.balance_due }}" min="0.01" class="form-control nexus-input-terminal px-3 fw-800 text-success text-center" style="height: 65px; font-size: 1.8rem; border-radius: 16px;" value="{{ invoice.balance_due }}" required>
                     </div>
                     <div class="text-start mb-3">
@@ -555,6 +555,11 @@
 {% endblock %}
 
 {% block extra_js %}
+{{ chart_labels|safe|json_script:"chart-labels" }}
+{{ chart_expected|safe|json_script:"chart-expected" }}
+{{ chart_collected|safe|json_script:"chart-collected" }}
+<div id="school-config-data" data-currency="{{ school_config.currency_symbol|default:"&#8373;" }}" style="display:none;"></div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Shared Progress Bar Logic
@@ -593,11 +598,11 @@
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: {{ chart_labels|safe }},
+                labels: JSON.parse(document.getElementById('chart-labels').textContent),
                 datasets: [
                     {
                         label: 'Projected Protocol',
-                        data: {{ chart_expected|safe }},
+                        data: JSON.parse(document.getElementById('chart-expected').textContent),
                         borderColor: '#4361ee',
                         backgroundColor: purpleGradient,
                         borderWidth: 3,
@@ -611,7 +616,7 @@
                     },
                     {
                         label: 'Liquidity Sync',
-                        data: {{ chart_collected|safe }},
+                        data: JSON.parse(document.getElementById('chart-collected').textContent),
                         borderColor: '#00d394',
                         backgroundColor: greenGradient,
                         borderWidth: 3,
@@ -642,7 +647,8 @@
                                 let label = context.dataset.label || '';
                                 if (label) { label += ': '; }
                                 if (context.parsed.y !== null) {
-                                    label += '{{ school_config.currency_symbol|default:"GH₵" }}' + context.parsed.y.toLocaleString();
+                                    const currency = document.getElementById('school-config-data').dataset.currency;
+                                    label += currency + context.parsed.y.toLocaleString();
                                 }
                                 return label;
                             }
@@ -656,7 +662,10 @@
                         ticks: {
                             font: { family: 'Inter', size: 11, weight: '600' },
                             color: '#64748b',
-                            callback: function(value) { return '{{ school_config.currency_symbol|default:"GH₵" }}' + value.toLocaleString(); }
+                            callback: function(value) { 
+                                const currency = document.getElementById('school-config-data').dataset.currency;
+                                return currency + value.toLocaleString(); 
+                            }
                         }
                     },
                     x: {

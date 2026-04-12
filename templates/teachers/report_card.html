@@ -2,360 +2,409 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Institutional Transcript — {{ student.user.get_full_name }}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --nexus-primary: #1e293b;
-      --nexus-accent: #2563eb;
-      --nexus-success: #10b981;
-      --nexus-warning: #f59e0b;
-      --nexus-danger: #ef4444;
-      --text-main: #334155;
-      --text-muted: #64748b;
-      --bg-soft: #f8fafc;
-      --border-color: #e2e8f0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Protocol: Institutional Transcript — {{ student.user.get_full_name }}</title>
+    <!-- Premium Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --p-nexus-primary: #4361ee;
+            --p-nexus-dark: #0f172a;
+            --p-nexus-success: #10b981;
+            --p-nexus-warning: #f59e0b;
+            --p-nexus-danger: #ef4444;
+            --p-nexus-muted: #64748b;
+            --p-nexus-bg: #f8fafc;
+            --p-nexus-border: #e2e8f0;
+            --p-nexus-glass: rgba(255, 255, 255, 0.8);
+        }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Outfit', sans-serif; background: #eaeff5; color: var(--text-main); font-size: 14px; line-height: 1.5; }
+        @page {
+            size: A4;
+            margin: 0;
+        }
 
-    .page { 
-      max-width: 900px; 
-      margin: 3rem auto; 
-      background: #fff; 
-      position: relative;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); 
-      border-radius: 24px; 
-      overflow: hidden; 
-      border: 1px solid rgba(255,255,255,0.8);
-    }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-    /* Watermark */
-    .nexus-watermark {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-30deg);
-      font-size: 120px;
-      font-weight: 900;
-      color: rgba(0,0,0,0.02);
-      white-space: nowrap;
-      pointer-events: none;
-      z-index: 0;
-      text-transform: uppercase;
-      letter-spacing: 10px;
-    }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f1f5f9;
+            color: var(--p-nexus-dark);
+            line-height: 1.6;
+            padding: 40px 0;
+        }
 
-    .content-wrap { position: relative; z-index: 1; }
+        .transcript-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 1100px;
+            position: relative;
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.1);
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,1);
+        }
 
-    /* Header */
-    .header { 
-      background: var(--nexus-primary); 
-      color: #fff; 
-      padding: 3.5rem 3rem; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-      background-image: radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.15) 0%, transparent 50%);
-    }
-    
-    .school-brand { display: flex; align-items: center; gap: 15px; }
-    .logo-container {
-      width: 60px;
-      height: 60px;
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .school-title { font-size: 2.2rem; font-weight: 800; letter-spacing: -1.5px; }
-    .school-title span { color: var(--nexus-accent); }
-    .school-meta { font-size: 0.85rem; color: rgba(255,255,255,0.6); font-weight: 500; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
+        /* ── Security Ribbon Header ────────────────── */
+        .header-ribbon {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 60px 50px;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .transcript-id { text-align: right; }
-    .transcript-id .label { font-size: 0.7rem; color: rgba(255,255,255,0.5); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-    .transcript-id .value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: var(--nexus-accent); font-weight: 700; }
+        .header-ribbon::after {
+            content: "";
+            position: absolute;
+            top: 0; right: 0;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(67, 97, 238, 0.2) 0%, transparent 70%);
+            z-index: 0;
+        }
 
-    /* Bio Section */
-    .bio-section { 
-      display: grid; 
-      grid-template-columns: 2fr 1fr 1fr; 
-      gap: 30px; 
-      padding: 2.5rem 3rem; 
-      background: linear-gradient(to bottom, #fff, var(--bg-soft));
-    }
-    .bio-item .label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; display: block; }
-    .bio-item .value { font-size: 1.1rem; font-weight: 700; color: var(--nexus-primary); letter-spacing: -0.5px; }
-    .bio-item .sub-value { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; font-family: 'JetBrains Mono', monospace; }
+        .header-main { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-start; }
 
-    /* Diagnostic Dash */
-    .diag-dash { 
-      display: grid; 
-      grid-template-columns: repeat(3, 1fr); 
-      gap: 20px; 
-      padding: 0 3rem 2.5rem; 
-    }
-    .diag-card { 
-      padding: 24px; 
-      border-radius: 20px; 
-      background: #fff; 
-      border: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: all 0.3s ease;
-    }
-    .diag-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-    .diag-icon { 
-      width: 48px; height: 48px; border-radius: 14px; 
-      display: flex; align-items: center; justify-content: center; 
-      margin-bottom: 15px; font-size: 1.2rem;
-    }
-    .diag-card.primary .diag-icon { background: rgba(37, 99, 235, 0.1); color: var(--nexus-accent); }
-    .diag-card.success .diag-icon { background: rgba(16, 185, 129, 0.1); color: var(--nexus-success); }
-    .diag-card.warning .diag-icon { background: rgba(245, 158, 11, 0.1); color: var(--nexus-warning); }
+        .brand-block { display: flex; align-items: center; gap: 20px; }
+        .logo-wrap {
+            width: 70px; height: 70px; 
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+        }
 
-    .diag-val { font-size: 2.4rem; font-weight: 800; color: var(--nexus-primary); letter-spacing: -2px; line-height: 1; margin-bottom: 5px; }
-    .diag-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .school-info h1 { font-size: 2.2rem; font-weight: 900; letter-spacing: -2px; line-height: 1; }
+        .school-info h1 span { color: var(--p-nexus-primary); }
+        .school-info p { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.4); margin-top: 5px; }
 
-    /* Results Table */
-    .results-section { padding: 0 3rem 3rem; }
-    .section-title { 
-      font-size: 0.9rem; font-weight: 800; color: var(--nexus-primary); 
-      text-transform: uppercase; letter-spacing: 2px;
-      margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
-    }
-    .section-title::after { content: ""; flex: 1; height: 1px; background: var(--border-color); }
+        .protocol-meta { text-align: right; }
+        .protocol-label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.4); }
+        .protocol-id { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: var(--p-nexus-primary); margin-top: 4px; }
 
-    .transcript-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: -8px; }
-    .transcript-table thead th { 
-      padding: 10px 15px; text-align: left; font-size: 0.7rem; 
-      color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;
-    }
-    .transcript-table tbody tr { transition: all 0.2s ease; }
-    .transcript-table tbody td { 
-      padding: 16px 15px; background: var(--bg-soft); 
-      border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);
-    }
-    .transcript-table tbody td:first-child { border-left: 1px solid var(--border-color); border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-    .transcript-table tbody td:last-child { border-right: 1px solid var(--border-color); border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+        /* ── Profile Grid ─────────────────────────── */
+        .profile-strip {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+            padding: 40px 50px;
+            background: linear-gradient(to bottom, #ffffff, #f8fafc);
+            border-bottom: 1px solid var(--p-nexus-border);
+        }
 
-    .subject-cell { min-width: 200px; }
-    .subject-name { font-weight: 800; color: var(--nexus-primary); font-size: 0.95rem; display: block; }
-    .subject-key { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .info-cell .label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.2px; color: var(--p-nexus-muted); margin-bottom: 8px; display: block; }
+        .info-cell .value { font-size: 18px; font-weight: 800; color: var(--p-nexus-dark); letter-spacing: -0.5px; }
+        .info-cell .sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--p-nexus-primary); margin-top: 2px; display: block; }
 
-    .prog-track { width: 120px; height: 8px; background: rgba(0,0,0,0.05); border-radius: 10px; overflow: hidden; margin-top: 5px; }
-    .prog-bar { height: 100%; border-radius: 10px; }
+        /* ── Strategic Summary ────────────────── */
+        .strategic-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            padding: 30px 50px;
+        }
 
-    .grade-badge { 
-      display: inline-flex; align-items: center; justify-content: center; 
-      width: 38px; height: 38px; border-radius: 12px; 
-      font-weight: 800; font-size: 1.1rem;
-    }
-    .grade-A { background: rgba(16, 185, 129, 0.1); color: var(--nexus-success); border: 1px solid rgba(16, 185, 129, 0.2); }
-    .grade-B { background: rgba(37, 99, 235, 0.1); color: var(--nexus-accent); border: 1px solid rgba(37, 99, 235, 0.2); }
-    .grade-C { background: rgba(245, 158, 11, 0.1); color: var(--nexus-warning); border: 1px solid rgba(245, 158, 11, 0.2); }
-    .grade-F { background: rgba(239, 68, 68, 0.1); color: var(--nexus-danger); border: 1px solid rgba(239, 68, 68, 0.2); }
-    .nexus-bg-success { background: var(--nexus-success) !important; }
-    .nexus-bg-warning { background: var(--nexus-warning) !important; }
-    .nexus-bg-danger { background: var(--nexus-danger) !important; }
+        .summary-node {
+            background: white;
+            border: 1px solid var(--p-nexus-border);
+            border-radius: 24px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
 
-    /* Remarks */
-    .remarks-box { 
-      margin: 0 3rem 3rem; padding: 25px; border-radius: 20px; 
-      background: var(--bg-soft); border: 1px dashed var(--border-color);
-    }
-    .remarks-title { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-    .remarks-text { font-size: 1rem; color: var(--nexus-primary); font-weight: 500; font-style: italic; line-height: 1.6; }
+        .node-icon { 
+            width: 40px; height: 40px; border-radius: 12px; 
+            display: flex; align-items: center; justify-content: center; 
+            margin-bottom: 12px;
+        }
+        .node-icon.primary { background: rgba(67, 97, 238, 0.1); color: var(--p-nexus-primary); }
+        .node-icon.success { background: rgba(16, 185, 129, 0.1); color: var(--p-nexus-success); }
+        .node-icon.warning { background: rgba(245, 158, 11, 0.1); color: var(--p-nexus-warning); }
 
-    /* Footer / Signatures */
-    .signatures { 
-      padding: 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; 
-      border-top: 1px solid var(--border-color); background: #fdfdfd;
-    }
-    .sign-block { text-align: center; }
-    .sign-line { width: 100%; height: 1px; background: #cbd5e1; margin-bottom: 12px; }
-    .sign-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-    .sign-name { font-size: 0.9rem; font-weight: 800; color: var(--nexus-primary); margin-top: 4px; }
+        .node-val { font-size: 32px; font-weight: 900; letter-spacing: -2px; line-height: 1; }
+        .node-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--p-nexus-muted); margin-top: 4px; }
 
-    /* Print Controls */
-    .print-controls { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 100; }
-    .btn-action { 
-      padding: 12px 28px; border-radius: 50px; font-weight: 800; text-transform: uppercase; font-size: 0.8rem; 
-      letter-spacing: 1px; cursor: pointer; border: none; display: flex; align-items: center; gap: 10px;
-      box-shadow: 0 15px 30px rgba(0,0,0,0.15); transition: all 0.3s ease; text-decoration: none;
-    }
-    .btn-print { background: var(--nexus-accent); color: #fff; }
-    .btn-back { background: #fff; color: var(--nexus-primary); }
-    .btn-action:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        /* ── Performance Matrix (Table) ─────────── */
+        .matrix-section { padding: 20px 50px 40px; }
+        .matrix-header { 
+            display: flex; align-items: center; gap: 12px; margin-bottom: 24px; 
+            font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+        }
+        .matrix-header::after { content: ""; flex: 1; height: 1px; background: var(--p-nexus-border); }
 
-    @media print {
-      body { background: #fff; padding: 0; }
-      .page { margin: 0; max-width: 100%; border-radius: 0; box-shadow: none; border: none; }
-      .print-controls { display: none; }
-      .diag-card { border: 1px solid #eee; }
-      .transcript-table tbody td { background: #fff !important; }
-      .diag-icon { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .nexus-watermark { display: none; }
-    }
-  </style>
+        .nexus-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; margin-top: -10px; }
+        .nexus-table th { 
+            padding: 10px 20px; text-align: left; font-size: 9px; font-weight: 900; 
+            text-transform: uppercase; letter-spacing: 1.5px; color: var(--p-nexus-muted);
+        }
+        .nexus-table td { padding: 20px; background: #f8fafc; vertical-align: middle; transition: background 0.2s; }
+        .nexus-table td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; border-left: 1px solid var(--p-nexus-border); border-top: 1px solid var(--p-nexus-border); border-bottom: 1px solid var(--p-nexus-border); }
+        .nexus-table td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; border-right: 1px solid var(--p-nexus-border); border-top: 1px solid var(--p-nexus-border); border-bottom: 1px solid var(--p-nexus-border); text-align: right; }
+        .nexus-table td:not(:first-child):not(:last-child) { border-top: 1px solid var(--p-nexus-border); border-bottom: 1px solid var(--p-nexus-border); }
+
+        .subject-id { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: var(--p-nexus-primary); text-transform: uppercase; margin-bottom: 4px; display: block; }
+        .subject-title { font-size: 15px; font-weight: 800; color: var(--p-nexus-dark); display: block; line-height: 1.2; }
+
+        .score-val { font-size: 16px; font-weight: 900; color: var(--p-nexus-dark); }
+        .score-label { font-size: 10px; font-weight: 700; color: var(--p-nexus-muted); filter: grayscale(1); margin-left: 4px; }
+
+        .mastery-percent { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 13px; color: var(--p-nexus-dark); margin-bottom: 6px; display: block; }
+        .mastery-track { width: 140px; height: 6px; background: rgba(0,0,0,0.05); border-radius: 10px; overflow: hidden; position: relative; }
+        .mastery-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; width: var(--m-width, 0%); }
+        .mastery-high { background-color: var(--p-nexus-success); }
+        .mastery-standard { background-color: var(--p-nexus-primary); }
+        .mastery-critical { background-color: var(--p-nexus-danger); }
+
+        .proto-brand-cell { background: #fff !important; width: 220px; }
+        .assessment-type-meta { font-size: 10px; font-weight: 800; color: var(--p-nexus-muted); text-transform: uppercase; }
+        .null-obs-box { text-align: center; padding: 100px 0; background: #fff; opacity: 0.3; }
+        .null-obs-text { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+
+        .grade-node { 
+            width: 44px; height: 44px; border-radius: 12px; 
+            display: inline-flex; align-items: center; justify-content: center; 
+            font-size: 18px; font-weight: 900; 
+            border: 2px solid transparent;
+        }
+        .grade-A { background: rgba(16, 185, 129, 0.1); color: var(--p-nexus-success); border-color: rgba(16, 185, 129, 0.2); }
+        .grade-B { background: rgba(67, 97, 238, 0.1); color: var(--p-nexus-primary); border-color: rgba(67, 97, 238, 0.2); }
+        .grade-C { background: rgba(245, 158, 11, 0.1); color: var(--p-nexus-warning); border-color: rgba(245, 158, 11, 0.2); }
+        .grade-F { background: rgba(239, 68, 68, 0.1); color: var(--p-nexus-danger); border-color: rgba(239, 68, 68, 0.2); }
+
+        /* ── Evaluation Mark ─────────────────────── */
+        .evaluation-block { 
+            margin: 0 50px 40px; padding: 40px; border-radius: 32px; 
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 1px solid rgba(67, 97, 238, 0.1);
+            position: relative;
+        }
+        .eval-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--p-nexus-muted); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .eval-text { font-size: 17px; font-weight: 600; font-style: italic; color: var(--p-nexus-dark); line-height: 1.6; position: relative; z-index: 1; }
+        .eval-quote { position: absolute; top: 20px; left: 20px; font-size: 80px; font-family: 'JetBrains Mono'; color: rgba(0,0,0,0.03); z-index: 0; line-height: 1; }
+
+        /* ── Certification & Security ─────────────── */
+        .certification-footer {
+            padding: 50px;
+            background: #fdfdfd;
+            border-top: 1px solid var(--p-nexus-border);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+        }
+
+        .auth-block { text-align: center; }
+        .auth-seal { width: 100%; height: 2px; background: #e2e8f0; margin-top: 60px; margin-bottom: 12px; position: relative; }
+        .auth-seal::after { 
+            content: "CERTIFIED"; 
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%);
+            background: #fff; padding: 0 15px;
+            font-size: 8px; font-weight: 900; letter-spacing: 2px; color: #cbd5e1;
+        }
+        .auth-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--p-nexus-muted); }
+        .auth-name { font-size: 14px; font-weight: 900; color: var(--p-nexus-dark); margin-top: 5px; }
+
+        /* ── Controls ───────────────────────────── */
+        .nexus-controls {
+            position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 12px 24px;
+            border-radius: 100px;
+            display: flex; gap: 12px;
+            z-index: 100;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .ctrl-btn {
+            padding: 10px 24px; border-radius: 50px; font-size: 11px; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 1.5px; border: none; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+        }
+        .ctrl-btn-primary { background: var(--p-nexus-primary); color: white; }
+        .ctrl-btn-outline { background: rgba(255,255,255,0.05); color: #cbd5e1; }
+        .ctrl-btn:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .transcript-container { box-shadow: none; border-radius: 0; margin: 0; border: none; max-width: 100%; width: 100%; min-height: 100vh; }
+            .nexus-controls { display: none; }
+            .transcript-container { border: none !important; }
+        }
+    </style>
 </head>
 <body>
 
-<div class="page">
-  <div class="nexus-watermark">AUTHENTICATED</div>
-  
-  <div class="content-wrap">
-    <!-- Header -->
-    <header class="header">
-      <div class="school-brand">
-        <div class="logo-container">
-          <i class="fas fa-graduation-cap fa-2x"></i>
+<div class="transcript-container">
+    <!-- Header Protocol -->
+    <header class="header-ribbon">
+        <div class="header-main">
+            <div class="brand-block">
+                <div class="logo-wrap">
+                    <i data-lucide="graduation-cap" class="w-10 h-10 text-white"></i>
+                </div>
+                <div class="school-info">
+                    <h1>{{ school_config.school_name|default:"Edu" }}<span>{{ school_config.short_name|default:"MS" }}</span></h1>
+                    <p>Standardized Academic Certification Protocol</p>
+                </div>
+            </div>
+            <div class="protocol-meta">
+                <div class="protocol-label">Transcript Reference</div>
+                <div class="protocol-id">TR-{{ student.student_id|slice:"4:" }}-{{ now|date:"Ymd" }}</div>
+            </div>
         </div>
-        <div>
-          <div class="school-title">Edu<span>MS</span></div>
-          <div class="school-meta">Academic Hub & Excellence Node</div>
-        </div>
-      </div>
-      <div class="transcript-id">
-        <div class="label">Transcript UUID</div>
-        <div class="value">SEC-{{ student.id|stringformat:"05d" }}-{{ active_term.id|default:"2026" }}</div>
-      </div>
     </header>
 
-    <!-- Bio Section -->
-    <section class="bio-section">
-      <div class="bio-item">
-        <span class="label">Entity Designation</span>
-        <span class="value">{{ student.user.get_full_name }}</span>
-        <span class="sub-value">Node ID: {{ student.student_id }}</span>
-      </div>
-      <div class="bio-item">
-        <span class="label">Sector Protocol</span>
-        <span class="value">{{ student.class_enrolled }}</span>
-      </div>
-      <div class="bio-item">
-        <span class="label">Temporal Marker</span>
-        <span class="value">Term {{ active_term.name|default:"A-2026" }}</span>
-      </div>
-    </section>
-
-    <!-- Diagnostic Summary -->
-    <section class="diag-dash">
-      <div class="diag-card primary">
-        <div class="diag-icon"><i class="fas fa-chart-line"></i></div>
-        <div class="diag-val">{{ overall_avg }}%</div>
-        <div class="diag-label">Global Mastery</div>
-      </div>
-      <div class="diag-card success">
-        <div class="diag-icon"><i class="fas fa-award"></i></div>
-        <div class="diag-val">{{ overall_grade }}</div>
-        <div class="diag-label">Stature Rating</div>
-      </div>
-      <div class="diag-card warning">
-        <div class="diag-icon"><i class="fas fa-fingerprint"></i></div>
-        <div class="diag-val">{{ att_pct }}%</div>
-        <div class="diag-label">Presence Sync</div>
-      </div>
-    </section>
-
-    <!-- Results Table -->
-    <section class="results-section">
-      <div class="section-title"><i class="fas fa-microchip"></i> Discipline Performance Matrix</div>
-      
-      {% if subject_results %}
-      <table class="transcript-table">
-        <thead>
-          <tr>
-            <th>Discipline domain</th>
-            <th>Type</th>
-            <th>Value</th>
-            <th>Mastery Curve</th>
-            <th class="text-center">Rating</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for subj_name, data in subject_results.items %}
-            {% for r in data.results %}
-            <tr>
-              {% if forloop.first %}
-              <td class="subject-cell" rowspan="{{ data.results|length }}">
-                <span class="subject-name">{{ subj_name }}</span>
-                <span class="subject-key">Core Protocol</span>
-              </td>
-              {% endif %}
-              <td style="text-transform:uppercase; font-size:0.75rem; font-weight:700; color:var(--text-muted);">{{ r.exam_type }}</td>
-              <td><span style="font-weight:800; color:var(--nexus-primary);">{{ r.score }}</span> <small style="color:var(--text-muted);">/ {{ r.max_score }}</small></td>
-              <td>
-                <div style="font-weight:700; font-size:0.8rem; margin-bottom:4px;">{{ r.percentage }}%</div>
-                <div class="prog-track">
-                  <div class="prog-bar {% if r.percentage >= 70 %}nexus-bg-success{% elif r.percentage >= 50 %}nexus-bg-warning{% else %}nexus-bg-danger{% endif %}" style="width:{{ r.percentage|default:0 }}%;"></div>
-                </div>
-              </td>
-              <td style="text-align:right;">
-                <span class="grade-badge grade-{{ r.grade_letter|default:'F' }}">{{ r.grade_letter|default:"F" }}</span>
-              </td>
-            </tr>
-            {% endfor %}
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-        <div class="text-center p-5 opacity-50">
-          <i class="fas fa-database fa-3x mb-3"></i>
-          <p class="fw-bold text-uppercase extra-small">Null Observation. No grade markers synchronized.</p>
+    <!-- Entity Diagnostic Identity -->
+    <section class="profile-strip">
+        <div class="info-cell">
+            <span class="label">Authorized Subject Node</span>
+            <span class="value">{{ student.user.get_full_name }}</span>
+            <span class="sub">Node Verification: {{ student.student_id }}</span>
         </div>
-      {% endif %}
+        <div class="info-cell">
+            <span class="label">Sector Assignment</span>
+            <span class="value">{{ student.class_enrolled.name }}</span>
+            <span class="sub">Curricular Cluster</span>
+        </div>
+        <div class="info-cell">
+            <span class="label">Temporal Window</span>
+            <span class="value">Term {{ active_term.name|default:"A-2026" }}</span>
+            <span class="sub">Active Cycle</span>
+        </div>
     </section>
 
-    <!-- Remarks -->
-    <section class="remarks-box">
-      <div class="remarks-title">Institutional Evaluation Remark</div>
-      <div class="remarks-text">
-        "{% if overall_avg >= 90 %}
-          Exceptional mastery demonstrated across all cognitive vectors. Student exhibits sustained academic velocity.
-        {% elif overall_avg >= 75 %}
-          Proficient performance observed. Continued calibration advised to reach maximum operational potential.
-        {% elif overall_avg >= 60 %}
-          Satisfactory integration. Incremental focus required on core discipline domains to ensure stability.
-        {% else %}
-          Critical variance identified. Immediate diagnostic intervention and remedial protocol initialization recommended.
-        {% endif %}"
-      </div>
+    <!-- Global Performance Diagnostics -->
+    <section class="strategic-summary">
+        <div class="summary-node">
+            <div class="node-icon primary"><i data-lucide="activity" class="w-5 h-5"></i></div>
+            <div class="node-val">{{ overall_avg|floatformat:1 }}%</div>
+            <div class="node-label">Global Mastery Index</div>
+        </div>
+        <div class="summary-node">
+            <div class="node-icon success"><i data-lucide="award" class="w-5 h-5"></i></div>
+            <div class="node-val">{{ overall_grade|default:"F" }}</div>
+            <div class="node-label">Tier Rating Result</div>
+        </div>
+        <div class="summary-node">
+            <div class="node-icon warning"><i data-lucide="fingerprint" class="w-5 h-5"></i></div>
+            <div class="node-val">{{ att_pct|floatformat:1 }}%</div>
+            <div class="node-label">Institutional Presence</div>
+        </div>
     </section>
 
-    <!-- Signatures -->
-    <footer class="signatures">
-      <div class="sign-block">
-        <div class="sign-line"></div>
-        <div class="sign-label">Master Registrar / Teacher</div>
-        <div class="sign-name">{{ teacher.user.get_full_name|default:"AUTHORIZED ACADEMIC" }}</div>
-      </div>
-      <div class="sign-block">
-        <div class="sign-line"></div>
-        <div class="sign-label">Institutional Directorship</div>
-        <div class="sign-name">EduMS Protocol Certification</div>
-      </div>
+    <!-- Curricular Performance Matrix -->
+    <section class="matrix-section">
+        <div class="matrix-header">
+            <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i> Curricular Diagnostic Matrix
+        </div>
+        
+        <table class="nexus-table">
+            <thead>
+                <tr>
+                    <th>Domain Cluster</th>
+                    <th>Assessment Type</th>
+                    <th>Raw Signal</th>
+                    <th>Mastery Curve</th>
+                    <th>Tier</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subj_name, data in subject_results.items %}
+                    {% for r in data.results %}
+                    <tr>
+                        {% if forloop.first %}
+                        <td rowspan="{{ data.results|length }}" class="proto-brand-cell">
+                            <span class="subject-id">PROTO-{{ forloop.parentloop.counter|stringformat:"02d" }}</span>
+                            <span class="subject-title">{{ subj_name }}</span>
+                        </td>
+                        {% endif %}
+                        <td>
+                            <span class="assessment-type-meta">{{ r.exam_type }}</span>
+                        </td>
+                        <td>
+                            <span class="score-val">{{ r.score|floatformat:1 }}</span><span class="score-label">/{{ r.max_score|floatformat:0 }}</span>
+                        </td>
+                        <td>
+                            <span class="mastery-percent">{{ r.percentage|floatformat:0 }}%</span>
+                            <div class="mastery-track">
+                                {% with percentage=r.percentage|default:0 %}
+                                <div class="mastery-fill {% if percentage >= 80 %}mastery-high{% elif percentage >= 50 %}mastery-standard{% else %}mastery-critical{% endif %}" 
+                                     style="--m-width: {{ percentage }}%;">
+                                </div>
+                                {% endwith %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="grade-node grade-{{ r.grade_letter|default:'F' }}">
+                                {{ r.grade_letter|default:"F" }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="null-obs-box">
+                        <i data-lucide="database-zap" class="w-16 h-16 mx-auto mb-4"></i>
+                        <p class="null-obs-text">Null Data Stream Detected</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Institutional Remark Block -->
+    <section class="evaluation-block">
+        <div class="eval-quote">"</div>
+        <div class="eval-title"><i data-lucide="message-square" class="w-3 h-3"></i> Registrar Diagnostic Note</div>
+        <div class="eval-text">
+            {% if overall_avg >= 90 %}
+                Exceptional cognitive mastery demonstrated across all performance vectors. Node exhibits high-sustained academic velocity and protocol excellence.
+            {% elif overall_avg >= 75 %}
+                Proficient integration observed. Standard operative thresholds exceeded. Continued calibration advised to optimize potential peak.
+            {% elif overall_avg >= 50 %}
+                Satisfactory presence identified. Strategic focus required on low-mastery discipline clusters to ensure institutional stability.
+            {% else %}
+                Critical variance detected. Performance streams below threshold. Immediate remedial protocol and diagnostic intervention enforced.
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Authentication Protocol Footer -->
+    <footer class="certification-footer">
+        <div class="auth-block">
+            <div class="auth-seal"></div>
+            <div class="auth-label">Lead Operational Registrar</div>
+            <div class="auth-name">{{ teacher.user.get_full_name|default:"SYSTEM AUTHENTICATED" }}</div>
+        </div>
+        <div class="auth-block">
+            <div class="auth-seal"></div>
+            <div class="auth-label">Institutional Directorship</div>
+            <div class="auth-name">{{ school_config.school_name|default:"EduMS" }} Protocol Certification</div>
+        </div>
     </footer>
-  </div>
 </div>
 
-<!-- Controls -->
-<div class="print-controls">
-  <a href="javascript:history.back()" class="btn-action btn-back">
-    <i class="fas fa-arrow-left"></i> Return
-  </a>
-  <button class="btn-action btn-print" onclick="window.print()">
-    <i class="fas fa-print"></i> Execute Print Run
-  </button>
+<!-- Interaction Terminal Controls -->
+<div class="nexus-controls">
+    <a href="javascript:history.back()" class="ctrl-btn ctrl-btn-outline">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Return
+    </a>
+    <button class="ctrl-btn ctrl-btn-primary" onclick="window.print()">
+        <i data-lucide="printer" class="w-4 h-4"></i> Execute Print run
+    </button>
 </div>
 
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

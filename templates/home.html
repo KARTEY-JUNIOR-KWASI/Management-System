@@ -13,17 +13,17 @@
     {% if not user.is_authenticated %}
     <div class="hero-btns">
       <a href="{% url 'account_login' %}" class="hero-btn-primary">
-        <i class="fas fa-sign-in-alt"></i> Log In to Your Portal
+        <i data-lucide="log-in" class="me-1 w-5 h-5 inline"></i> Log In to Your Portal
       </a>
     </div>
     {% else %}
     <div class="hero-btns">
       {% if user.role == 'admin' %}
-        <a href="{% url 'admin_dashboard' %}" class="hero-btn-primary"><i class="fas fa-th-large"></i> Go to Dashboard</a>
+        <a href="{% url 'admin_dashboard' %}" class="hero-btn-primary"><i data-lucide="layout-grid" class="me-1 w-5 h-5 inline"></i> Go to Dashboard</a>
       {% elif user.role == 'teacher' %}
-        <a href="{% url 'teacher_dashboard' %}" class="hero-btn-primary"><i class="fas fa-th-large"></i> Go to Dashboard</a>
+        <a href="{% url 'teacher_dashboard' %}" class="hero-btn-primary"><i data-lucide="layout-grid" class="me-1 w-5 h-5 inline"></i> Go to Dashboard</a>
       {% elif user.role == 'student' %}
-        <a href="{% url 'student_dashboard' %}" class="hero-btn-primary"><i class="fas fa-th-large"></i> Go to Dashboard</a>
+        <a href="{% url 'student_dashboard' %}" class="hero-btn-primary"><i data-lucide="layout-grid" class="me-1 w-5 h-5 inline"></i> Go to Dashboard</a>
       {% endif %}
     </div>
     {% endif %}
@@ -61,7 +61,7 @@
     <div class="landing-cards">
 
       <div class="landing-card student-card">
-        <div class="card-icon"><i class="fas fa-user-graduate"></i></div>
+        <div class="card-icon" style="display: flex; align-items: center; justify-content: center;"><i data-lucide="graduation-cap" class="w-10 h-10"></i></div>
         <h3>Student Portal</h3>
         <p>Access your grades, attendance, assignments, and personal analytics in one place.</p>
         <ul>
@@ -70,8 +70,8 @@
           <li>Submit assignments</li>
           <li>Personal analytics</li>
         </ul>
-        <a href="{% url 'account_login' %}" class="btn-akkhor btn-success-akkhor" style="width:100%; justify-content:center;">
-          <i class="fas fa-sign-in-alt"></i> Student Login
+        <a href="{% url 'account_login' %}" class="btn-akkhor btn-success-akkhor" style="width:100%; justify-content:center; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="log-in" class="w-4 h-4"></i> Student Login
         </a>
         <p style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin-top:0.75rem;">
           Use your <strong>Student ID</strong> and password provided by admin
@@ -79,7 +79,7 @@
       </div>
 
       <div class="landing-card teacher-card">
-        <div class="card-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <div class="card-icon" style="display: flex; align-items: center; justify-content: center;"><i data-lucide="presentation" class="w-10 h-10"></i></div>
         <h3>Teacher Portal</h3>
         <p>Manage your classes, grade students, track attendance, and create assignments.</p>
         <ul>
@@ -88,8 +88,8 @@
           <li>Grade submissions</li>
           <li>Monitor student progress</li>
         </ul>
-        <a href="{% url 'account_login' %}" class="btn-akkhor btn-primary-akkhor" style="width:100%; justify-content:center;">
-          <i class="fas fa-sign-in-alt"></i> Teacher Login
+        <a href="{% url 'account_login' %}" class="btn-akkhor btn-primary-akkhor" style="width:100%; justify-content:center; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="log-in" class="w-4 h-4"></i> Teacher Login
         </a>
         <p style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin-top:0.75rem;">
           Use your <strong>Teacher ID</strong> and password provided by admin
@@ -97,7 +97,7 @@
       </div>
 
       <div class="landing-card admin-card">
-        <div class="card-icon"><i class="fas fa-shield-halved"></i></div>
+        <div class="card-icon" style="display: flex; align-items: center; justify-content: center;"><i data-lucide="shield-check" class="w-10 h-10"></i></div>
         <h3>Admin Panel</h3>
         <p>Full control over your school — users, classes, subjects, and analytics.</p>
         <ul>
@@ -106,8 +106,8 @@
           <li>School-wide analytics</li>
           <li>Complete system control</li>
         </ul>
-        <a href="{% url 'account_login' %}" class="btn-akkhor btn-outline-akkhor" style="width:100%; justify-content:center;">
-          <i class="fas fa-sign-in-alt"></i> Admin Login
+        <a href="{% url 'account_login' %}" class="btn-akkhor btn-outline-akkhor" style="width:100%; justify-content:center; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="log-in" class="w-4 h-4"></i> Admin Login
         </a>
         <p style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin-top:0.75rem;">
           Use your admin <strong>email</strong> and password

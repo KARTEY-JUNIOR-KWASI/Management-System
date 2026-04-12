@@ -438,6 +438,57 @@ def _identify_at_risk_students():
 
     return sorted(at_risk_students, key=lambda x: x['risk_score'], reverse=True)
 
+
+def _calculate_subject_heatmap(teacher):
+    """
+    Generate a 2D performance matrix for heatmap visualization.
+    Maps [Subject] x [Class] -> Average Percentage.
+    """
+    from core.models import Result, Class
+    from django.db.models import Avg
+    
+    # Get relevant entities
+    subjects = teacher.subjects.all()
+    # We need teacher classes from teachers.views, or we can re-derive them here
+    # For now, let's get any class that has results for these subjects taught by this teacher
+    teacher_classes = Class.objects.filter(
+        student__results__teacher=teacher.user,
+        student__results__subject__in=subjects
+    ).distinct()
+
+    if not teacher_classes.exists():
+        # Fallback: get classes assigned to the teacher
+        from teachers.views import _get_teacher_classes
+        teacher_classes = _get_teacher_classes(teacher.user)
+
+    heatmap_data = {
+        'subjects': [s.name for s in subjects],
+        'classes': [c.name for c in teacher_classes],
+        'matrix': []
+    }
+
+    for subject in subjects:
+        row = []
+        for class_obj in teacher_classes:
+            avg_score = Result.objects.filter(
+                subject=subject,
+                student__class_enrolled=class_obj,
+                teacher=teacher.user
+            ).aggregate(avg=Avg('score'))['avg'] or 0
+            
+            # Assuming score is out of 100 for percentage visibility
+            # If scores vary, we'd need to normalize by max_score
+            normalized_avg = Result.objects.filter(
+                subject=subject,
+                student__class_enrolled=class_obj,
+                teacher=teacher.user
+            ).extra(select={'ratio': 'score / max_score * 100'}).aggregate(avg=Avg('ratio'))['avg'] or 0
+
+            row.append(float(normalized_avg))
+        heatmap_data['matrix'].append(row)
+
+    return heatmap_data
+
 def _calculate_class_performance(teacher):
     """
     Calculate performance metrics for teacher's classes.

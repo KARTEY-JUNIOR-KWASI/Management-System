@@ -63,6 +63,74 @@
 
   </div>
 
+  <!-- ── Curriculum Mastery Heatmap (New Component) ────────────────── -->
+  <section class="animate-card" style="animation-delay: 0.3s;">
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3 class="font-display font-extrabold text-gray-900 text-lg">Curriculum Mastery Heatmap</h3>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Cross-subject performance diagnostics</p>
+            </div>
+            <div class="flex gap-2">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">High (>80)</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">Standard (50-80)</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">Critical (<50)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full border-separate border-spacing-2">
+                <thead>
+                    <tr>
+                        <th class="w-24"></th>
+                        {% for class_name in heatmap_data.classes %}
+                            <th class="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center px-4 pb-2">{{ class_name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in heatmap_data.subjects %}
+                        <tr>
+                            <td class="text-xs font-black text-gray-800 uppercase tracking-tight py-2 pe-4">{{ subject }}</td>
+                            {% with subject_index=forloop.counter0 %}
+                                {% for score in heatmap_data.matrix|dictsort:subject_index %}
+                                    {# This logic is complex for Django templates, best handled in view or custom tag #}
+                                {% endfor %}
+                                
+                                {# Corrected Logic: Accessing matrix[subject_index][class_index] #}
+                                {% for row in heatmap_data.matrix %}
+                                    {% if forloop.counter0 == subject_index %}
+                                        {% for score in row %}
+                                            <td class="p-0">
+                                                <div class="w-full h-11 rounded-xl flex items-center justify-center text-[11px] font-black transition-all hover:scale-105 cursor-default
+                                                    {% if score >= 80 %}bg-emerald-500 text-white shadow-lg shadow-emerald-100/50
+                                                    {% elif score >= 50 %}bg-indigo-600 text-white shadow-lg shadow-indigo-100/50
+                                                    {% elif score > 0 %}bg-red-500 text-white shadow-lg shadow-red-100/50
+                                                    {% else %}bg-gray-50 text-gray-300 border border-gray-100 border-dashed{% endif %}">
+                                                    {% if score > 0 %}{{ score|floatformat:0 }}%{% else %}N/A{% endif %}
+                                                </div>
+                                            </td>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endwith %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </section>
+
 </div>
 
 <!-- Context Data for Chart -->

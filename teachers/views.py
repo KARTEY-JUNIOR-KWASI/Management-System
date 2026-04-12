@@ -5,10 +5,11 @@ from django.contrib import messages
 from django.forms import modelformset_factory
 from django.http import HttpResponse
 from django.db.models import Count, Q
-from core.models import Attendance, Class, Subject, Result, Assignment, Submission
+from core.models import Attendance, Class, Subject, Result, Assignment, Submission, SchoolConfiguration
 from students.models import Student
 from .models import Teacher
 from .forms import AttendanceDateForm, AttendanceFormSet, GradeSelectionForm, BulkGradeForm, AssignmentForm
+import datetime
 from datetime import date
 from school_management.sms_service import send_attendance_sms, send_absence_sms
 from analytics.views import _calculate_class_performance, _identify_at_risk_students, _calculate_assignment_stats
@@ -103,6 +104,9 @@ def teacher_dashboard(request):
         {'url': reverse('teacher_timetable'), 'icon': 'calendar', 'label': 'Timetable', 'desc': 'Personal schedule', 'icon_bg': 'rgba(14, 165, 233, 0.1)', 'icon_color': '#0ea5e9'},
     ]
 
+    from analytics.views import _calculate_subject_heatmap
+    heatmap_data = _calculate_subject_heatmap(teacher)
+
     context = {
         'teacher': teacher,
         'classes': classes,
@@ -113,6 +117,7 @@ def teacher_dashboard(request):
         'chart_class_performance': chart_class_performance,
         'at_risk_students': my_at_risk[:5],
         'total_at_risk': len(my_at_risk),
+        'heatmap_data': heatmap_data,
         'assignment_stats': assignment_stats,
         'actions_data': actions_data,
         'notices': notices,
@@ -631,6 +636,8 @@ def student_report_card(request, student_id):
         'att_present': att_present,
         'att_pct': att_pct,
         'teacher': teacher,
+        'school_config': SchoolConfiguration.objects.first(),
+        'now': datetime.datetime.now(),
     }
     return render(request, 'teachers/report_card.html', context)
 
