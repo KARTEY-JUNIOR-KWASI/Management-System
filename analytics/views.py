@@ -696,72 +696,104 @@ def _generate_progress_report(request, start_date, end_date):
         assignment__in=assignments
     )
 
-    # Generate PDF
+    # Generate Premium PDF
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
     styles = getSampleStyleSheet()
+    
+    # Custom Premium Styles
+    styles.add(ParagraphStyle(name='PremiumTitle', fontSize=24, fontName='Helvetica-Bold', alignment=1, spaceAfter=2, textColor=colors.HexColor('#0F172A')))
+    styles.add(ParagraphStyle(name='PremiumSub', fontSize=10, fontName='Helvetica-Bold', alignment=1, spaceAfter=20, textColor=colors.HexColor('#64748B')))
+    styles.add(ParagraphStyle(name='SectionHead', fontSize=14, fontName='Helvetica-Bold', spaceBefore=20, spaceAfter=10, textColor=colors.HexColor('#1E293B'), borderPadding=5, leftIndent=0))
+    styles.add(ParagraphStyle(name='MetricLabel', fontSize=9, fontName='Helvetica-Bold', textColor=colors.HexColor('#4361EE')))
+    styles.add(ParagraphStyle(name='MetricVal', fontSize=18, fontName='Helvetica-Bold', textColor=colors.HexColor('#0F172A')))
+
     story = []
 
-    # Title
-    title = Paragraph(f"Progress Report - {student.user.get_full_name()}", styles['Title'])
-    story.append(title)
-    story.append(Spacer(1, 12))
+    # 1. Institutional Header
+    config = get_institutional_metadata()
+    story.append(Paragraph(config.name.upper(), styles['PremiumTitle']))
+    story.append(Paragraph("OFFICIAL ACADEMIC PROGRESS PROTOCOL", styles['PremiumSub']))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#4361EE'), spaceAfter=20))
 
-    # Period
-    period_text = f"Period: {start_date} to {end_date}"
-    story.append(Paragraph(period_text, styles['Normal']))
-    story.append(Spacer(1, 12))
+    # 2. Identity Matrix
+    id_data = [
+        [Paragraph("STUDENT IDENTITY", styles['MetricLabel']), Paragraph("ACADEMIC CYCLE", styles['MetricLabel'])],
+        [Paragraph(student.user.get_full_name(), styles['MetricVal']), Paragraph(f"{start_date} → {end_date}", styles['MetricVal'])]
+    ]
+    id_table = Table(id_data, colWidths=[240, 240])
+    id_table.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'TOP'), ('BOTTOMPADDING', (0,0), (-1,-1), 10)]))
+    story.append(id_table)
+    story.append(Spacer(1, 20))
 
-    # Academic Performance
-    story.append(Paragraph("Academic Performance", styles['Heading2']))
+    # 3. Academic Performance Layer
+    story.append(Paragraph("I. CURRICULAR MASTERY INDEX", styles['SectionHead']))
     if results.exists():
-        data = [['Subject', 'Score', 'Max Score', 'Percentage', 'Date']]
-        for result in results:
-            percentage = f"{(result.score / result.max_score * 100):.1f}%" if result.max_score > 0 else "N/A"
+        data = [['SUBJECT', 'RAW SCORE', 'UNIT MAX', 'MASTERY %', 'EVAL DATE']]
+        for r in results:
+            pct = (r.score / r.max_score * 100) if r.max_score > 0 else 0
             data.append([
-                result.subject.name,
-                str(result.score),
-                str(result.max_score),
-                percentage,
-                result.date.strftime('%Y-%m-%d')
+                r.subject.name.upper(),
+                str(r.score),
+                str(r.max_score),
+                f"{pct:.1f}%",
+                r.date.strftime('%Y-%m-%d')
             ])
 
-        table = Table(data)
+        table = Table(data, colWidths=[150, 80, 80, 80, 90])
         table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0F172A')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 14),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('TOPPADDING', (0, 0), (-1, 0), 12),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F8FAFC')]),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
         ]))
         story.append(table)
     else:
-        story.append(Paragraph("No academic results found for this period.", styles['Normal']))
+        story.append(Paragraph("Null performance stream detected for this temporal window.", styles['Normal']))
 
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 25))
 
-    # Attendance Summary
-    story.append(Paragraph("Attendance Summary", styles['Heading2']))
+    # 4. Critical Metrics Cluster
+    story.append(Paragraph("II. OPERATIONAL ANALYTICS", styles['SectionHead']))
+    
     total_days = attendance.count()
     present_days = attendance.filter(status='present').count()
-    attendance_rate = (present_days / total_days * 100) if total_days > 0 else 0
-
-    attendance_text = f"Total Days: {total_days}, Present: {present_days}, Attendance Rate: {attendance_rate:.1f}%"
-    story.append(Paragraph(attendance_text, styles['Normal']))
-
-    story.append(Spacer(1, 12))
-
-    # Assignment Completion
-    story.append(Paragraph("Assignment Completion", styles['Heading2']))
+    att_rate = (present_days / total_days * 100) if total_days > 0 else 0
+    
     total_assignments = assignments.count()
     completed_assignments = submissions.count()
-    completion_rate = (completed_assignments / total_assignments * 100) if total_assignments > 0 else 0
+    comp_rate = (completed_assignments / total_assignments * 100) if total_assignments > 0 else 0
 
-    assignment_text = f"Total Assignments: {total_assignments}, Completed: {completed_assignments}, Completion Rate: {completion_rate:.1f}%"
-    story.append(Paragraph(assignment_text, styles['Normal']))
+    metric_data = [
+        [Paragraph("ATTENDANCE VELOCITY", styles['MetricLabel']), Paragraph("ASSIGNMENT COMPLETION", styles['MetricLabel'])],
+        [Paragraph(f"{att_rate:.1f}%", styles['MetricVal']), Paragraph(f"{comp_rate:.1f}%", styles['MetricVal'])]
+    ]
+    metric_table = Table(metric_data, colWidths=[240, 240])
+    metric_table.setStyle(TableStyle([('ALIGN', (0,0), (-1,-1), 'LEFT'), ('VALIGN', (0,0), (-1,-1), 'TOP')]))
+    story.append(metric_table)
+
+    # 5. Certification Footer
+    story.append(Spacer(1, 60))
+    story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor('#CBD5E1')))
+    story.append(Spacer(1, 10))
+    
+    footer_data = [
+        [draw_institutional_seal(), "CERTIFIED TRANSCRIPT GENERATED VIA NEXUS PROTOCOL"],
+        ["", f"TIMESTAMP: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"]
+    ]
+    footer_table = Table(footer_data, colWidths=[100, 380])
+    footer_table.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('FONTSIZE', (0,1), (-1,1), 7),
+        ('TEXTCOLOR', (0,1), (-1,1), colors.grey)
+    ]))
+    story.append(footer_table)
 
     # Build PDF
     doc.build(story)
@@ -769,8 +801,9 @@ def _generate_progress_report(request, start_date, end_date):
 
     # Create response
     response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="progress_report_{student.user.username}_{start_date}_{end_date}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="nexus_progress_{student.user.username}_{start_date}.pdf"'
     return response
+
 
 def _generate_attendance_report(request, start_date, end_date):
     """Generate attendance report"""
@@ -790,42 +823,84 @@ def _generate_attendance_report(request, start_date, end_date):
         ).select_related('student', 'class_attended').order_by('date', 'student__user__last_name')
         title = f"Class Attendance Report - {start_date} to {end_date}"
 
-    # Generate PDF
+    # Generate Premium PDF
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
     styles = getSampleStyleSheet()
+    
+    # Custom Premium Styles
+    styles.add(ParagraphStyle(name='PremiumTitle', fontSize=24, fontName='Helvetica-Bold', alignment=1, spaceAfter=2, textColor=colors.HexColor('#0F172A')))
+    styles.add(ParagraphStyle(name='PremiumSub', fontSize=10, fontName='Helvetica-Bold', alignment=1, spaceAfter=20, textColor=colors.HexColor('#64748B')))
+    styles.add(ParagraphStyle(name='SectionHead', fontSize=14, fontName='Helvetica-Bold', spaceBefore=20, spaceAfter=10, textColor=colors.HexColor('#1E293B'), borderPadding=5, leftIndent=0))
+    styles.add(ParagraphStyle(name='MetricLabel', fontSize=9, fontName='Helvetica-Bold', textColor=colors.HexColor('#10B981')))
+    styles.add(ParagraphStyle(name='MetricVal', fontSize=18, fontName='Helvetica-Bold', textColor=colors.HexColor('#0F172A')))
+
     story = []
 
-    # Title
-    title_para = Paragraph(title, styles['Title'])
-    story.append(title_para)
-    story.append(Spacer(1, 12))
+    # 1. Institutional Header
+    config = get_institutional_metadata()
+    story.append(Paragraph(config.name.upper(), styles['PremiumTitle']))
+    story.append(Paragraph("OFFICIAL ATTENDANCE & PRESENCE PROTOCOL", styles['PremiumSub']))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#10B981'), spaceAfter=20))
 
-    # Attendance data
+    # 2. Scope Matrix
+    scope_text = "CLASS-WIDE AUDIT" if request.user.role != 'student' else "INDIVIDUAL PRESENCE"
+    id_data = [
+        [Paragraph("PROTOCOL SCOPE", styles['MetricLabel']), Paragraph("AUDIT WINDOW", styles['MetricLabel'])],
+        [Paragraph(scope_text, styles['MetricVal']), Paragraph(f"{start_date} → {end_date}", styles['MetricVal'])]
+    ]
+    id_table = Table(id_data, colWidths=[240, 240])
+    id_table.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'TOP'), ('BOTTOMPADDING', (0,0), (-1,-1), 10)]))
+    story.append(id_table)
+    story.append(Spacer(1, 20))
+
+    # 3. Attendance Matrix
+    story.append(Paragraph("I. PRESENCE LOGS", styles['SectionHead']))
     if attendance.exists():
-        data = [['Date', 'Student', 'Class', 'Status']]
+        data = [['DATE', 'STUDENT ENTITY', 'SECTOR', 'STATUS']]
         for record in attendance:
+            student_name = record.student.user.get_full_name() if hasattr(record, 'student') else "N/A"
+            class_name = record.class_attended.name if hasattr(record, 'class_attended') else "N/A"
             data.append([
                 record.date.strftime('%Y-%m-%d'),
-                record.student.user.get_full_name(),
-                record.class_attended.name,
-                record.status.title()
+                student_name.upper(),
+                class_name.upper(),
+                record.status.title().upper()
             ])
 
-        table = Table(data)
+        table = Table(data, colWidths=[100, 180, 100, 100])
         table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0F172A')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 14),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('TOPPADDING', (0, 0), (-1, 0), 12),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F8FAFC')]),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
         ]))
         story.append(table)
     else:
-        story.append(Paragraph("No attendance records found for this period.", styles['Normal']))
+        story.append(Paragraph("No presence signals detected during this temporal window.", styles['Normal']))
+
+    # 4. Certification Footer
+    story.append(Spacer(1, 60))
+    story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor('#CBD5E1')))
+    story.append(Spacer(1, 10))
+    
+    footer_data = [
+        [draw_institutional_seal(), "CERTIFIED PRESENCE LOG GENERATED VIA NEXUS PROTOCOL"],
+        ["", f"TIMESTAMP: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"]
+    ]
+    footer_table = Table(footer_data, colWidths=[100, 380])
+    footer_table.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('FONTSIZE', (0,1), (-1,1), 7),
+        ('TEXTCOLOR', (0,1), (-1,1), colors.grey)
+    ]))
+    story.append(footer_table)
 
     # Build PDF
     doc.build(story)
@@ -833,9 +908,10 @@ def _generate_attendance_report(request, start_date, end_date):
 
     # Create response
     response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
-    filename = f"attendance_report_{start_date}_{end_date}.pdf"
+    filename = f"nexus_attendance_{start_date}.pdf"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
 
 @login_required
 def generate_report_card(request, student_id):
@@ -1003,70 +1079,117 @@ def _generate_performance_report(request, start_date, end_date):
         performance_data = _calculate_student_performance(student)
         predictions = _generate_grade_predictions(student)
 
-        # Generate PDF
+        # Generate Premium PDF
         buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
         styles = getSampleStyleSheet()
+        
+        # Custom Premium Styles
+        styles.add(ParagraphStyle(name='PremiumTitle', fontSize=24, fontName='Helvetica-Bold', alignment=1, spaceAfter=2, textColor=colors.HexColor('#0F172A')))
+        styles.add(ParagraphStyle(name='PremiumSub', fontSize=10, fontName='Helvetica-Bold', alignment=1, spaceAfter=20, textColor=colors.HexColor('#64748B')))
+        styles.add(ParagraphStyle(name='SectionHead', fontSize=14, fontName='Helvetica-Bold', spaceBefore=20, spaceAfter=10, textColor=colors.HexColor('#1E293B'), borderPadding=5, leftIndent=0))
+        styles.add(ParagraphStyle(name='MetricLabel', fontSize=9, fontName='Helvetica-Bold', textColor=colors.HexColor('#4361EE')))
+        styles.add(ParagraphStyle(name='MetricVal', fontSize=18, fontName='Helvetica-Bold', textColor=colors.HexColor('#0F172A')))
+
         story = []
 
-        # Title
-        title = Paragraph(f"Performance Analysis - {student.user.get_full_name()}", styles['Title'])
-        story.append(title)
-        story.append(Spacer(1, 12))
+        # 1. Institutional Header
+        config = get_institutional_metadata()
+        story.append(Paragraph(config.name.upper(), styles['PremiumTitle']))
+        story.append(Paragraph("STRATEGIC PERFORMANCE ANALYSIS PROTOCOL", styles['PremiumSub']))
+        story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#4361EE'), spaceAfter=20))
 
-        # Overall Performance
-        story.append(Paragraph("Overall Performance", styles['Heading2']))
-        overall_text = f"GPA: {performance_data['gpa']:.2f}, Overall Percentage: {performance_data['overall_percentage']:.1f}%"
-        story.append(Paragraph(overall_text, styles['Normal']))
-        story.append(Spacer(1, 12))
+        # 2. Performance Matrix
+        id_data = [
+            [Paragraph("STUDENT IDENTITY", styles['MetricLabel']), Paragraph("ANALYSIS WINDOW", styles['MetricLabel'])],
+            [Paragraph(student.user.get_full_name(), styles['MetricVal']), Paragraph(f"{start_date} → {end_date}", styles['MetricVal'])]
+        ]
+        id_table = Table(id_data, colWidths=[240, 240])
+        id_table.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'TOP'), ('BOTTOMPADDING', (0,0), (-1,-1), 10)]))
+        story.append(id_table)
+        story.append(Spacer(1, 20))
 
-        # Subject Performance
-        story.append(Paragraph("Subject-wise Performance", styles['Heading2']))
+        # 3. GPA Dynamics
+        story.append(Paragraph("I. ACADEMIC VELOCITY (GPA)", styles['SectionHead']))
+        gpa_data = [
+            [Paragraph("CURRENT GPA", styles['MetricLabel']), Paragraph("OVERALL MASTERY", styles['MetricLabel'])],
+            [Paragraph(f"{performance_data['gpa']:.2f}", styles['MetricVal']), Paragraph(f"{performance_data['overall_percentage']:.1f}%", styles['MetricVal'])]
+        ]
+        gpa_table = Table(gpa_data, colWidths=[240, 240])
+        gpa_table.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'TOP')]))
+        story.append(gpa_table)
+        story.append(Spacer(1, 15))
+
+        # 4. Subject Analytics Matrix
+        story.append(Paragraph("II. CURRICULAR PERFORMANCE CLUSTERS", styles['SectionHead']))
         if performance_data['subject_performance']:
-            data = [['Subject', 'Average Score', 'Grade Points']]
+            data = [['DOMAIN CLUSTER', 'AVERAGE SCORE', 'GRADE POINTS', 'STATUS']]
             for subj in performance_data['subject_performance']:
+                gp = subj['grade_points']
+                status = "EXCELLENT" if gp >= 3.5 else "PROFICIENT" if gp >= 3.0 else "DEVELOPING" if gp >= 2.0 else "CRITICAL"
                 data.append([
-                    subj['subject'].name,
+                    subj['subject'].name.upper(),
                     f"{subj['average_score']:.1f}",
-                    f"{subj['grade_points']:.2f}"
+                    f"{gp:.2f}",
+                    status
                 ])
 
-            table = Table(data)
+            table = Table(data, colWidths=[180, 100, 100, 100])
             table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0F172A')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F8FAFC')]),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+                ('FONTSIZE', (0, 1), (-1, -1), 8),
             ]))
             story.append(table)
-        story.append(Spacer(1, 12))
+        
+        story.append(Spacer(1, 25))
 
-        # Predictions
-        story.append(Paragraph("Grade Predictions", styles['Heading2']))
+        # 5. Strategic Grade Predictions
+        story.append(Paragraph("III. PREDICTIVE OUTCOME ANALYSIS", styles['SectionHead']))
         if predictions:
-            data = [['Subject', 'Current Average', 'Predicted Score', 'Confidence']]
+            data = [['SUBJECT PROTOCOL', 'CURR. AVG', 'PREDICTED', 'CONFIDENCE']]
             for pred in predictions:
                 data.append([
-                    pred['subject'].name,
-                    f"{pred['current_average']:.1f}",
-                    f"{pred['predicted_score']:.1f}",
+                    pred['subject'].name.upper(),
+                    f"{pred['current_average']:.1f}%",
+                    f"{pred['predicted_score']:.1f}%",
                     f"{pred['confidence']:.1%}"
                 ])
 
-            table = Table(data)
+            table = Table(data, colWidths=[180, 100, 100, 100])
             table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#4361EE')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F8FAFC')]),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+                ('FONTSIZE', (0, 1), (-1, -1), 8),
             ]))
             story.append(table)
+
+        # 6. Certification Footer
+        story.append(Spacer(1, 60))
+        story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor('#CBD5E1')))
+        story.append(Spacer(1, 10))
+        
+        footer_data = [
+            [draw_institutional_seal(), "CERTIFIED ANALYTICS PROTOCOL GENERATED VIA NEXUS PROTOCOL"],
+            ["", f"TIMESTAMP: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"]
+        ]
+        footer_table = Table(footer_data, colWidths=[100, 380])
+        footer_table.setStyle(TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('FONTSIZE', (0,1), (-1,1), 7),
+            ('TEXTCOLOR', (0,1), (-1,1), colors.grey)
+        ]))
+        story.append(footer_table)
 
         # Build PDF
         doc.build(story)
@@ -1074,8 +1197,9 @@ def _generate_performance_report(request, start_date, end_date):
 
         # Create response
         response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="performance_report_{student.user.username}_{start_date}_{end_date}.pdf"'
+        response['Content-Disposition'] = f'attachment; filename="nexus_performance_{student.user.username}.pdf"'
         return response
+
 
     # For teachers/admins, generate class performance report
     return _generate_class_performance_report(request, start_date, end_date)

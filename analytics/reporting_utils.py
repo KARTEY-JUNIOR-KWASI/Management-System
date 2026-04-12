@@ -41,19 +41,19 @@ def get_student_class_rank(student, academic_year=None):
     return None, total_peers
 
 def draw_institutional_seal():
-    """Generates a vector-based institutional seal for PDF embedding."""
+    """Generates a premium vector-based institutional seal for PDF embedding."""
     d = Drawing(100, 100)
-    # Background Outer Circle
-    d.add(Circle(50, 50, 45, fillColor=colors.HexColor('#1E293B'), strokeColor=colors.HexColor('#F1F5F9'), strokeWidth=2))
-    # Inner Circle
-    d.add(Circle(50, 50, 40, fillColor=None, strokeColor=colors.white, strokeWidth=1))
-    # Text placeholder
-    d.add(String(50, 48, "OFFICIAL", fontName="Helvetica-Bold", fontSize=8, textAnchor="middle", fillColor=colors.white))
-    d.add(String(50, 38, "SEAL", fontName="Helvetica", fontSize=6, textAnchor="middle", fillColor=colors.white))
+    # Background Outer Circle - Deep Navy
+    d.add(Circle(50, 50, 45, fillColor=colors.HexColor('#0F172A'), strokeColor=colors.HexColor('#4361EE'), strokeWidth=3))
+    # Inner Decorative Circle - Light Border
+    d.add(Circle(50, 50, 40, fillColor=None, strokeColor=colors.rgba(255,255,255,0.3), strokeWidth=1))
+    # Text placeholder - Gold/White
+    d.add(String(50, 48, "INSTITUTIONAL", fontName="Helvetica-Bold", fontSize=6, textAnchor="middle", fillColor=colors.white))
+    d.add(String(50, 38, "CERTIFIED", fontName="Helvetica-Bold", fontSize=8, textAnchor="middle", fillColor=colors.HexColor('#F59E0B')))
     return d
 
 def draw_performance_chart(performance_data):
-    """Generates a small bar chart for the report card."""
+    """Generates a premium bar chart for the report card with curated colors."""
     d = Drawing(400, 150)
     bc = VerticalBarChart()
     bc.x = 50
@@ -63,19 +63,26 @@ def draw_performance_chart(performance_data):
     
     data = [[float(p['percentage'].strip('%')) for p in performance_data]]
     bc.data = data
-    bc.strokeColor = colors.white
+    bc.strokeColor = colors.HexColor('#E2E8F0')
     bc.valueAxis.valueMin = 0
     bc.valueAxis.valueMax = 100
     bc.valueAxis.valueStep = 20
+    bc.valueAxis.labels.fontSize = 8
+    
     bc.categoryAxis.labels.boxAnchor = 'ne'
     bc.categoryAxis.labels.dx = 8
     bc.categoryAxis.labels.dy = -2
     bc.categoryAxis.labels.angle = 30
-    bc.categoryAxis.categoryNames = [p['subject'][:10] for p in performance_data]
-    bc.bars[0].fillColor = colors.HexColor('#4361ee')
+    bc.categoryAxis.labels.fontSize = 8
+    bc.categoryAxis.categoryNames = [p['subject'][:12] for p in performance_data]
+    
+    # Custom colored bars based on high-contrast palette
+    bc.bars[0].fillColor = colors.HexColor('#4361EE') # Primary Blue
+    bc.bars.strokeWidth = 0 # No borders for cleaner look
     
     d.add(bc)
     return d
+
 
 def get_institutional_metadata():
     """Retrieves school config for report headers."""

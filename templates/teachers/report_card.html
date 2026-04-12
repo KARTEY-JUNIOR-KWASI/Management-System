@@ -48,96 +48,120 @@
             border: 1px solid rgba(255,255,255,1);
         }
 
+        /* ── Premium Watermark ────────────────── */
+        .transcript-container::before {
+            content: "OFFICIAL TRANSCRIPT";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 8rem;
+            font-weight: 900;
+            color: rgba(67, 97, 238, 0.03);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
+        }
+
         /* ── Security Ribbon Header ────────────────── */
         .header-ribbon {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
             color: white;
-            padding: 60px 50px;
+            padding: 70px 60px;
             position: relative;
             overflow: hidden;
+            border-bottom: 4px solid var(--p-nexus-primary);
         }
 
         .header-ribbon::after {
             content: "";
             position: absolute;
             top: 0; right: 0;
-            width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(67, 97, 238, 0.2) 0%, transparent 70%);
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(67, 97, 238, 0.15) 0%, transparent 70%);
             z-index: 0;
         }
 
-        .header-main { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-start; }
+        .header-main { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; }
 
-        .brand-block { display: flex; align-items: center; gap: 20px; }
+        .brand-block { display: flex; align-items: center; gap: 24px; }
         .logo-wrap {
-            width: 70px; height: 70px; 
+            width: 80px; height: 80px; 
             background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px;
+            border-radius: 24px;
             display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
-        .school-info h1 { font-size: 2.2rem; font-weight: 900; letter-spacing: -2px; line-height: 1; }
+        .school-info h1 { font-size: 2.6rem; font-weight: 900; letter-spacing: -2px; line-height: 0.9; }
         .school-info h1 span { color: var(--p-nexus-primary); }
-        .school-info p { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.4); margin-top: 5px; }
+        .school-info p { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: rgba(255,255,255,0.5); margin-top: 8px; }
 
         .protocol-meta { text-align: right; }
-        .protocol-label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.4); }
-        .protocol-id { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: var(--p-nexus-primary); margin-top: 4px; }
+        .protocol-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.4); }
+        .protocol-id { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: var(--p-nexus-primary); margin-top: 6px; }
 
         /* ── Profile Grid ─────────────────────────── */
         .profile-strip {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 40px;
-            padding: 40px 50px;
-            background: linear-gradient(to bottom, #ffffff, #f8fafc);
+            grid-template-columns: 2fr 1.2fr 1fr;
+            gap: 50px;
+            padding: 50px 60px;
+            background: #fff;
             border-bottom: 1px solid var(--p-nexus-border);
+            position: relative;
+            z-index: 1;
         }
 
-        .info-cell .label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.2px; color: var(--p-nexus-muted); margin-bottom: 8px; display: block; }
-        .info-cell .value { font-size: 18px; font-weight: 800; color: var(--p-nexus-dark); letter-spacing: -0.5px; }
-        .info-cell .sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--p-nexus-primary); margin-top: 2px; display: block; }
+        .info-cell .label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: var(--p-nexus-muted); margin-bottom: 10px; display: block; }
+        .info-cell .value { font-size: 22px; font-weight: 900; color: var(--p-nexus-dark); letter-spacing: -0.8px; line-height: 1.1; }
+        .info-cell .sub { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--p-nexus-primary); margin-top: 4px; display: block; }
 
         /* ── Strategic Summary ────────────────── */
         .strategic-summary {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 24px;
-            padding: 30px 50px;
+            padding: 40px 60px;
+            position: relative;
+            z-index: 1;
         }
 
         .summary-node {
-            background: white;
+            background: #fff;
             border: 1px solid var(--p-nexus-border);
-            border-radius: 24px;
-            padding: 24px;
+            border-radius: 28px;
+            padding: 28px;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
         }
 
         .node-icon { 
-            width: 40px; height: 40px; border-radius: 12px; 
+            width: 44px; height: 44px; border-radius: 14px; 
             display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
         .node-icon.primary { background: rgba(67, 97, 238, 0.1); color: var(--p-nexus-primary); }
         .node-icon.success { background: rgba(16, 185, 129, 0.1); color: var(--p-nexus-success); }
         .node-icon.warning { background: rgba(245, 158, 11, 0.1); color: var(--p-nexus-warning); }
 
-        .node-val { font-size: 32px; font-weight: 900; letter-spacing: -2px; line-height: 1; }
-        .node-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--p-nexus-muted); margin-top: 4px; }
+        .node-val { font-size: 36px; font-weight: 900; letter-spacing: -2px; line-height: 1; color: var(--p-nexus-dark); }
+        .node-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--p-nexus-muted); margin-top: 6px; }
 
         /* ── Performance Matrix (Table) ─────────── */
-        .matrix-section { padding: 20px 50px 40px; }
+        .matrix-section { padding: 20px 60px 50px; position: relative; z-index: 1; }
         .matrix-header { 
-            display: flex; align-items: center; gap: 12px; margin-bottom: 24px; 
-            font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+            display: flex; align-items: center; gap: 16px; margin-bottom: 24px; 
+            font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 2.5px;
+            color: var(--p-nexus-dark);
         }
-        .matrix-header::after { content: ""; flex: 1; height: 1px; background: var(--p-nexus-border); }
+        .matrix-header::after { content: ""; flex: 1; height: 2px; background: linear-gradient(to right, var(--p-nexus-border), transparent); }
 
-        .nexus-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; margin-top: -10px; }
+        .nexus-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; margin-top: -12px; }
+
         .nexus-table th { 
             padding: 10px 20px; text-align: left; font-size: 9px; font-weight: 900; 
             text-transform: uppercase; letter-spacing: 1.5px; color: var(--p-nexus-muted);
