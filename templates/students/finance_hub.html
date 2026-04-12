@@ -44,26 +44,44 @@
 
     <!-- Financial Pulse Indicators -->
     <div class="row g-4 finance-stats animate-fade-up delay-1">
-        <div class="col-lg-4">
-            <div class="balance-card p-5 shadow-xl h-100">
-                <div class="relative z-10">
-                    <p class="extra-small fw-800 text-uppercase tracking-widest opacity-70 mb-2">Operational Balance</p>
-                    <h2 class="display-5 fw-900 mb-0">GH₵ {{ balance|floatformat:2 }}</h2>
-                    <div class="mt-4 pt-4 border-top border-white border-opacity-10 d-flex justify-content-between">
-                        <div>
-                            <span class="extra-small opacity-60 d-block uppercase font-bold">Total Invoiced</span>
-                            <span class="fw-800">GH₵ {{ total_invoiced|floatformat:2 }}</span>
+        <div class="col-lg-5">
+            <div class="balance-card p-5 shadow-xl h-100 flex flex-col justify-center relative overflow-hidden">
+                <div class="relative z-10 d-flex align-items-center justify-content-between gap-4">
+                    <div class="flex-grow-1">
+                        <p class="extra-small fw-800 text-uppercase tracking-widest opacity-70 mb-2">Operational Balance</p>
+                        <h2 class="display-6 fw-900 mb-0">GH₵ {{ balance|floatformat:2 }}</h2>
+                        <div class="mt-4 pt-4 border-top border-white border-opacity-10 d-flex gap-4">
+                            <div>
+                                <span class="extra-small opacity-60 d-block uppercase font-bold">Invoiced</span>
+                                <span class="small fw-800">GH₵ {{ total_invoiced|floatformat:0 }}</span>
+                            </div>
+                            <div>
+                                <span class="extra-small opacity-60 d-block uppercase font-bold">Settled</span>
+                                <span class="small fw-800">GH₵ {{ total_paid|floatformat:0 }}</span>
+                            </div>
                         </div>
-                        <div class="text-end">
-                            <span class="extra-small opacity-60 d-block uppercase font-bold">Total Settled</span>
-                            <span class="fw-800">GH₵ {{ total_paid|floatformat:2 }}</span>
+                    </div>
+
+                    <!-- SVG Progress Ring -->
+                    <div class="flex-shrink-0 relative w-32 h-32 d-flex align-items-center justify-content-center">
+                        <svg class="w-full h-full transform -rotate-90">
+                            <circle cx="64" cy="64" r="56" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="transparent" />
+                            <circle cx="64" cy="64" r="56" stroke="white" stroke-width="12" fill="transparent" 
+                                stroke-dasharray="351.85" 
+                                stroke-dashoffset="351.85" 
+                                class="transition-all duration-1000 ease-out settlement-ring-path" 
+                                stroke-linecap="round" />
+                        </svg>
+                        <div class="absolute inset-0 d-flex flex-col align-items-center justify-content-center">
+                            <span class="text-xl font-black">{{ settlement_rate|floatformat:0 }}%</span>
+                            <span class="extra-small opacity-60 font-black uppercase tracking-tighter">PAID</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-lg-8">
+        <div class="col-lg-7">
             <div class="row g-4 h-100">
                 <div class="col-md-6">
                     <div class="nexus-glass-card p-5 h-100 border-0 flex flex-col justify-center">
@@ -165,4 +183,19 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const rate = {{ settlement_rate|default:0 }};
+        const circumference = 2 * Math.PI * 56; // r=56
+        const offset = circumference - (rate / 100 * circumference);
+        
+        const ring = document.querySelector('.settlement-ring-path');
+        if (ring) {
+            setTimeout(() => {
+                ring.style.strokeDashoffset = offset;
+            }, 300);
+        }
+    });
+</script>
 {% endblock %}

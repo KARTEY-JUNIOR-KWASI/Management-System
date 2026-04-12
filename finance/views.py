@@ -285,6 +285,9 @@ def student_finance_hub(request):
     total_paid = payments.aggregate(Sum("amount_paid"))["amount_paid__sum"] or Decimal("0.00")
     balance = total_invoiced - total_paid
     
+    # Calculate visual settlement progress
+    settlement_rate = (total_paid / total_invoiced * 100) if total_invoiced > 0 else 0
+    
     context = {
         "student": student,
         "invoices": invoices,
@@ -292,6 +295,7 @@ def student_finance_hub(request):
         "total_invoiced": total_invoiced,
         "total_paid": total_paid,
         "balance": balance,
+        "settlement_rate": float(settlement_rate),
     }
     return render(request, "students/finance_hub.html", context)
 
