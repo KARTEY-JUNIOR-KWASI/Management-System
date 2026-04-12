@@ -46,7 +46,7 @@ def draw_institutional_seal():
     # Background Outer Circle - Deep Navy
     d.add(Circle(50, 50, 45, fillColor=colors.HexColor('#0F172A'), strokeColor=colors.HexColor('#4361EE'), strokeWidth=3))
     # Inner Decorative Circle - Light Border
-    d.add(Circle(50, 50, 40, fillColor=None, strokeColor=colors.rgba(255,255,255,0.3), strokeWidth=1))
+    d.add(Circle(50, 50, 40, fillColor=None, strokeColor=colors.HexColor('#475569'), strokeWidth=1))
     # Text placeholder - Gold/White
     d.add(String(50, 48, "INSTITUTIONAL", fontName="Helvetica-Bold", fontSize=6, textAnchor="middle", fillColor=colors.white))
     d.add(String(50, 38, "CERTIFIED", fontName="Helvetica-Bold", fontSize=8, textAnchor="middle", fillColor=colors.HexColor('#F59E0B')))
