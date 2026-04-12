@@ -33,8 +33,15 @@ class TeacherService:
         user.save()
         
         # 2. Initialize Teacher Profile
-        teacher, created = Teacher.objects.get_or_create(user=user)
-        teacher.teacher_id = username
+        teacher, created = Teacher.objects.get_or_create(
+            user=user,
+            defaults={'teacher_id': username}
+        )
+        
+        # Ensure ID is correct if profile already existed without one (legacy safety)
+        if not teacher.teacher_id:
+            teacher.teacher_id = username
+            
         teacher.department = teacher_data.get('department', '')
         teacher.qualification = teacher_data.get('qualification', '')
         teacher.specialization = teacher_data.get('specialization', '')

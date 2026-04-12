@@ -44,8 +44,12 @@ class StudentService:
         )
         
         # 2. Initialize Student Profile
-        student, created = Student.objects.get_or_create(user=user)
-        student.student_id = username
+        student, created = Student.objects.get_or_create(
+            user=user,
+            defaults={'student_id': username}
+        )
+        if not student.student_id:
+            student.student_id = username
         
         # 3. Automated House Assignment (Centralized)
         StudentService.assign_automated_house(student)
