@@ -5,9 +5,8 @@ from datetime import date, timedelta
 from accounts.decorators import student_required
 from core.models import Result, Subject, Attendance, Assignment, Submission
 from .models import Student
-from analytics.views import (
-    _calculate_student_performance, _generate_grade_predictions,
-    _generate_progress_report
+from analytics.analytics_engine import (
+    _calculate_student_performance, _generate_grade_predictions
 )
 
 def _get_or_create_student(user):
@@ -21,7 +20,6 @@ def _get_or_create_student(user):
 
 @student_required
 def student_dashboard(request):
-    from analytics.views import _calculate_student_performance, _generate_grade_predictions
     from analytics.models import LearningInsight
     
     student = _get_or_create_student(request.user)
@@ -242,7 +240,5 @@ def download_report_card_pdf(request):
     Standalone view to download the PDF report card.
     Defaults to the last 90 days if no dates specified.
     """
-    end_date = request.GET.get('end_date', date.today().isoformat())
-    start_date = request.GET.get('start_date', (date.today() - timedelta(days=90)).isoformat())
-    
+    from analytics.views import _generate_progress_report
     return _generate_progress_report(request, start_date, end_date)

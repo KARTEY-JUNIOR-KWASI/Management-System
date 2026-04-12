@@ -42,10 +42,11 @@ if DEBUG:
     # 📱 Mobile & Local Access Protocol
     ALLOWED_HOSTS = ['*']
 else:
-    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    # 🛡️ Permissive on Render to prevent Host Header 403s
+    ALLOWED_HOSTS = ['*'] if os.environ.get('RENDER') else os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
+if RENDER_EXTERNAL_HOSTNAME and not os.environ.get('RENDER'):
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # 🛡️ Security Hardening Engine
@@ -169,7 +170,10 @@ DATABASES = {
 
 
 # 🛡️ CSRF & Host Trust Policy
-CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'http://*.onrender.com',
+]
 if RENDER_EXTERNAL_HOSTNAME:
     CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
     CSRF_TRUSTED_ORIGINS.append(f'http://{RENDER_EXTERNAL_HOSTNAME}')

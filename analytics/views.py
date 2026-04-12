@@ -23,6 +23,7 @@ from students.models import Student
 from teachers.models import Teacher
 from core.models import Subject, Class, Result, Attendance, Assignment, Submission
 from accounts.models import User
+from .analytics_engine import _calculate_student_performance, _generate_grade_predictions
 from .reporting_utils import (
     calculate_letter_grade, get_student_class_rank, get_institutional_metadata, 
     draw_institutional_seal, draw_performance_chart
@@ -564,39 +565,8 @@ def _calculate_assignment_stats(teacher):
         'avg_grade': avg_grade,
     }
 
-def _calculate_student_performance(student):
-    """
-    Calculate detailed performance metrics for a student.
-    Optimized with fixed initialization and better querying.
-    """
-    # GPA calculation
-    results = Result.objects.filter(student=student).select_related('subject')
-    if results.exists():
-        total_score = sum(r.score for r in results)
-        max_possible = sum(r.max_score for r in results)
-        overall_percentage = (total_score / max_possible * 100) if max_possible > 0 else 0
-        gpa = min(4.0, overall_percentage / 25)
-    else:
-        gpa = 0
-        overall_percentage = 0
-
-    # Subject-wise performance
-    subject_performance = []  # Fixed: Initialized the list
-    subject_ids = Assignment.objects.filter(class_assigned=student.class_enrolled).values_list('subject_id', flat=True).distinct()
-    subjects = Subject.objects.filter(id__in=subject_ids)
-    
-    for subject in subjects:
-        subject_results = [r for r in results if r.subject_id == subject.id]
-        if subject_results:
-            subject_avg = sum(r.score for r in subject_results) / len(subject_results)
-            subject_performance.append({
-                'subject': {
-                    'id': subject.id,
-                    'name': subject.name
-                },
-                'average_score': float(subject_avg),
-                'grade_points': float(min(4.0, subject_avg / 25)),
-            })
+    # Note: _calculate_student_performance is now imported from analytics_engine.py
+    # to prevent view-level circular dependencies.
 
     # Attendance analysis
     attendance_stats = Attendance.objects.filter(student=student).aggregate(
