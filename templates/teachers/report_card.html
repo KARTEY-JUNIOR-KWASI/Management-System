@@ -200,38 +200,59 @@
         .grade-C { background: rgba(245, 158, 11, 0.1); color: var(--p-nexus-warning); border-color: rgba(245, 158, 11, 0.2); }
         .grade-F { background: rgba(239, 68, 68, 0.1); color: var(--p-nexus-danger); border-color: rgba(239, 68, 68, 0.2); }
 
-        /* ── Evaluation Mark ─────────────────────── */
-        .evaluation-block { 
-            margin: 0 50px 40px; padding: 40px; border-radius: 32px; 
-            background: linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
-            border: 1px solid rgba(67, 97, 238, 0.1);
+        /* ── Evaluation & Remarks Section ─────────── */
+        .teacher-remarks-block {
+            margin: 0 60px 40px;
             position: relative;
+            z-index: 1;
         }
-        .eval-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--p-nexus-muted); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .eval-text { font-size: 17px; font-weight: 600; font-style: italic; color: var(--p-nexus-dark); line-height: 1.6; position: relative; z-index: 1; }
-        .eval-quote { position: absolute; top: 20px; left: 20px; font-size: 80px; font-family: 'JetBrains Mono'; color: rgba(0,0,0,0.03); z-index: 0; line-height: 1; }
+        .remarks-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--p-nexus-dark);
+            margin-bottom: 12px;
+        }
+        .remarks-box {
+            background: var(--p-nexus-bg);
+            border: 1px solid var(--p-nexus-border);
+            border-radius: 20px;
+            padding: 24px 30px;
+            font-size: 14px;
+            font-weight: 500;
+            font-style: italic;
+            color: var(--p-nexus-muted);
+            line-height: 1.6;
+        }
 
-        /* ── Certification & Security ─────────────── */
-        .certification-footer {
-            padding: 50px;
-            background: #fdfdfd;
-            border-top: 1px solid var(--p-nexus-border);
+        /* ── Signature Protocol Footer ─────────────── */
+        .signature-protocol {
+            padding: 40px 60px 80px;
+            position: relative;
+            z-index: 1;
+        }
+        .sig-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 60px;
+            gap: 80px;
+            margin-top: 40px;
         }
-
-        .auth-block { text-align: center; }
-        .auth-seal { width: 100%; height: 2px; background: #e2e8f0; margin-top: 60px; margin-bottom: 12px; position: relative; }
-        .auth-seal::after { 
-            content: "CERTIFIED"; 
-            position: absolute; top: 50%; left: 50%; 
-            transform: translate(-50%, -50%);
-            background: #fff; padding: 0 15px;
-            font-size: 8px; font-weight: 900; letter-spacing: 2px; color: #cbd5e1;
+        .sig-line {
+            border-top: 2px dotted #cbd5e1;
+            padding-top: 12px;
         }
-        .auth-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: var(--p-nexus-muted); }
-        .auth-name { font-size: 14px; font-weight: 900; color: var(--p-nexus-dark); margin-top: 5px; }
+        .sig-label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #94a3b8;
+            display: block;
+        }
 
         /* ── Controls ───────────────────────────── */
         .nexus-controls {
@@ -395,34 +416,31 @@
         </table>
     </section>
 
-    <!-- Institutional Remark Block -->
-    <section class="evaluation-block">
-        <div class="eval-quote">"</div>
-        <div class="eval-title"><i data-lucide="message-square" class="w-3 h-3"></i> Registrar Diagnostic Note</div>
-        <div class="eval-text">
-            {% if overall_avg >= 90 %}
-                Exceptional cognitive mastery demonstrated across all performance vectors. Node exhibits high-sustained academic velocity and protocol excellence.
-            {% elif overall_avg >= 75 %}
-                Proficient integration observed. Standard operative thresholds exceeded. Continued calibration advised to optimize potential peak.
-            {% elif overall_avg >= 50 %}
-                Satisfactory presence identified. Strategic focus required on low-mastery discipline clusters to ensure institutional stability.
-            {% else %}
-                Critical variance detected. Performance streams below threshold. Immediate remedial protocol and diagnostic intervention enforced.
-            {% endif %}
+    <!-- Teacher Remarks Section -->
+    <section class="teacher-remarks-block">
+        <div class="remarks-title"><i data-lucide="message-square" class="w-4 h-4"></i> TEACHER REMARKS</div>
+        <div class="remarks-box text-sm italic py-4 px-6 bg-slate-50 border border-slate-100 rounded-xl text-slate-500">
+            Good performance. Continue working hard to achieve excellence.
         </div>
     </section>
 
-    <!-- Authentication Protocol Footer -->
-    <footer class="certification-footer">
-        <div class="auth-block">
-            <div class="auth-seal"></div>
-            <div class="auth-label">Lead Operational Registrar</div>
-            <div class="auth-name">{{ teacher.user.get_full_name|default:"SYSTEM AUTHENTICATED" }}</div>
-        </div>
-        <div class="auth-block">
-            <div class="auth-seal"></div>
-            <div class="auth-label">Institutional Directorship</div>
-            <div class="auth-name">{{ school_config.school_name|default:"EduMS" }} Protocol Certification</div>
+    <!-- Certification Protocol Footer -->
+    <footer class="signature-protocol">
+        <div class="sig-grid grid grid-cols-2 gap-12 mt-12 pb-8">
+            <div class="sig-unit">
+                <div class="sig-line border-t-2 border-dotted border-slate-300 pt-3">
+                    <span class="sig-label text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        Class Teacher: {{ teacher.user.get_full_name|default:"SYSTEM AUTHENTICATED" }}
+                    </span>
+                </div>
+            </div>
+            <div class="sig-unit">
+                <div class="sig-line border-t-2 border-dotted border-slate-300 pt-3">
+                    <span class="sig-label text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        Principal / Head of School
+                    </span>
+                </div>
+            </div>
         </div>
     </footer>
 </div>

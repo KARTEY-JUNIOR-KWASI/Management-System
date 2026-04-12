@@ -958,6 +958,8 @@ def generate_report_card(request, student_id):
     styles.add(ParagraphStyle(name='SubTitle', fontSize=10, fontName='Helvetica-Bold', alignment=1, textColor=colors.grey))
     styles.add(ParagraphStyle(name='StudentInfo', fontSize=9, fontName='Helvetica', leading=12))
     styles.add(ParagraphStyle(name='SectionHeader', fontSize=12, fontName='Helvetica-Bold', spaceBefore=20, borderPadding=10, backColor=colors.HexColor('#F8FAFC')))
+    styles.add(ParagraphStyle(name='RemarkHead', fontSize=10, fontName='Helvetica-Bold', spaceBefore=15, spaceAfter=5, textColor=colors.HexColor('#0F172A')))
+    styles.add(ParagraphStyle(name='RemarkBox', fontSize=10, fontName='Helvetica-Oblique', leading=14, borderPadding=12, backColor=colors.HexColor('#F8FAFC'), textColor=colors.HexColor('#475569')))
 
     story = []
 
@@ -1010,20 +1012,28 @@ def generate_report_card(request, student_id):
     ]))
     story.append(a_table)
 
-    # 5. Certification Footer
-    story.append(Spacer(1, 60))
-    # Add Seal
-    seal_drawing = draw_institutional_seal()
+    # 4. Teacher Remarks
+    story.append(Paragraph("TEACHER REMARKS", styles['RemarkHead']))
+    remark_text = "Good performance. Continue working hard to achieve excellence."
+    story.append(Paragraph(remark_text, styles['RemarkBox']))
+    
+    story.append(Spacer(1, 40))
+
+    # 5. Dual Signature Protocol (Class Teacher & Principal)
+    teacher_name = student.class_enrolled.class_teacher.get_full_name() if student.class_enrolled and student.class_enrolled.class_teacher else "NOT ASSIGNED"
+    
+    sig_line = "........................................................"
     f_data = [
-        [seal_drawing, '__________________________'],
-        ['HEAD OF INSTITUTION', 'CLASS TEACHER SIGNATURE']
+        [Paragraph(sig_line, styles['Normal']), Paragraph(sig_line, styles['Normal'])],
+        [f"Class Teacher: {teacher_name}", "Principal / Head of School"]
     ]
     f_table = Table(f_data, colWidths=[240, 240])
     f_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'), 
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('FONTSIZE', (0, 1), (-1, -1), 8), 
-        ('TEXTCOLOR', (0, 1), (-1, -1), colors.grey)
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ('TOPPADDING', (0, 1), (-1, 1), 5),
+        ('TEXTCOLOR', (0, 1), (-1, 1), colors.HexColor('#475569'))
     ]))
     story.append(f_table)
 
