@@ -38,12 +38,12 @@
     {% include 'components/action_grid.html' with actions=actions_data %}
   </section>
 
-  <!-- ── Forecast & Objectives ─────────────────────────────── -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6">
+  <!-- ── Forecast & Objectives & Notices ─────────────────────────────── -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-6">
     
     <!-- Component: Mastery Forecast -->
-    <section class="animate-card" style="animation-delay: 0.2s;">
-      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
+    <section class="lg:col-span-1 animate-card" style="animation-delay: 0.2s;">
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 h-full">
         <div class="flex justify-between items-center mb-4">
           <h3 class="font-bold text-gray-800 tracking-tight">Intelligence Forecast</h3>
         </div>
@@ -53,9 +53,16 @@
       </div>
     </section>
 
+    <!-- Component: Institutional Notices (NEW) -->
+    <section class="lg:col-span-1 animate-card" style="animation-delay: 0.25s;">
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 h-full">
+        {% include 'components/notice_board.html' with notices=notices %}
+      </div>
+    </section>
+
     <!-- Component: Critical Objectives -->
-    <section class="animate-card" style="animation-delay: 0.3s;">
-      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+    <section class="lg:col-span-1 animate-card" style="animation-delay: 0.3s;">
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden h-full">
         <div class="p-5 border-b border-gray-50 flex justify-between items-center">
           <h3 class="text-gray-800 font-bold tracking-tight">Active Objectives</h3>
           <a href="{% url 'view_assignments' %}" class="text-[10px] font-bold text-indigo-600 uppercase tracking-widest hover:opacity-70 transition-opacity">Full Vault</a>

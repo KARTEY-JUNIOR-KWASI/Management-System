@@ -62,12 +62,21 @@ def _get_teacher_classes(user):
 @teacher_required
 def teacher_dashboard(request):
     from analytics.views import _calculate_class_performance, _identify_at_risk_students, _calculate_assignment_stats
+    from core.models import NoticeBoard
+    from django.utils import timezone
+    from django.db.models import Q
     
     teacher = _get_or_create_teacher(request.user)
     classes = _get_teacher_classes(request.user)
     recent_assignments = list(Assignment.objects.filter(teacher=request.user).order_by('-created_at')[:5])
 
+    # Institutional Notices
+    notices = list(NoticeBoard.objects.filter(
+        Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
+    ).order_by('-is_pinned', '-created_at')[:5])
+
     # Analytics Data
+    # ... rest of calculations ...
     class_performance = _calculate_class_performance(teacher)
     
     chart_class_performance = [
@@ -105,6 +114,7 @@ def teacher_dashboard(request):
         'total_at_risk': len(my_at_risk),
         'assignment_stats': assignment_stats,
         'actions_data': actions_data,
+        'notices': notices,
     }
     return render(request, 'teachers/dashboard.html', context)
 

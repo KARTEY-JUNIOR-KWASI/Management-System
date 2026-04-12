@@ -21,6 +21,9 @@ def _get_or_create_student(user):
 @student_required
 def student_dashboard(request):
     from analytics.models import LearningInsight
+    from core.models import NoticeBoard
+    from django.utils import timezone
+    from django.db.models import Q
     
     student = _get_or_create_student(request.user)
     
@@ -39,12 +42,17 @@ def student_dashboard(request):
     
     insights = list(LearningInsight.objects.filter(student=student, is_active=True)[:3])
     
+    # Institutional Notices
+    notices = list(NoticeBoard.objects.filter(
+        Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
+    ).order_by('-is_pinned', '-created_at')[:5])
+
     # Upcoming Assignments
     upcoming_assignments = list(Assignment.objects.filter(
         class_assigned=student.class_enrolled,
         due_date__gte=date.today()
     ).order_by('due_date')[:5])
-
+    # ... rest of actions_data ...
     actions_data = [
         {'url': reverse('view_grades'), 'icon': 'bar-chart-3', 'label': 'Grades', 'desc': 'Academic performance', 'icon_bg': 'rgba(79, 70, 229, 0.1)', 'icon_color': '#4f46e5'},
         {'url': reverse('view_attendance'), 'icon': 'scan-line', 'label': 'Attendance', 'desc': 'Presence analytics', 'icon_bg': 'rgba(16, 185, 129, 0.1)', 'icon_color': '#10b981'},
@@ -63,6 +71,7 @@ def student_dashboard(request):
         'insights': insights,
         'upcoming_assignments': upcoming_assignments,
         'actions_data': actions_data,
+        'notices': notices,
     }
     return render(request, 'students/dashboard.html', context)
 

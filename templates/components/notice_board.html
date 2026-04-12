@@ -1,0 +1,79 @@
+<!-- templates/components/notice_board.html -->
+<div class="space-y-4">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h5 class="font-display font-bold text-gray-800 mb-0 d-flex align-items-center gap-2">
+            <i data-lucide="megaphone" class="w-5 h-5 text-indigo-500"></i>
+            Institutional Notices
+        </h5>
+        {% if user.role == 'admin' %}
+        <a href="/admin/core/noticeboard/add/" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-widest">
+            Post New <i data-lucide="plus" class="w-3 h-3 inline ms-1"></i>
+        </a>
+        {% endif %}
+    </div>
+
+    {% if notices %}
+        <div class="space-y-3">
+            {% for notice in notices %}
+                <div class="rounded-3xl p-4 transition-all hover:scale-[1.01] {% if notice.is_pinned %}border-2 border-indigo-400/30 bg-indigo-50/40{% else %}border border-gray-100 bg-white shadow-sm{% endif %} relative overflow-hidden group">
+                    
+                    {% if notice.is_pinned %}
+                        <div class="absolute top-0 right-0 px-3 py-1 bg-indigo-400 text-white text-[9px] font-black uppercase tracking-widest rounded-bl-xl shadow-sm">
+                            Pinned
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex gap-3">
+                        <div class="flex-shrink-0 w-12 h-12 rounded-2xl d-flex align-items-center justify-content-center shadow-sm 
+                            {% if notice.category == 'emergency' %}bg-red-100 text-red-600 border border-red-200 pulsing-border
+                            {% elif notice.category == 'academic' %}bg-indigo-100 text-indigo-600 border border-indigo-200
+                            {% elif notice.category == 'event' %}bg-purple-100 text-purple-600 border border-purple-200
+                            {% elif notice.category == 'sports' %}bg-orange-100 text-orange-600 border border-orange-200
+                            {% else %}bg-blue-100 text-blue-600 border border-blue-200{% endif %}">
+                            
+                            {% if notice.category == 'emergency' %}<i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                            {% elif notice.category == 'academic' %}<i data-lucide="book-open" class="w-6 h-6"></i>
+                            {% elif notice.category == 'event' %}<i data-lucide="calendar" class="w-6 h-6"></i>
+                            {% elif notice.category == 'sports' %}<i data-lucide="trophy" class="w-6 h-6"></i>
+                            {% else %}<i data-lucide="info" class="w-6 h-6"></i>{% endif %}
+                        </div>
+
+                        <div class="flex-grow min-w-0">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="text-[10px] font-bold uppercase tracking-widest 
+                                    {% if notice.category == 'emergency' %}text-red-500
+                                    {% elif notice.category == 'academic' %}text-indigo-500
+                                    {% elif notice.category == 'event' %}text-purple-500
+                                    {% else %}text-blue-500{% endif %}">
+                                    {{ notice.get_category_display }}
+                                </span>
+                                <span class="text-[10px] text-gray-400">•</span>
+                                <span class="text-[10px] text-gray-400 font-medium">{{ notice.created_at|timesince }} ago</span>
+                            </div>
+                            <h6 class="font-bold text-gray-800 mb-1 leading-tight">{{ notice.title }}</h6>
+                            <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-0">{{ notice.content }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-8 border-2 border-dashed border-gray-100 rounded-4xl">
+            <div class="w-16 h-16 bg-gray-50 rounded-full d-flex align-items-center justify-content-center mx-auto mb-3">
+                <i data-lucide="megaphone" class="w-8 h-8 text-gray-200"></i>
+            </div>
+            <p class="text-gray-400 font-bold text-xs uppercase tracking-widest">No active notices</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+        70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .pulsing-border {
+        animation: pulse-red 2s infinite;
+    }
+</style>
