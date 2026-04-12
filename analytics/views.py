@@ -445,7 +445,7 @@ def _calculate_subject_heatmap(teacher):
     Maps [Subject] x [Class] -> Average Percentage.
     """
     from core.models import Result, Class
-    from django.db.models import Avg
+    from django.db.models import Avg, F, ExpressionWrapper, FloatField
     
     # Get relevant entities
     subjects = teacher.subjects.all()
@@ -482,7 +482,9 @@ def _calculate_subject_heatmap(teacher):
                 subject=subject,
                 student__class_enrolled=class_obj,
                 teacher=teacher.user
-            ).extra(select={'ratio': 'score / max_score * 100'}).aggregate(avg=Avg('ratio'))['avg'] or 0
+            ).annotate(
+                ratio=ExpressionWrapper(F('score') * 100.0 / F('max_score'), output_field=FloatField())
+            ).aggregate(avg=Avg('ratio'))['avg'] or 0
 
             row.append(float(normalized_avg))
         heatmap_data['matrix'].append(row)

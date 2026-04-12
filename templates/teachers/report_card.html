@@ -233,10 +233,20 @@
         .ctrl-btn:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 
         @media print {
-            body { background: white; padding: 0; }
-            .transcript-container { box-shadow: none; border-radius: 0; margin: 0; border: none; max-width: 100%; width: 100%; min-height: 100vh; }
-            .nexus-controls { display: none; }
-            .transcript-container { border: none !important; }
+            body { background: white !important; padding: 0 !important; }
+            .transcript-container { 
+                box-shadow: none !important; border: 1px solid #e2e8f0 !important; 
+                border-radius: 0 !important; width: 100% !important; max-width: 100% !important;
+                margin: 0 !important;
+            }
+            .nexus-controls, .no-print { display: none !important; }
+            .header-ribbon { background: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 40px !important; }
+            .header-ribbon::after { display: none !important; }
+            .mastery-track { border: 1px solid #cbd5e1 !important; background: #f8fafc !important; }
+            .mastery-fill { background-color: #4361ee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .matrix-row td { border-top: 1px solid #f1f5f9 !important; border-bottom: 1px solid #f1f5f9 !important; }
+            .matrix-section { padding-top: 0 !important; }
+            .node-icon { border: 1px solid #e2e8f0 !important; background: white !important; }
         }
     </style>
 </head>

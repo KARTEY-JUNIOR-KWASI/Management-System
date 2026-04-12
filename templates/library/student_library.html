@@ -1,183 +1,250 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Academics — Digital Library{% endblock %}
+{% block title %}Nexus Virtual Library — EduMS{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
 <style>
-    .library-header { margin-bottom: 2.5rem; }
-    .type-chip {
-        padding: 0.5rem 1.25rem;
-        border-radius: 50px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--p-transition-smooth);
-        border: 1px solid var(--border-color);
-        background: white;
-        color: var(--text-muted);
-        font-size: 0.8rem;
-        text-decoration: none;
-        display: inline-block;
+    /* ── Nexus Shelf Protocol ────────────────── */
+    .nexus-shelf-container {
+        perspective: 1500px;
+        padding: 4rem 1rem;
+        background: radial-gradient(circle at center, rgba(79, 70, 229, 0.03) 0%, transparent 70%);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
-    .type-chip:hover, .type-chip.active {
-        background: var(--p-primary-hsl);
-        color: white !important;
-        border-color: var(--p-primary-hsl);
-        transform: translateY(-2px);
+
+    .virtual-shelf {
+        position: relative;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        margin-bottom: 6rem;
+        border-radius: 4px;
+        transform: rotateX(25deg);
     }
-    .resource-card {
+
+    .books-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.5rem;
+        padding: 0 2rem;
+        position: relative;
+        z-index: 2;
+        margin-bottom: -5px;
+        min-width: max-content;
+    }
+
+    .nexus-book {
+        width: 140px;
+        height: 200px;
         background: white;
-        border-radius: var(--p-card-radius);
-        overflow: hidden;
-        border: 1px solid var(--border-color);
-        transition: var(--p-transition-smooth);
+        border-radius: 4px 12px 12px 4px;
+        position: relative;
         display: flex;
         flex-direction: column;
+        justify-content: flex-end;
+        padding: 1.25rem;
+        cursor: pointer;
+        transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        transform-origin: bottom center;
+        box-shadow: 
+            -5px 0 15px rgba(0,0,0,0.1),
+            inset 5px 0 10px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.05);
+        text-decoration: none !important;
+    }
+
+    .nexus-book::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: rgba(0,0,0,0.1);
+        box-shadow: 1px 0 2px rgba(255,255,255,0.5);
+    }
+
+    .nexus-book:hover {
+        transform: translateY(-25px) translateZ(50px) rotateY(-10deg);
+        box-shadow: 
+            -15px 20px 40px rgba(0,0,0,0.15),
+            inset 5px 0 10px rgba(0,0,0,0.05);
+        z-index: 10;
+    }
+
+    .book-spine-label {
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(0,0,0,0.4);
+        transform: rotate(-90deg);
+        position: absolute;
+        top: 40px;
+        left: -15px;
+        white-space: nowrap;
+        width: 100px;
+    }
+
+    .book-title {
+        font-size: 12px;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+    }
+
+    .book-source {
+        font-size: 8px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #6366f1;
+    }
+
+    /* ── Standard Resource Cards ─────────────── */
+    .resource-card {
+        background: white;
+        border-radius: 24px;
+        padding: 1.5rem;
+        border: 1px solid rgba(0,0,0,0.04);
+        transition: all 0.4s ease;
         height: 100%;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
     }
     .resource-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 30px rgba(0, 64, 103, 0.08);
-        border-color: var(--p-primary-hsl);
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        border-color: #4f46e5;
     }
-    .res-top-banner { height: 6px; }
-    .res-body { padding: 1.5rem; flex-grow: 1; }
-    .res-footer {
-        padding: 1rem 1.5rem;
-        background: rgba(0, 64, 103, 0.01);
-        border-top: 1px solid var(--border-color);
-    }
-    .res-icon-box {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
+
+    .section-label {
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: #94a3b8;
         display: flex;
         align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
-        color: white;
-        margin-bottom: 1.25rem;
+        gap: 1rem;
+        margin-bottom: 2rem;
     }
+    .section-label::after { content: ''; flex-grow: 1; height: 1px; background: rgba(0,0,0,0.05); }
+
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid main-canvas-area">
+<div class="container-fluid py-4">
     
-    <!-- Hero Banner (Premium Glass) -->
-    <div class="dashboard-header mb-5 animate-fade-up">
-        <div class="p-5 rounded-4 border shadow-sm position-relative overflow-hidden" 
-             style="background: linear-gradient(135deg, rgba(0, 64, 103, 0.05), rgba(0, 163, 255, 0.02)); border-color: rgba(0, 64, 103, 0.1) !important;">
-            <div class="row align-items-center position-relative z-1">
-                <div class="col-lg-8">
-                    <h1 class="fw-bold text-dark mb-3" style="letter-spacing: -1px;">Learning Intelligence Library</h1>
-                    <p class="text-muted mb-0 fs-5">Access a curated ecosystem of knowledge uploaded by your educators. Enhance your mastery with standard-aligned resources.</p>
-                </div>
-                <div class="col-lg-4 text-center text-lg-end mt-4 mt-lg-0">
-                    <div class="d-inline-block p-3 rounded-4 bg-white border shadow-sm">
-                        <div class="h2 fw-bold text-primary mb-0">{{ total }}</div>
-                        <div class="small fw-bold text-muted text-uppercase" style="letter-spacing: 1px;">Live Resources</div>
-                    </div>
-                </div>
+    <!-- Institutional Header -->
+    <div class="mb-10 animate-fade-up">
+        <h1 class="text-4xl font-black text-gray-800 tracking-tighter mb-2">Library Vault</h1>
+        <p class="text-gray-500 font-medium">Accessing synchronized global knowledge and institutional curations.</p>
+    </div>
+
+    <!-- ── Nexus Virtual Shelf ────────────────── -->
+    <div class="mb-16">
+        <div class="section-label">Global Knowledge Base — 3D Shelf View</div>
+        
+        <div class="nexus-shelf-container">
+            <div class="books-row">
+                {% for r in resources %}
+                    {% if r.is_external %}
+                    <a href="{% url 'view_resource' r.pk %}" class="nexus-book group" 
+                       style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
+                        <div class="book-spine-label">Classics Edition</div>
+                        <div class="book-source">{{ r.source_name }}</div>
+                        <div class="book-title">{{ r.title }}</div>
+                        <div class="w-8 h-1 bg-indigo-500 rounded-full mt-2"></div>
+                    </a>
+                    {% endif %}
+                {% endfor %}
             </div>
-            <!-- Decorative circle -->
-            <div class="position-absolute" style="width: 200px; height: 200px; background: rgba(0, 64, 103, 0.03); border-radius: 50%; top: -50px; right: -50px;"></div>
+            <div class="virtual-shelf"></div>
         </div>
     </div>
 
-    <!-- Filters & Navigation -->
-    <div class="row mb-5 animate-fade-up delay-1">
-        <div class="col-12">
-            <div class="premium-table-container py-3">
-                <div class="d-flex flex-column gap-4">
-                    <!-- Type Chips -->
-                    <div class="d-flex gap-2 flex-wrap">
-                        <a href="?" class="type-chip {% if not selected_type %}active{% endif %}">Explore All</a>
-                        {% for key, label in resource_types %}
-                            <a href="?{% if q %}q={{ q }}&{% endif %}{% if selected_subject %}subject={{ selected_subject }}&{% endif %}type={{ key }}"
-                               class="type-chip {% if selected_type == key %}active{% endif %}">{{ label }}</a>
+    <!-- ── Institutional Sync ────────────────── -->
+    <div class="mb-10">
+        <div class="section-label">Institutional Directives</div>
+        
+        <!-- Filters Area -->
+        <div class="bg-gray-50/50 rounded-[32px] p-6 border border-gray-100 mb-8">
+            <form method="get" class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <div class="position-relative">
+                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <input type="text" name="q" value="{{ q }}" placeholder="Search institutional archives..." 
+                               class="w-full bg-white border-0 rounded-2xl py-3.5 pl-12 pr-4 shadow-sm focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-sm">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select name="subject" class="w-full bg-white border-0 rounded-2xl py-3.5 px-4 shadow-sm focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-sm appearance-none">
+                        <option value="">All Disciplines</option>
+                        {% for s in subjects %}
+                            <option value="{{ s.id }}" {% if selected_subject == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>
                         {% endfor %}
-                    </div>
-                    
-                    <!-- Search & Subject Search -->
-                    <!-- Search & Subject Search -->
-                    <form method="get" class="row g-3 align-items-end">
-                        {% if selected_type %}<input type="hidden" name="type" value="{{ selected_type }}">{% endif %}
-                        <div class="col-lg-6">
-                            <div class="position-relative">
-                                <i data-lucide="search" class="position-absolute text-muted w-5 h-5" style="left: 15px; top: 18px;"></i>
-                                <input type="text" name="q" class="form-control ps-5 py-3" 
-                                       placeholder="Searching for a topic, book, or video lecture..." 
-                                       value="{{ q }}" 
-                                       style="border-radius: 12px; background: #f8fafc; border: 1px solid rgba(0,0,0,0.05);">
-                            </div>
-                        </div>
-                        <div class="col-lg-3">
-                            <select name="subject" class="form-select py-3" style="border-radius: 12px; background: #f8fafc; border: 1px solid rgba(0,0,0,0.05);">
-                                <option value="">Institutional Subjects</option>
-                                {% for s in subjects %}
-                                    <option value="{{ s.id }}" {% if selected_subject == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-lg-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary rounded-pill px-4 flex-grow-1 fw-800 extra-small uppercase" style="height: 52px; background: #4f46e5;">Discover</button>
-                            {% if q or selected_subject or selected_type %}
-                                <a href="{% url 'student_library' %}" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" style="border-radius: 12px; width: 52px;"><i data-lucide="x" class="w-5 h-5"></i></a>
-                            {% endif %}
-                        </div>
-                    </form>
+                    </select>
                 </div>
-            </div>
+                <div class="col-md-3">
+                    <button type="submit" class="w-full bg-indigo-600 text-white rounded-2xl py-3.5 font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
+                        Synchronize Hub
+                    </button>
+                </div>
+            </form>
         </div>
-    </div>
 
-    <!-- Resource Grid -->
-    <div class="row g-4 mb-5 animate-fade-up delay-2">
-        {% if resources %}
+        <!-- Grid Area -->
+        <div class="row g-6">
             {% for r in resources %}
-            <div class="col-xl-3 col-lg-4 col-md-6 mb-2">
-                <div class="resource-card">
-                    <div class="res-top-banner" style="background: var(--p-nexus-primary);"></div>
-                    <div class="res-body">
-                        <div class="res-icon-box" style="background: #eef2ff; color: #4f46e5; border: 1px solid #e0e7ff;">
-                            <i data-lucide="{% if r.resource_type == 'video' %}play-circle{% elif r.resource_type == 'link' %}external-link{% else %}file-text{% endif %}" class="w-6 h-6"></i>
+                {% if not r.is_external %}
+                <div class="col-xl-3 col-lg-4 col-md-6 animate-fade-up">
+                    <div class="resource-card group">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                <i data-lucide="{% if r.resource_type == 'video' %}play-circle{% elif r.resource_type == 'link' %}external-link{% else %}file-text{% endif %}" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-[9px] font-black uppercase tracking-widest text-gray-400 bg-gray-50 px-2 py-1 rounded-full">
+                                {{ r.get_resource_type_display }}
+                            </span>
                         </div>
-                        <h6 class="fw-bold text-dark mb-2" style="font-size: 1rem; line-height: 1.4;">{{ r.title }}</h6>
-                        <p class="text-muted small mb-3 line-clamp-2">
-                            {{ r.description|default:"No deep dive specified for this resource." }}
-                        </p>
-                        <div class="d-flex gap-2 flex-wrap mt-auto">
-                            <span class="badge border bg-white text-muted extra-small fw-800 rounded-pill px-2 py-1 uppercase">{{ r.get_resource_type_display }}</span>
-                            {% if r.subject %}
-                                <span class="badge border bg-white text-indigo-600 extra-small fw-800 rounded-pill px-2 py-1 uppercase">{{ r.subject.name }}</span>
-                            {% endif %}
+                        
+                        <h3 class="text-base font-bold text-gray-800 mb-2 leading-tight group-hover:text-indigo-600 transition-colors">{{ r.title }}</h3>
+                        <p class="text-xs text-gray-500 line-clamp-2 mb-6 font-medium">{{ r.description|default:"Institutional knowledge node for academic mastery." }}</p>
+                        
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-50">
+                            <div class="flex items-center gap-3">
+                                <div class="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center text-[8px] font-black text-emerald-600 uppercase">
+                                    {{ r.uploaded_by.role|slice:":1" }}
+                                </div>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{{ r.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <a href="{% url 'view_resource' r.pk %}" class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all">
+                                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                            </a>
                         </div>
-                    </div>
-                    <div class="res-footer d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="small text-muted d-flex align-items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> {{ r.view_count }}</div>
-                            <div class="text-muted opacity-25">|</div>
-                            <div class="small text-muted">{{ r.created_at|date:"M d" }}</div>
-                        </div>
-                        <a href="{% url 'view_resource' r.pk %}" class="btn btn-sm text-indigo-600 fw-800 extra-small uppercase tracking-wider hover:underline">
-                            OPEN <i data-lucide="chevron-right" class="w-3 h-3 inline ms-1"></i>
-                        </a>
                     </div>
                 </div>
-            </div>
+                {% endif %}
+            {% empty %}
+                <div class="col-12 py-20 text-center">
+                    <i data-lucide="package-search" class="w-16 h-16 mx-auto mb-4 text-gray-200"></i>
+                    <p class="text-gray-400 font-bold uppercase tracking-widest text-xs">No institutional directives found</p>
+                </div>
             {% endfor %}
-        {% else %}
-            <div class="col-12 text-center py-5">
-                <div class="nexus-glass-card py-5 border-2 border-dashed border-gray-100">
-                    <i data-lucide="book-open" class="w-16 h-16 mx-auto mb-3 text-gray-100"></i>
-                    <h5 class="text-gray-400 font-bold uppercase tracking-widest small">Knowledge Base Empty</h5>
-                    <p class="text-gray-300 extra-small">No items match your high-level search filters.</p>
-                </div>
-            </div>
-        {% endif %}
+        </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+    });
+</script>
 {% endblock %}

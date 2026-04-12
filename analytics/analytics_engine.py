@@ -33,6 +33,7 @@ def _calculate_student_performance(student):
                     'id': subject.id,
                     'name': subject.name
                 },
+                'subject_obj': subject, # Include actual model instance
                 'average_score': float(subject_avg),
                 'grade_points': float(min(4.0, subject_avg / 25)),
             })
@@ -86,8 +87,8 @@ def _generate_grade_predictions(student):
         predicted = min(100, max(0, current_avg + attendance_impact))
         
         predictions.append({
-            'subject': subject_data['subject']['name'], # Return name for flat dict
-            'subject_obj': subject_data['subject'],
+            'subject_name': subject_data['subject']['name'],
+            'subject': subject_data['subject_obj'],
             'current_average': current_avg,
             'predicted_score': predicted,
             'confidence': 0.85 if performance['attendance_rate'] > 80 else 0.65

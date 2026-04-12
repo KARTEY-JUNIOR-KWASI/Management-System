@@ -1,36 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        .container { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; }
-        .header { text-align: center; color: #1e293b; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
-        .content { margin-top: 20px; color: #334155; line-height: 1.6; }
-        .footer { margin-top: 30px; text-align: center; color: #94a3b8; font-size: 12px; }
-        .badge { background: #3b82f6; color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; }
+        /* ── Base Reset ── */
+        body { margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+        .wrapper { width: 100%; border-collapse: collapse; background-color: #f8fafc; padding: 40px 0; }
+        .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+
+        /* ── Header Protocol ── */
+        .header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; padding: 40px 30px; text-align: center; }
+        .school-info h1 { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -1px; }
+        .school-info span { color: #4361ee; }
+        .protocol-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.4); margin-top: 5px; }
+
+        /* ── Content Strategy ── */
+        .body-content { padding: 40px 30px; }
+        .salutation { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 20px; }
+        .message { font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 30px; }
+
+        .performance-card { background-color: #f1f5f9; border-radius: 20px; padding: 25px; border: 1px solid #e2e8f0; }
+        .card-header { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8; margin-bottom: 15px; }
+        .data-grid { width: 100%; border-collapse: collapse; }
+        .data-grid td { padding: 8px 0; }
+        .label { font-size: 13px; font-weight: 700; color: #1e293b; }
+        .value { text-align: right; font-size: 14px; font-weight: 700; color: #4361ee; }
+
+        .mastery-badge { display: inline-block; padding: 6px 14px; background-color: #4361ee; color: #ffffff; border-radius: 10px; font-weight: 900; font-size: 16px; margin-top: 5px; }
+
+        /* ── Call to Action ── */
+        .cta-container { text-align: center; margin-top: 40px; }
+        .cta-button { display: inline-block; background-color: #0f172a; color: #ffffff; padding: 16px 32px; border-radius: 16px; font-weight: 800; text-decoration: none; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; }
+
+        /* ── Footer ── */
+        .footer { padding: 30px; text-align: center; font-size: 12px; color: #94a3b8; background-color: #fdfdfd; border-top: 1px solid #f1f5f9; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h2>🎓 Academic Alert</h2>
-            <p>Edu Ms Institutional Intelligence</p>
-        </div>
-        <div class="content">
-            <p>Dear Parent/Guardian of <strong>{{ student_name }}</strong>,</p>
-            <p>This is an automated notification from <strong>{{ school_name }}</strong> regarding a new academic result published for your ward.</p>
-            
-            <div style="background: #f8fafc; padding: 15px; border-radius: 6px; margin: 20px 0;">
-                <p><strong>Subject:</strong> {{ subject }}</p>
-                <p><strong>Assessment:</strong> {{ exam_type }}</p>
-                <p><strong>Performance:</strong> <span class="badge">{{ percentage }}</span> ({{ score }})</p>
-            </div>
+    <table class="wrapper" width="100%">
+        <tr>
+            <td align="center">
+                <div class="email-container">
+                    <!-- Header -->
+                    <div class="header">
+                        <div class="school-info">
+                            <h1>{{ school_name|default:"Edu" }}<span>MS</span></h1>
+                            <div class="protocol-label">Institutional Intelligence Alert</div>
+                        </div>
+                    </div>
 
-            <p>You can view the full report card and performance history by logging into the school portal.</p>
-        </div>
-        <div class="footer">
-            <p>&copy; 2026 {{ school_name }}. All rights reserved.</p>
-            <p>This is a system-generated alert. Please do not reply to this email.</p>
-        </div>
-    </div>
+                    <!-- Body -->
+                    <div class="body-content">
+                        <div class="salutation">Academic Update for {{ student_name }}</div>
+                        <div class="message">
+                            This is an automated performance diagnostic from **{{ school_name }}** regarding a recently published assessment. Our tracking protocols have synchronized a new result for your ward.
+                        </div>
+
+                        <!-- Diagnostic Card -->
+                        <div class="performance-card">
+                            <div class="card-header">Diagnostic Record Summary</div>
+                            <table class="data-grid">
+                                <tr>
+                                    <td class="label">Discipline Domain</td>
+                                    <td class="value">{{ subject }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Assessment Class</td>
+                                    <td class="value">{{ exam_type }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Raw Observation</td>
+                                    <td class="value">{{ score }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label" style="padding-top: 20px;">Mastery Curve</td>
+                                    <td class="value" style="padding-top: 20px;">
+                                        <div class="mastery-badge">{{ percentage }}%</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="cta-container">
+                            <a href="#" class="cta-button">Access Strategic Hub</a>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="footer">
+                        <p>&copy; 2026 {{ school_name }}. All Rights Reserved.</p>
+                        <p style="margin-top: 10px;">This is a system-generated protocol notification. Please do not reply directly to this node.</p>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

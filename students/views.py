@@ -33,7 +33,7 @@ def student_dashboard(request):
     
     chart_predictions = [
         {
-            'subject_name': p['subject'].name,
+            'subject_name': p['subject_name'],
             'current_average': float(p['current_average']),
             'predicted_score': float(p['predicted_score'])
         }

@@ -38,6 +38,10 @@ class Resource(models.Model):
         help_text="Leave blank to share with all students"
     )
     view_count = models.PositiveIntegerField(default=0)
+    
+    # Nexus Virtual Library Integration
+    is_external = models.BooleanField(default=False, help_text="Checked for global/free books")
+    source_name = models.CharField(max_length=100, blank=True, default="Institutional")
 
     class Meta:
         ordering = ['-created_at']
