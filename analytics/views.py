@@ -779,8 +779,39 @@ def _generate_progress_report(request, start_date, end_date):
     metric_table.setStyle(TableStyle([('ALIGN', (0,0), (-1,-1), 'LEFT'), ('VALIGN', (0,0), (-1,-1), 'TOP')]))
     story.append(metric_table)
 
-    # 5. Certification Footer
-    story.append(Spacer(1, 60))
+    # 5. Teacher Remarks
+    styles.add(ParagraphStyle(name='RemarkHead', fontSize=10, fontName='Helvetica-Bold', spaceBefore=15, spaceAfter=5, textColor=colors.HexColor('#0F172A')))
+    styles.add(ParagraphStyle(name='RemarkBox', fontSize=10, fontName='Helvetica-Oblique', leading=14, borderPadding=12, backColor=colors.HexColor('#F8FAFC'), textColor=colors.HexColor('#475569')))
+    
+    story.append(Paragraph("TEACHER REMARKS", styles['RemarkHead']))
+    remark_text = "Good performance. Continue working hard to achieve excellence."
+    story.append(Paragraph(remark_text, styles['RemarkBox']))
+    
+    story.append(Spacer(1, 40))
+
+    # 6. Dual Signature Protocol (Class Teacher & Principal)
+    teacher_name = student.class_enrolled.class_teacher.get_full_name() if student.class_enrolled and student.class_enrolled.class_teacher else "NOT ASSIGNED"
+    
+    sig_line = "........................................................"
+    from reportlab.platypus import Table, TableStyle, Paragraph, Spacer, HRFlowable
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    
+    styles = getSampleStyleSheet()
+    f_data = [
+        [Paragraph(sig_line, styles['Normal']), Paragraph(sig_line, styles['Normal'])],
+        [f"Class Teacher: {teacher_name}", "Principal / Head of School"]
+    ]
+    f_table = Table(f_data, colWidths=[240, 240])
+    f_table.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ('TOPPADDING', (0, 1), (-1, 1), 5),
+        ('TEXTCOLOR', (0, 1), (-1, 1), colors.HexColor('#475569'))
+    ]))
+    story.append(f_table)
+
+    story.append(Spacer(1, 40))
     story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor('#CBD5E1')))
     story.append(Spacer(1, 10))
     
