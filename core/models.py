@@ -36,6 +36,13 @@ class AcademicTerm(models.Model):
         if self.is_current:
             # Ensure only one term is 'current'
             AcademicTerm.objects.filter(is_current=True).update(is_current=False)
+            
+            # 🚀 Institutional Sync: Update global SchoolConfiguration
+            from .models import SchoolConfiguration
+            config = SchoolConfiguration.get_config()
+            config.active_term = self
+            config.save()
+            
         super().save(*args, **kwargs)
 
 class Class(models.Model):
