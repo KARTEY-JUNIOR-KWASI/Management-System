@@ -780,13 +780,23 @@ def _generate_progress_report(request, start_date, end_date):
     story.append(metric_table)
 
     # 5. Teacher Remarks
-    styles.add(ParagraphStyle(name='RemarkHead', fontSize=10, fontName='Helvetica-Bold', spaceBefore=15, spaceAfter=5, textColor=colors.HexColor('#0F172A')))
-    styles.add(ParagraphStyle(name='RemarkBox', fontSize=10, fontName='Helvetica-Oblique', leading=14, borderPadding=12, backColor=colors.HexColor('#F8FAFC'), textColor=colors.HexColor('#475569')))
-    
-    story.append(Paragraph("TEACHER REMARKS", styles['RemarkHead']))
+    story.append(Spacer(1, 20))
+    remark_head_style = ParagraphStyle(
+        name='_RemarkHead_tmp',
+        fontSize=10, fontName='Helvetica-Bold',
+        spaceBefore=15, spaceAfter=5,
+        textColor=colors.HexColor('#0F172A')
+    )
+    remark_box_style = ParagraphStyle(
+        name='_RemarkBox_tmp',
+        fontSize=10, fontName='Helvetica-Oblique',
+        leading=14,
+        textColor=colors.HexColor('#475569')
+    )
+    story.append(Paragraph("TEACHER REMARKS", remark_head_style))
     remark_text = "Good performance. Continue working hard to achieve excellence."
-    story.append(Paragraph(remark_text, styles['RemarkBox']))
-    
+    story.append(Paragraph(remark_text, remark_box_style))
+
     story.append(Spacer(1, 40))
 
     # 6. Dual Signature Protocol (Class Teacher & Principal)
