@@ -599,11 +599,22 @@ def student_report_card(request, student_id):
         if subj_name not in subject_results:
             subject_results[subj_name] = {'results': [], 'average': 0}
         pct = (r.score / r.max_score * 100) if r.max_score else 0
+        if pct >= 80:
+            grade_letter = 'A'
+        elif pct >= 70:
+            grade_letter = 'B'
+        elif pct >= 60:
+            grade_letter = 'C'
+        elif pct >= 50:
+            grade_letter = 'D'
+        else:
+            grade_letter = 'F'
         subject_results[subj_name]['results'].append({
             'exam_type': r.get_exam_type_display() if hasattr(r, 'get_exam_type_display') else r.exam_type,
             'score': r.score,
             'max_score': r.max_score,
             'percentage': round(pct, 1),
+            'grade_letter': grade_letter,
         })
 
     # Compute per-subject average

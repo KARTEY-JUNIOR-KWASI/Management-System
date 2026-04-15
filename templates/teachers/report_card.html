@@ -2,461 +2,499 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Protocol: Institutional Transcript — {{ student.user.get_full_name }}</title>
-    <!-- Premium Typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        :root {
-            --p-nexus-primary: #4361ee;
-            --p-nexus-dark: #0f172a;
-            --p-nexus-success: #10b981;
-            --p-nexus-warning: #f59e0b;
-            --p-nexus-danger: #ef4444;
-            --p-nexus-muted: #64748b;
-            --p-nexus-bg: #f8fafc;
-            --p-nexus-border: #e2e8f0;
-            --p-nexus-glass: rgba(255, 255, 255, 0.8);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Card — {{ student.user.get_full_name }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #1e3a5f;
+      --accent:  #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger:  #ef4444;
+      --muted:   #64748b;
+      --border:  #e2e8f0;
+      --bg:      #f8fafc;
+    }
 
-        @page {
-            size: A4;
-            margin: 0;
-        }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #dde3ec;
+      color: #1e293b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
 
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #f1f5f9;
-            color: var(--p-nexus-dark);
-            line-height: 1.6;
-            padding: 40px 0;
-        }
+    .page {
+      max-width: 860px;
+      margin: 2.5rem auto;
+      background: #fff;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+      border-radius: 16px;
+      overflow: hidden;
+    }
 
-        .transcript-container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: #fff;
-            min-height: 1100px;
-            position: relative;
-            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.1);
-            border-radius: 32px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,1);
-        }
+    /* ── Header ─────────────────────────────────────── */
+    .rc-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 2rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        /* ── Premium Watermark ────────────────── */
-        .transcript-container::before {
-            content: "OFFICIAL TRANSCRIPT";
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 8rem;
-            font-weight: 900;
-            color: rgba(67, 97, 238, 0.03);
-            white-space: nowrap;
-            pointer-events: none;
-            z-index: 0;
-        }
+    .rc-brand-title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+    .rc-brand-title span { color: var(--accent); }
 
-        /* ── Security Ribbon Header ────────────────── */
-        .header-ribbon {
-            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-            color: white;
-            padding: 70px 60px;
-            position: relative;
-            overflow: hidden;
-            border-bottom: 4px solid var(--p-nexus-primary);
-        }
+    .rc-brand-sub {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.55);
+      font-weight: 500;
+      margin-top: 3px;
+    }
 
-        .header-ribbon::after {
-            content: "";
-            position: absolute;
-            top: 0; right: 0;
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(67, 97, 238, 0.15) 0%, transparent 70%);
-            z-index: 0;
-        }
+    .rc-year-badge {
+      text-align: right;
+    }
+    .rc-year-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.5);
+      font-weight: 700;
+    }
+    .rc-year-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      background: rgba(255,255,255,0.15);
+      padding: 4px 14px;
+      border-radius: 8px;
+      margin-top: 4px;
+      display: inline-block;
+      letter-spacing: -0.5px;
+    }
 
-        .header-main { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; }
+    /* ── Student Info Grid ─────────────────────────── */
+    .rc-bio {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .rc-bio-cell {
+      padding: 1.4rem 2.5rem;
+      border-right: 1px solid var(--border);
+    }
+    .rc-bio-cell:last-child { border-right: none; }
+    .rc-bio-label {
+      font-size: 0.62rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    .rc-bio-value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
 
-        .brand-block { display: flex; align-items: center; gap: 24px; }
-        .logo-wrap {
-            width: 80px; height: 80px; 
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 24px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
+    /* ── Summary Cards ──────────────────────────────── */
+    .rc-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.2rem;
+      padding: 1.5rem 2.5rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .rc-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      text-align: center;
+    }
+    .rc-card-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .rc-card-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+    .rc-card-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+    .rc-card.grade { border-top: 3px solid var(--primary); }
+    .rc-card.avg   { border-top: 3px solid var(--warning); }
+    .rc-card.att   { border-top: 3px solid var(--success); }
 
-        .school-info h1 { font-size: 2.6rem; font-weight: 900; letter-spacing: -2px; line-height: 0.9; }
-        .school-info h1 span { color: var(--p-nexus-primary); }
-        .school-info p { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: rgba(255,255,255,0.5); margin-top: 8px; }
+    /* ── Academic Results ───────────────────────────── */
+    .rc-results {
+      padding: 1.5rem 2.5rem 2rem;
+    }
+    .rc-section-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .rc-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
 
-        .protocol-meta { text-align: right; }
-        .protocol-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.4); }
-        .protocol-id { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: var(--p-nexus-primary); margin-top: 6px; }
+    .rc-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    .rc-table thead th {
+      background: var(--primary);
+      color: #fff;
+      padding: 11px 14px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      text-align: left;
+    }
+    .rc-table thead th:first-child { border-top-left-radius: 8px; }
+    .rc-table thead th:last-child  { border-top-right-radius: 8px; text-align: center; }
 
-        /* ── Profile Grid ─────────────────────────── */
-        .profile-strip {
-            display: grid;
-            grid-template-columns: 2fr 1.2fr 1fr;
-            gap: 50px;
-            padding: 50px 60px;
-            background: #fff;
-            border-bottom: 1px solid var(--p-nexus-border);
-            position: relative;
-            z-index: 1;
-        }
+    .rc-table tbody tr:nth-child(even) td { background: var(--bg); }
+    .rc-table tbody td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+      background: #fff;
+    }
+    .rc-table tbody tr:last-child td { border-bottom: none; }
 
-        .info-cell .label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: var(--p-nexus-muted); margin-bottom: 10px; display: block; }
-        .info-cell .value { font-size: 22px; font-weight: 900; color: var(--p-nexus-dark); letter-spacing: -0.8px; line-height: 1.1; }
-        .info-cell .sub { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--p-nexus-primary); margin-top: 4px; display: block; }
+    .subject-name { font-weight: 800; color: var(--primary); font-size: 0.92rem; }
 
-        /* ── Strategic Summary ────────────────── */
-        .strategic-summary {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            padding: 40px 60px;
-            position: relative;
-            z-index: 1;
-        }
+    .prog-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .prog-track {
+      flex: 1;
+      height: 7px;
+      background: rgba(0,0,0,0.07);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%;
+      border-radius: 10px;
+    }
+    .fill-success { background: var(--success); }
+    .fill-warning { background: var(--warning); }
+    .fill-danger  { background: var(--danger); }
 
-        .summary-node {
-            background: #fff;
-            border: 1px solid var(--p-nexus-border);
-            border-radius: 28px;
-            padding: 28px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-        }
+    .grade-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 1rem;
+      margin: 0 auto;
+    }
+    .grade-A { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.25); }
+    .grade-B { background: rgba(37,99,235,0.1);  color: var(--accent);  border: 1px solid rgba(37,99,235,0.25); }
+    .grade-C { background: rgba(245,158,11,0.1); color: var(--warning); border: 1px solid rgba(245,158,11,0.25); }
+    .grade-D { background: rgba(245,158,11,0.1); color: #d97706;        border: 1px solid rgba(245,158,11,0.25); }
+    .grade-F { background: rgba(239,68,68,0.1);  color: var(--danger);  border: 1px solid rgba(239,68,68,0.25); }
 
-        .node-icon { 
-            width: 44px; height: 44px; border-radius: 14px; 
-            display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 16px;
-        }
-        .node-icon.primary { background: rgba(67, 97, 238, 0.1); color: var(--p-nexus-primary); }
-        .node-icon.success { background: rgba(16, 185, 129, 0.1); color: var(--p-nexus-success); }
-        .node-icon.warning { background: rgba(245, 158, 11, 0.1); color: var(--p-nexus-warning); }
+    /* avg row */
+    .avg-row td {
+      background: rgba(37,99,235,0.04) !important;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: right;
+      padding: 8px 14px !important;
+      border-bottom: 2px solid var(--border) !important;
+    }
 
-        .node-val { font-size: 36px; font-weight: 900; letter-spacing: -2px; line-height: 1; color: var(--p-nexus-dark); }
-        .node-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--p-nexus-muted); margin-top: 6px; }
+    /* ── Teacher Remarks ────────────────────────────── */
+    .rc-remarks {
+      margin: 0 2.5rem 1.5rem;
+      padding: 1.2rem 1.5rem;
+      background: var(--bg);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+    }
+    .rc-remarks-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rc-remarks-text {
+      font-size: 0.92rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
 
-        /* ── Performance Matrix (Table) ─────────── */
-        .matrix-section { padding: 20px 60px 50px; position: relative; z-index: 1; }
-        .matrix-header { 
-            display: flex; align-items: center; gap: 16px; margin-bottom: 24px; 
-            font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 2.5px;
-            color: var(--p-nexus-dark);
-        }
-        .matrix-header::after { content: ""; flex: 1; height: 2px; background: linear-gradient(to right, var(--p-nexus-border), transparent); }
+    /* ── Signatures ─────────────────────────────────── */
+    .rc-signatures {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      padding: 1.8rem 2.5rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .sign-block { text-align: center; }
+    .sign-line {
+      border-top: 1.5px dashed #cbd5e1;
+      margin-bottom: 10px;
+    }
+    .sign-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+    .sign-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 3px;
+    }
 
-        .nexus-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; margin-top: -12px; }
+    /* ── Print Controls ─────────────────────────────── */
+    .print-controls {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+    }
+    .btn-rc {
+      padding: 11px 26px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
+    .btn-rc:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+    .btn-print { background: var(--accent); color: #fff; }
+    .btn-back  { background: #fff; color: var(--primary); }
 
-        .nexus-table th { 
-            padding: 10px 20px; text-align: left; font-size: 9px; font-weight: 900; 
-            text-transform: uppercase; letter-spacing: 1.5px; color: var(--p-nexus-muted);
-        }
-        .nexus-table td { padding: 20px; background: #f8fafc; vertical-align: middle; transition: background 0.2s; }
-        .nexus-table td:first-child { border-top-left-radius: 16px; border-bottom-left-radius: 16px; border-left: 1px solid var(--p-nexus-border); border-top: 1px solid var(--p-nexus-border); border-bottom: 1px solid var(--p-nexus-border); }
-        .nexus-table td:last-child { border-top-right-radius: 16px; border-bottom-right-radius: 16px; border-right: 1px solid var(--p-nexus-border); border-top: 1px solid var(--p-nexus-border); border-bottom: 1px solid var(--p-nexus-border); text-align: right; }
-        .nexus-table td:not(:first-child):not(:last-child) { border-top: 1px solid var(--p-nexus-border); border-bottom: 1px solid var(--p-nexus-border); }
-
-        .subject-id { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: var(--p-nexus-primary); text-transform: uppercase; margin-bottom: 4px; display: block; }
-        .subject-title { font-size: 15px; font-weight: 800; color: var(--p-nexus-dark); display: block; line-height: 1.2; }
-
-        .score-val { font-size: 16px; font-weight: 900; color: var(--p-nexus-dark); }
-        .score-label { font-size: 10px; font-weight: 700; color: var(--p-nexus-muted); filter: grayscale(1); margin-left: 4px; }
-
-        .mastery-percent { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 13px; color: var(--p-nexus-dark); margin-bottom: 6px; display: block; }
-        .mastery-track { width: 140px; height: 6px; background: rgba(0,0,0,0.05); border-radius: 10px; overflow: hidden; position: relative; }
-        .mastery-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; width: var(--m-width, 0%); }
-        .mastery-high { background-color: var(--p-nexus-success); }
-        .mastery-standard { background-color: var(--p-nexus-primary); }
-        .mastery-critical { background-color: var(--p-nexus-danger); }
-
-        .proto-brand-cell { background: #fff !important; width: 220px; }
-        .assessment-type-meta { font-size: 10px; font-weight: 800; color: var(--p-nexus-muted); text-transform: uppercase; }
-        .null-obs-box { text-align: center; padding: 100px 0; background: #fff; opacity: 0.3; }
-        .null-obs-text { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
-
-        .grade-node { 
-            width: 44px; height: 44px; border-radius: 12px; 
-            display: inline-flex; align-items: center; justify-content: center; 
-            font-size: 18px; font-weight: 900; 
-            border: 2px solid transparent;
-        }
-        .grade-A { background: rgba(16, 185, 129, 0.1); color: var(--p-nexus-success); border-color: rgba(16, 185, 129, 0.2); }
-        .grade-B { background: rgba(67, 97, 238, 0.1); color: var(--p-nexus-primary); border-color: rgba(67, 97, 238, 0.2); }
-        .grade-C { background: rgba(245, 158, 11, 0.1); color: var(--p-nexus-warning); border-color: rgba(245, 158, 11, 0.2); }
-        .grade-F { background: rgba(239, 68, 68, 0.1); color: var(--p-nexus-danger); border-color: rgba(239, 68, 68, 0.2); }
-
-        /* ── Evaluation & Remarks Section ─────────── */
-        .teacher-remarks-block {
-            margin: 0 60px 40px;
-            position: relative;
-            z-index: 1;
-        }
-        .remarks-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 11px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--p-nexus-dark);
-            margin-bottom: 12px;
-        }
-        .remarks-box {
-            background: var(--p-nexus-bg);
-            border: 1px solid var(--p-nexus-border);
-            border-radius: 20px;
-            padding: 24px 30px;
-            font-size: 14px;
-            font-weight: 500;
-            font-style: italic;
-            color: var(--p-nexus-muted);
-            line-height: 1.6;
-        }
-
-        /* ── Signature Protocol Footer ─────────────── */
-        .signature-protocol {
-            padding: 40px 60px 80px;
-            position: relative;
-            z-index: 1;
-        }
-        .sig-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            margin-top: 40px;
-        }
-        .sig-line {
-            border-top: 2px dotted #cbd5e1;
-            padding-top: 12px;
-        }
-        .sig-label {
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #94a3b8;
-            display: block;
-        }
-
-        /* ── Controls ───────────────────────────── */
-        .nexus-controls {
-            position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(20px);
-            padding: 12px 24px;
-            border-radius: 100px;
-            display: flex; gap: 12px;
-            z-index: 100;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
-
-        .ctrl-btn {
-            padding: 10px 24px; border-radius: 50px; font-size: 11px; font-weight: 900;
-            text-transform: uppercase; letter-spacing: 1.5px; border: none; cursor: pointer;
-            display: flex; align-items: center; gap: 10px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-decoration: none;
-        }
-        .ctrl-btn-primary { background: var(--p-nexus-primary); color: white; }
-        .ctrl-btn-outline { background: rgba(255,255,255,0.05); color: #cbd5e1; }
-        .ctrl-btn:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-
-        @media print {
-            body { background: white !important; padding: 0 !important; }
-            .transcript-container { 
-                box-shadow: none !important; border: 1px solid #e2e8f0 !important; 
-                border-radius: 0 !important; width: 100% !important; max-width: 100% !important;
-                margin: 0 !important;
-            }
-            .nexus-controls, .no-print { display: none !important; }
-            .header-ribbon { background: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 40px !important; }
-            .header-ribbon::after { display: none !important; }
-            .mastery-track { border: 1px solid #cbd5e1 !important; background: #f8fafc !important; }
-            .mastery-fill { background-color: #4361ee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .matrix-row td { border-top: 1px solid #f1f5f9 !important; border-bottom: 1px solid #f1f5f9 !important; }
-            .matrix-section { padding-top: 0 !important; }
-            .node-icon { border: 1px solid #e2e8f0 !important; background: white !important; }
-        }
-    </style>
+    /* ── Print Styles ───────────────────────────────── */
+    @media print {
+      body { background: #fff; }
+      .page { margin: 0; border-radius: 0; box-shadow: none; }
+      .print-controls { display: none; }
+      .rc-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .rc-card  { border: 1px solid #e2e8f0 !important; }
+      .rc-table thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .prog-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="transcript-container">
-    <!-- Header Protocol -->
-    <header class="header-ribbon">
-        <div class="header-main">
-            <div class="brand-block">
-                <div class="logo-wrap">
-                    <i data-lucide="graduation-cap" class="w-10 h-10 text-white"></i>
+<div class="page">
+
+  <!-- Header -->
+  <header class="rc-header">
+    <div>
+      <div class="rc-brand-title">Edu<span>MS</span></div>
+      <div class="rc-brand-sub">School Management System — Official Report Card</div>
+    </div>
+    <div class="rc-year-badge">
+      <div class="rc-year-label">Academic Year</div>
+      <div class="rc-year-value">{% if school_config %}{{ school_config.current_academic_year }}{% else %}2025 / 2026{% endif %}</div>
+    </div>
+  </header>
+
+  <!-- Student Info -->
+  <section class="rc-bio">
+    <div class="rc-bio-cell">
+      <div class="rc-bio-label">Student Name</div>
+      <div class="rc-bio-value">{{ student.user.get_full_name|upper }}</div>
+    </div>
+    <div class="rc-bio-cell">
+      <div class="rc-bio-label">Student ID</div>
+      <div class="rc-bio-value">{{ student.student_id }}</div>
+    </div>
+    <div class="rc-bio-cell">
+      <div class="rc-bio-label">Class</div>
+      <div class="rc-bio-value">{{ student.class_enrolled.name|default:"N/A"|upper }}</div>
+    </div>
+    <div class="rc-bio-cell">
+      <div class="rc-bio-label">Enrollment Date</div>
+      <div class="rc-bio-value">{{ student.date_enrolled|date:"F j, Y"|default:"N/A" }}</div>
+    </div>
+    <div class="rc-bio-cell">
+      <div class="rc-bio-label">Class Teacher</div>
+      <div class="rc-bio-value">{{ teacher.user.get_full_name|upper|default:"N/A" }}</div>
+    </div>
+    <div class="rc-bio-cell">
+      <div class="rc-bio-label">Generated On</div>
+      <div class="rc-bio-value">{{ now|date:"d M Y" }}</div>
+    </div>
+  </section>
+
+  <!-- Summary Cards -->
+  <section class="rc-summary">
+    <div class="rc-card grade">
+      <div class="rc-card-label">Overall Grade</div>
+      <div class="rc-card-value">{{ overall_grade }}</div>
+      <div class="rc-card-sub">{{ overall_avg }}% Average</div>
+    </div>
+    <div class="rc-card avg">
+      <div class="rc-card-label">Overall Average</div>
+      <div class="rc-card-value">{{ overall_avg }}%</div>
+      <div class="rc-card-sub">Across all subjects</div>
+    </div>
+    <div class="rc-card att">
+      <div class="rc-card-label">Attendance</div>
+      <div class="rc-card-value">{{ att_pct }}%</div>
+      <div class="rc-card-sub">{{ att_present }} / {{ att_total }} days</div>
+    </div>
+  </section>
+
+  <!-- Academic Results -->
+  <section class="rc-results">
+    <div class="rc-section-title"><i class="fas fa-book-open"></i> Academic Results</div>
+
+    {% if subject_results %}
+    <table class="rc-table">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Exam Type</th>
+          <th>Score</th>
+          <th>Max Score</th>
+          <th>Percentage</th>
+          <th>Grade</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for subj_name, data in subject_results.items %}
+          {% for r in data.results %}
+          <tr>
+            {% if forloop.first %}
+            <td class="subject-name" rowspan="{{ data.results|length }}">{{ subj_name|upper }}</td>
+            {% endif %}
+            <td style="text-transform:capitalize; font-weight:600;">{{ r.exam_type }}</td>
+            <td style="font-weight:800; color:var(--primary);">{{ r.score }}</td>
+            <td style="color:var(--muted);">{{ r.max_score }}</td>
+            <td>
+              <div class="prog-bar-wrap">
+                <div class="prog-track">
+                  <div class="prog-fill {% if r.percentage >= 70 %}fill-success{% elif r.percentage >= 50 %}fill-warning{% else %}fill-danger{% endif %}" style="width:{{ r.percentage }}%;"></div>
                 </div>
-                <div class="school-info">
-                    <h1>{{ school_config.school_name|default:"Edu" }}<span>{{ school_config.short_name|default:"MS" }}</span></h1>
-                    <p>Standardized Academic Certification Protocol</p>
-                </div>
-            </div>
-            <div class="protocol-meta">
-                <div class="protocol-label">Transcript Reference</div>
-                <div class="protocol-id">TR-{{ student.student_id|slice:"4:" }}-{{ now|date:"Ymd" }}</div>
-            </div>
-        </div>
-    </header>
+                <span style="font-weight:700; font-size:0.82rem; min-width:42px;">{{ r.percentage }}%</span>
+              </div>
+            </td>
+            <td style="text-align:center;">
+              {% with gl=r.grade_letter|default:"F" %}
+              <span class="grade-badge grade-{{ gl }}">{{ gl }}</span>
+              {% endwith %}
+            </td>
+          </tr>
+          {% endfor %}
+          <!-- Subject Average Row -->
+          <tr class="avg-row">
+            <td colspan="6">{{ subj_name|upper }} Average &nbsp;&nbsp; <strong style="color:var(--primary); font-size:0.88rem;">{{ data.average }}%</strong></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="text-align:center; padding:3rem 0; opacity:0.4;">
+      <i class="fas fa-database fa-3x" style="margin-bottom:1rem;"></i>
+      <p style="font-weight:700; text-transform:uppercase; font-size:0.75rem; letter-spacing:2px;">No academic results found</p>
+    </div>
+    {% endif %}
+  </section>
 
-    <!-- Entity Diagnostic Identity -->
-    <section class="profile-strip">
-        <div class="info-cell">
-            <span class="label">Authorized Subject Node</span>
-            <span class="value">{{ student.user.get_full_name }}</span>
-            <span class="sub">Node Verification: {{ student.student_id }}</span>
-        </div>
-        <div class="info-cell">
-            <span class="label">Sector Assignment</span>
-            <span class="value">{{ student.class_enrolled.name }}</span>
-            <span class="sub">Curricular Cluster</span>
-        </div>
-        <div class="info-cell">
-            <span class="label">Temporal Window</span>
-            <span class="value">Term {{ active_term.name|default:"A-2026" }}</span>
-            <span class="sub">Active Cycle</span>
-        </div>
-    </section>
+  <!-- Teacher Remarks -->
+  <div class="rc-remarks">
+    <div class="rc-remarks-label"><i class="fas fa-comment-alt"></i> Teacher Remarks</div>
+    <div class="rc-remarks-text">Good performance. Continue working hard to achieve excellence.</div>
+  </div>
 
-    <!-- Global Performance Diagnostics -->
-    <section class="strategic-summary">
-        <div class="summary-node">
-            <div class="node-icon primary"><i data-lucide="activity" class="w-5 h-5"></i></div>
-            <div class="node-val">{{ overall_avg|floatformat:1 }}%</div>
-            <div class="node-label">Global Mastery Index</div>
-        </div>
-        <div class="summary-node">
-            <div class="node-icon success"><i data-lucide="award" class="w-5 h-5"></i></div>
-            <div class="node-val">{{ overall_grade|default:"F" }}</div>
-            <div class="node-label">Tier Rating Result</div>
-        </div>
-        <div class="summary-node">
-            <div class="node-icon warning"><i data-lucide="fingerprint" class="w-5 h-5"></i></div>
-            <div class="node-val">{{ att_pct|floatformat:1 }}%</div>
-            <div class="node-label">Institutional Presence</div>
-        </div>
-    </section>
+  <!-- Signatures -->
+  <footer class="rc-signatures">
+    <div class="sign-block">
+      <div class="sign-line"></div>
+      <div class="sign-label">Class Teacher</div>
+      <div class="sign-name">{{ teacher.user.get_full_name|upper }}</div>
+    </div>
+    <div class="sign-block">
+      <div class="sign-line"></div>
+      <div class="sign-label">Principal / Head of School</div>
+      <div class="sign-name">&nbsp;</div>
+    </div>
+  </footer>
 
-    <!-- Curricular Performance Matrix -->
-    <section class="matrix-section">
-        <div class="matrix-header">
-            <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i> Curricular Diagnostic Matrix
-        </div>
-        
-        <table class="nexus-table">
-            <thead>
-                <tr>
-                    <th>Domain Cluster</th>
-                    <th>Assessment Type</th>
-                    <th>Raw Signal</th>
-                    <th>Mastery Curve</th>
-                    <th>Tier</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for subj_name, data in subject_results.items %}
-                    {% for r in data.results %}
-                    <tr>
-                        {% if forloop.first %}
-                        <td rowspan="{{ data.results|length }}" class="proto-brand-cell">
-                            <span class="subject-id">PROTO-{{ forloop.parentloop.counter|stringformat:"02d" }}</span>
-                            <span class="subject-title">{{ subj_name }}</span>
-                        </td>
-                        {% endif %}
-                        <td>
-                            <span class="assessment-type-meta">{{ r.exam_type }}</span>
-                        </td>
-                        <td>
-                            <span class="score-val">{{ r.score|floatformat:1 }}</span><span class="score-label">/{{ r.max_score|floatformat:0 }}</span>
-                        </td>
-                        <td>
-                            <span class="mastery-percent">{{ r.percentage|floatformat:0 }}%</span>
-                            <div class="mastery-track">
-                                {% with percentage=r.percentage|default:0 %}
-                                <div class="mastery-fill {% if percentage >= 80 %}mastery-high{% elif percentage >= 50 %}mastery-standard{% else %}mastery-critical{% endif %}" 
-                                     style="--m-width: {{ percentage }}%;">
-                                </div>
-                                {% endwith %}
-                            </div>
-                        </td>
-                        <td>
-                            <div class="grade-node grade-{{ r.grade_letter|default:'F' }}">
-                                {{ r.grade_letter|default:"F" }}
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="null-obs-box">
-                        <i data-lucide="database-zap" class="w-16 h-16 mx-auto mb-4"></i>
-                        <p class="null-obs-text">Null Data Stream Detected</p>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </section>
-
-    <!-- Teacher Remarks Section -->
-    <section class="teacher-remarks-block">
-        <div class="remarks-title"><i data-lucide="message-square" class="w-4 h-4"></i> TEACHER REMARKS</div>
-        <div class="remarks-box text-sm italic py-4 px-6 bg-slate-50 border border-slate-100 rounded-xl text-slate-500">
-            Good performance. Continue working hard to achieve excellence.
-        </div>
-    </section>
-
-    <!-- Certification Protocol Footer -->
-    <footer class="signature-protocol">
-        <div class="sig-grid grid grid-cols-2 gap-12 mt-12 pb-8">
-            <div class="sig-unit">
-                <div class="sig-line border-t-2 border-dotted border-slate-300 pt-3">
-                    <span class="sig-label text-xs font-bold text-slate-400 uppercase tracking-widest">
-                        Class Teacher: {{ teacher.user.get_full_name|default:"SYSTEM AUTHENTICATED" }}
-                    </span>
-                </div>
-            </div>
-            <div class="sig-unit">
-                <div class="sig-line border-t-2 border-dotted border-slate-300 pt-3">
-                    <span class="sig-label text-xs font-bold text-slate-400 uppercase tracking-widest">
-                        Principal / Head of School
-                    </span>
-                </div>
-            </div>
-        </div>
-    </footer>
 </div>
 
-<!-- Interaction Terminal Controls -->
-<div class="nexus-controls">
-    <a href="javascript:history.back()" class="ctrl-btn ctrl-btn-outline">
-        <i data-lucide="arrow-left" class="w-4 h-4"></i> Return
-    </a>
-    <button class="ctrl-btn ctrl-btn-primary" onclick="window.print()">
-        <i data-lucide="printer" class="w-4 h-4"></i> Execute Print run
-    </button>
+<!-- Controls -->
+<div class="print-controls">
+  <a href="javascript:history.back()" class="btn-rc btn-back">
+    <i class="fas fa-arrow-left"></i> Return
+  </a>
+  <button class="btn-rc btn-print" onclick="window.print()">
+    <i class="fas fa-print"></i> Print Report Card
+  </button>
 </div>
 
-<script>
-    lucide.createIcons();
-</script>
 </body>
 </html>
