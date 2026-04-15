@@ -79,9 +79,12 @@
             <h1 class="page-title with-sub mb-0">System Orchestration</h1>
             <p class="page-subtitle mb-0">Modulating high-level institutional metadata and identity.</p>
         </div>
-        <div class="d-flex gap-3">
-             <div class="p-badge p-badge-high">
-                <i class="fas fa-microchip me-2"></i> Mode: System Administrator
+        <div class="d-flex flex-wrap gap-2">
+             <a href="{% url 'manage_terms' %}" class="btn btn-primary d-flex align-items-center gap-2 rounded-pill px-4 fw-bold shadow-sm" style="background: var(--p-primary-hsl); border: none;">
+                <i class="fas fa-calendar-alt"></i> Configure Academic Terms
+             </a>
+             <div class="p-badge p-badge-high d-none d-md-flex">
+                <i class="fas fa-microchip me-2"></i> System Administrator
             </div>
         </div>
     </div>

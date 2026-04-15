@@ -25,6 +25,14 @@
     <span class="text-[10px] font-bold">Treasury</span>
   </a>
   
+  {% if user.role == 'admin' %}
+  <a href="{% url 'system_settings' %}" 
+     class="flex flex-col items-center gap-1 p-2 {% if request.resolver_match.url_name == 'system_settings' or request.resolver_match.url_name == 'manage_terms' %}text-indigo-600{% else %}text-gray-400{% endif %}">
+    <i data-lucide="settings" class="w-6 h-6"></i>
+    <span class="text-[10px] font-bold">Settings</span>
+  </a>
+  {% endif %}
+
   <a href="{% url 'profile' %}" 
      class="flex flex-col items-center gap-1 p-2 text-gray-400">
     <i data-lucide="user-circle" class="w-6 h-6"></i>
