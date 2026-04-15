@@ -6,107 +6,150 @@
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
 <style>
-    /* ── Nexus Shelf Protocol ────────────────── */
-    .nexus-shelf-container {
-        perspective: 1500px;
-        padding: 4rem 1rem;
-        background: radial-gradient(circle at center, rgba(79, 70, 229, 0.03) 0%, transparent 70%);
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .virtual-shelf {
+    /* ── Realistic Wood Shelf Widget ────────────────── */
+    .wood-shelf-wrapper {
         position: relative;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-bottom: 2px solid rgba(255, 255, 255, 0.3);
-        border-top: 1px solid rgba(255,255,255,0.1);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-        margin-bottom: 6rem;
-        border-radius: 4px;
-        transform: rotateX(25deg);
+        margin-bottom: 4rem;
+        background: #8b5a2b;
+        background-image: 
+            linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 10%, rgba(0,0,0,0) 90%, rgba(0,0,0,0.6) 100%),
+            url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" result="noise"/><feColorMatrix type="matrix" values="1 0 0 0 0.6  0 0.8 0 0 0.4  0 0 0.8 0 0.2  0 0 0 0.3 0" in="noise"/></filter><rect width="100" height="100" filter="url(%23n)"/></svg>');
+        box-shadow: inset 0 30px 40px rgba(0,0,0,0.5), inset 0 -10px 20px rgba(0,0,0,0.8);
+        border: 10px solid #5c3a21;
+        border-bottom: none;
+        border-radius: 4px 4px 0 0;
+        padding-top: 3rem;
     }
 
-    .books-row {
+    .books-slider {
         display: flex;
         align-items: flex-end;
-        gap: 0.5rem;
-        padding: 0 2rem;
+        gap: 2rem;
+        overflow-x: auto;
+        padding: 0 4rem 10px 4rem;
+        scroll-behavior: smooth;
         position: relative;
         z-index: 2;
-        margin-bottom: -5px;
-        min-width: max-content;
+        /* Hide scrollbar */
+        -ms-overflow-style: none;  
+        scrollbar-width: none;  
+    }
+    .books-slider::-webkit-scrollbar { display: none; }
+
+    .wood-ledge {
+        position: relative;
+        height: 35px;
+        background: #76481c;
+        background-image: linear-gradient(to bottom, #986431 0%, #4a2810 100%);
+        border-top: 5px solid #bd8251;
+        box-shadow: 0 15px 25px rgba(0,0,0,0.6);
+        z-index: 3;
+        margin-bottom: 4rem;
     }
 
-    .nexus-book {
-        width: 140px;
-        height: 200px;
-        background: white;
-        border-radius: 4px 12px 12px 4px;
+    .mag-book {
+        flex: 0 0 160px;
+        height: 230px;
+        border-radius: 2px 7px 7px 2px;
         position: relative;
         display: flex;
         flex-direction: column;
-        justify-content: flex-end;
-        padding: 1.25rem;
+        padding: 1.5rem 1rem;
         cursor: pointer;
-        transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-        transform-origin: bottom center;
-        box-shadow: 
-            -5px 0 15px rgba(0,0,0,0.1),
-            inset 5px 0 10px rgba(0,0,0,0.05);
-        border: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         text-decoration: none !important;
+        overflow: hidden;
+        border-left: 5px solid rgba(255,255,255,0.4);
+        box-shadow: 
+            -10px 5px 20px rgba(0,0,0,0.6), 
+            inset 8px 0 10px rgba(255,255,255,0.2),
+            inset -3px 0 5px rgba(0,0,0,0.1);
+        transform-origin: bottom right;
     }
 
-    .nexus-book::before {
+    .mag-book:before {
         content: '';
         position: absolute;
-        left: 8px;
-        top: 0;
-        bottom: 0;
-        width: 1px;
-        background: rgba(0,0,0,0.1);
-        box-shadow: 1px 0 2px rgba(255,255,255,0.5);
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(115deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.1) 100%);
+        z-index: 1;
+        pointer-events: none;
     }
 
-    .nexus-book:hover {
-        transform: translateY(-25px) translateZ(50px) rotateY(-10deg);
+    .mag-book:hover {
+        transform: translateY(-10px) translateX(-5px) rotate(-2deg);
         box-shadow: 
-            -15px 20px 40px rgba(0,0,0,0.15),
-            inset 5px 0 10px rgba(0,0,0,0.05);
+            -15px 15px 25px rgba(0,0,0,0.7), 
+            inset 8px 0 10px rgba(255,255,255,0.3);
         z-index: 10;
+        border-left: 5px solid rgba(255,255,255,0.6);
     }
 
-    .book-spine-label {
+    .mag-date {
+        position: relative; z-index: 2;
         font-size: 10px;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: rgba(0,0,0,0.4);
-        transform: rotate(-90deg);
-        position: absolute;
-        top: 40px;
-        left: -15px;
-        white-space: nowrap;
-        width: 100px;
-    }
-
-    .book-title {
-        font-size: 12px;
+        color: rgba(255,255,255,0.8);
+        text-align: center;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
         font-weight: 800;
-        color: #1e293b;
-        line-height: 1.2;
-        margin-bottom: 0.5rem;
+        letter-spacing: 1px;
     }
 
-    .book-source {
-        font-size: 8px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #6366f1;
+    .mag-logo {
+        position: relative; z-index: 2;
+        font-size: 22px;
+        font-weight: 900;
+        color: white;
+        text-align: center;
+        letter-spacing: -1.5px;
+        text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+        margin-top: 5px;
     }
+
+    .mag-title {
+        position: relative; z-index: 2;
+        font-size: 19px;
+        font-weight: 900;
+        color: #ffde59;
+        text-align: center;
+        text-transform: uppercase;
+        line-height: 1.1;
+        text-shadow: 3px 3px 5px rgba(0,0,0,0.8);
+        margin-top: auto;
+        margin-bottom: 10px;
+    }
+
+    .mag-desc {
+        position: relative; z-index: 2;
+        font-size: 8px;
+        color: white;
+        text-align: center;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .scroll-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0,0,0,0.5);
+        color: rgba(255,255,255,0.7);
+        border: none;
+        width: 50px;
+        height: 80px;
+        font-size: 30px;
+        z-index: 10;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(2px);
+    }
+    .scroll-arrow:hover { background: rgba(0,0,0,0.8); color: white; }
+    .scroll-left { left: 0; border-radius: 0 40px 40px 0; border-left: none; }
+    .scroll-right { right: 0; border-radius: 40px 0 0 40px; border-right: none; }
 
     /* ── Standard Resource Cards ─────────────── */
     .resource-card {
@@ -148,25 +191,35 @@
         <p class="text-gray-500 font-medium">Accessing synchronized global knowledge and institutional curations.</p>
     </div>
 
-    <!-- ── Nexus Virtual Shelf ────────────────── -->
-    <div class="mb-16">
-        <div class="section-label">Global Knowledge Base — 3D Shelf View</div>
+    <!-- ── Realistic Bookshelf Widget ────────────────── -->
+    <div class="mb-4">
+        <div class="section-label">Global Knowledge Archives</div>
         
-        <div class="nexus-shelf-container">
-            <div class="books-row">
-                {% for r in resources %}
-                    {% if r.is_external %}
-                    <a href="{% url 'view_resource' r.pk %}" class="nexus-book group" 
-                       style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
-                        <div class="book-spine-label">Classics Edition</div>
-                        <div class="book-source">{{ r.source_name }}</div>
-                        <div class="book-title">{{ r.title }}</div>
-                        <div class="w-8 h-1 bg-indigo-500 rounded-full mt-2"></div>
-                    </a>
-                    {% endif %}
-                {% endfor %}
+        <div style="position: relative;">
+            <div class="wood-shelf-wrapper">
+                <button class="scroll-arrow scroll-left" onclick="document.getElementById('books-container').scrollBy(-300, 0)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                
+                <div class="books-slider" id="books-container">
+                    {% for r in resources %}
+                        {% if r.is_external %}
+                        <a href="{% url 'view_resource' r.pk %}" class="mag-book group" 
+                           style="background: linear-gradient(180deg, {{ r.color|default:'#4f46e5' }} 0%, #1e293b 100%);">
+                            <div class="mag-date">{{ r.created_at|date:"n/j/Y" }}</div>
+                            <div class="mag-logo">EDUMS mag</div>
+                            <div class="mag-title">{{ r.title|truncatechars:25 }}</div>
+                            <div class="mag-desc">{{ r.source_name }} edition</div>
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                <button class="scroll-arrow scroll-right" onclick="document.getElementById('books-container').scrollBy(300, 0)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
-            <div class="virtual-shelf"></div>
+            <div class="wood-ledge"></div>
         </div>
     </div>
 
