@@ -793,10 +793,7 @@ def _generate_progress_report(request, start_date, end_date):
     teacher_name = student.class_enrolled.class_teacher.get_full_name() if student.class_enrolled and student.class_enrolled.class_teacher else "NOT ASSIGNED"
     
     sig_line = "........................................................"
-    from reportlab.platypus import Table, TableStyle, Paragraph, Spacer, HRFlowable
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     
-    styles = getSampleStyleSheet()
     f_data = [
         [Paragraph(sig_line, styles['Normal']), Paragraph(sig_line, styles['Normal'])],
         [f"Class Teacher: {teacher_name}", "Principal / Head of School"]
