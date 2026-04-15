@@ -9,6 +9,7 @@ from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.views.decorators.cache import cache_page
+from django.utils import timezone
 from datetime import datetime, timedelta, date
 import json
 import io
@@ -90,7 +91,7 @@ def admin_analytics_dashboard(request):
 
     # Get recent notifications
     recent_notifications = Notification.objects.filter(
-        created_at__gte=today - timedelta(days=7)
+        created_at__gte=timezone.now() - timedelta(days=7)
     ).order_by('-created_at')[:10]
 
     # Get performance trends
@@ -128,7 +129,7 @@ def teacher_analytics_dashboard(request):
     # Recent notifications
     recent_notifications = list(Notification.objects.filter(
         recipient=request.user,
-        created_at__gte=date.today() - timedelta(days=7)
+        created_at__gte=timezone.now() - timedelta(days=7)
     ).order_by('-created_at')[:5])
 
     context = {
@@ -162,7 +163,7 @@ def student_analytics_dashboard(request):
     # Recent notifications
     recent_notifications = list(Notification.objects.filter(
         recipient=request.user,
-        created_at__gte=date.today() - timedelta(days=7)
+        created_at__gte=timezone.now() - timedelta(days=7)
     ).order_by('-created_at')[:5])
 
     context = {

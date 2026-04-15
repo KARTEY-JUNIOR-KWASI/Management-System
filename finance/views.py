@@ -46,10 +46,11 @@ def finance_hub(request):
     
     # Financial Velocity Pulse Aggregation (Last 6 Months)
     from django.db.models.functions import TruncMonth
-    from datetime import datetime, timedelta
+    from datetime import timedelta
+    from django.utils import timezone
     
     # Calculate start date for 6 months ago
-    six_months_ago = datetime.now().replace(day=1) - timedelta(days=150) # Approx 6 months
+    six_months_ago = timezone.now().replace(day=1) - timedelta(days=150) # Approx 6 months
     
     # Aggregate Collections (Payments)
     monthly_collected_qs = Payment.objects.filter(
@@ -80,7 +81,7 @@ def finance_hub(request):
     
     # Generate labels for last 6 months
     for i in range(5, -1, -1):
-        d = datetime.now() - timedelta(days=i*30)
+        d = timezone.now() - timedelta(days=i*30)
         label = d.strftime('%b %Y')
         chart_labels.append(label)
         chart_expected.append(expected_map.get(label, 0.0))
