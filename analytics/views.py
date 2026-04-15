@@ -730,6 +730,45 @@ def _generate_progress_report(request, start_date, end_date):
     elif overall_avg >= 50: overall_grade = 'D'
     else:                   overall_grade = 'F'
 
+    # Compute Ranking / Position calculations
+    subject_ranks = {}
+    overall_class_position = None
+    total_class_students = 0
+
+    if student.class_enrolled:
+        from django.db.models import Sum
+        class_results = Result.objects.filter(student__class_enrolled=student.class_enrolled)
+        
+        # 1. Overall Position
+        overall_scores = list(
+            class_results.values('student_id').annotate(total_score=Sum('score')).order_by('-total_score')
+        )
+        total_class_students = len(overall_scores)
+        for i, res in enumerate(overall_scores):
+            if res['student_id'] == student.id:
+                overall_class_position = i + 1
+                break
+                
+        # 2. Subject Position
+        # We need to rank for each subject the student took.
+        subj_scores = list(
+            class_results.values('student_id', 'subject__name').annotate(total_score=Sum('score')).order_by('subject__name', '-total_score')
+        )
+        
+        # Group subj_scores by subject
+        from itertools import groupby
+        from operator import itemgetter
+        
+        for subj, group in groupby(subj_scores, key=itemgetter('subject__name')):
+            group_list = list(group)
+            for i, res in enumerate(group_list):
+                if res['student_id'] == student.id:
+                    subject_ranks[subj] = {
+                        'pos': i + 1,
+                        'total_students': len(group_list)
+                    }
+                    break
+
     # Intelligent remarks based on actual performance
     if not results.exists():
         remark = ("This student has not yet submitted any assessments for the current academic period. "
@@ -879,9 +918,12 @@ def _generate_progress_report(request, start_date, end_date):
     card_grade = summary_card('OVERALL GRADE',   overall_grade, f'{overall_avg}% Average', PRIMARY)
     card_avg   = summary_card('OVERALL AVERAGE', f'{overall_avg}%', 'Across all subjects', WARNING)
     card_att   = summary_card('ATTENDANCE',      f'{att_pct}%', f'{att_present} / {att_total} days', SUCCESS)
+    
+    pos_str = f'{overall_class_position}/{total_class_students}' if overall_class_position else 'N/A'
+    card_pos   = summary_card('CLASS POSITION',  pos_str, 'Overall rank in class', ACCENT)
 
-    cards_table = Table([[card_grade, card_avg, card_att]],
-                        colWidths=[(W/3)-4, (W/3)-4, (W/3)-4],
+    cards_table = Table([[card_pos, card_grade, card_avg, card_att]],
+                        colWidths=[(W/4)-4, (W/4)-4, (W/4)-4, (W/4)-4],
                         hAlign='LEFT')
     cards_table.setStyle(TableStyle([
         ('ALIGN',  (0,0),(-1,-1), 'CENTER'),
@@ -929,12 +971,14 @@ def _generate_progress_report(request, start_date, end_date):
                     Paragraph(f'<b>{row["grade"]}</b>', _s(9, bold=True, color=SUCCESS if row["grade"]=="A" else (ACCENT if row["grade"]=="B" else (WARNING if row["grade"] in ("C","D") else DANGER)))),
                 ])
                 first = False
-            # Subject average row
+            # Subject average row with Subject Position
+            spos_data = subject_ranks.get(sn, {})
+            spos_str = f"Pos: {spos_data.get('pos', 'N/A')}/{spos_data.get('total_students', 'N/A')}" if spos_data else ""
             tbl_data.append([
                 Paragraph('', _s(7)),
                 Paragraph('', _s(7)),
                 Paragraph('', _s(7)),
-                Paragraph('', _s(7)),
+                Paragraph(f'<b>{spos_str}</b>', _s(7, color=ACCENT)),
                 Paragraph(f'{sn.upper()} Average', _s(7, color=MUTED)),
                 Paragraph(f'<b>{data["avg"]}%</b>', _s(8, bold=True, color=PRIMARY)),
             ])
