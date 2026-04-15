@@ -28,16 +28,33 @@ Africa's Talking Example (uncomment to use):
 """
 
 import logging
+import os
 
 logger = logging.getLogger(__name__)
+
+# Dynamically initialize Africa's Talking if credentials are present
+AT_USERNAME = os.environ.get('AT_USERNAME', 'sandbox') # AT uses 'sandbox' for testing
+AT_API_KEY = os.environ.get('AT_API_KEY', '')
+
+sms_gateway = None
+
+# We use the key to determine if we should switch into Live production mode
+if AT_API_KEY:
+    try:
+        import africastalking
+        africastalking.initialize(AT_USERNAME, AT_API_KEY)
+        sms_gateway = africastalking.SMS
+        logger.info("Africa's Talking SDK successfully initialized for LIVE mode.")
+    except Exception as e:
+        logger.error(f"Failed to initialize Africa's Talking SDK: {e}")
 
 
 def send_sms(phone_number: str, message: str) -> bool:
     """
-    Send an SMS to a phone number.
+    Send an SMS to a phone number using Africa's Talking.
     
-    Currently in STUB mode — logs the message instead of sending.
-    Replace this body with your SMS provider SDK when ready.
+    If AT credentials are not present in .env, this gracefully falls back 
+    to STUB mode and logs the message internally without throwing an error.
     
     Args:
         phone_number: Recipient phone number (include country code e.g. +233...)
@@ -49,12 +66,25 @@ def send_sms(phone_number: str, message: str) -> bool:
     if not phone_number:
         return False
 
-    # STUB: print to server console & log — replace with real provider
-    logger.info(f"[SMS STUB] To: {phone_number} | Message: {message}")
-    print(f"\n📱 [SMS NOTIFICATION STUB]")
-    print(f"   To     : {phone_number}")
-    print(f"   Message: {message}\n")
-    return True
+    try:
+        # 1. Live SMS Production Mode
+        if sms_gateway:
+            response = sms_gateway.send(message, [phone_number])
+            logger.info(f"[LIVE SMS] Sent to {phone_number}. Response: {response}")
+            return True
+            
+        # 2. Fallback Stub Mode (if API key not configured yet)
+        else:
+            logger.info(f"[SMS STUB] To: {phone_number} | Message: {message}")
+            print(f"\n[SMS NOTIFICATION STUB FALLBACK]")
+            print(f"   To     : {phone_number}")
+            print(f"   Message: {message}\n")
+            return True
+            
+    except Exception as e:
+        logger.error(f"Failed to execute SMS flow for {phone_number}: {e}")
+        # Even if SMS fails, return False gracefully so the calling system (like Attendance) doesn't crash
+        return False
 
 
 def send_attendance_sms(student, school_name="EduSystem School") -> bool:
