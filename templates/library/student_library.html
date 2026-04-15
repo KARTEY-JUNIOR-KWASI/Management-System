@@ -203,15 +203,13 @@
                 
                 <div class="books-slider" id="books-container">
                     {% for r in resources %}
-                        {% if r.is_external %}
                         <a href="{% url 'view_resource' r.pk %}" class="mag-book group" 
                            style="background: linear-gradient(180deg, {{ r.color|default:'#4f46e5' }} 0%, #1e293b 100%);">
                             <div class="mag-date">{{ r.created_at|date:"n/j/Y" }}</div>
                             <div class="mag-logo">EDUMS mag</div>
                             <div class="mag-title">{{ r.title|truncatechars:25 }}</div>
-                            <div class="mag-desc">{{ r.source_name }} edition</div>
+                            <div class="mag-desc">{% if r.is_external %}{{ r.source_name }} edition{% else %}Institutional Edition{% endif %}</div>
                         </a>
-                        {% endif %}
                     {% endfor %}
                 </div>
                 
