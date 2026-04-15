@@ -621,3 +621,41 @@ def audit_log_list(request):
         'selected_resource': resource
     }
     return render(request, 'admin_dashboard/audit_logs.html', context)
+
+@admin_required
+def manage_terms(request):
+    """Institutional Academic Term definition hub."""
+    from core.models import AcademicTerm
+    from .forms import AcademicTermForm
+    
+    terms = AcademicTerm.objects.all().order_by('-start_date')
+    
+    if request.method == 'POST':
+        term_id = request.POST.get('term_id')
+        if term_id:
+            term = get_object_or_404(AcademicTerm, id=term_id)
+            form = AcademicTermForm(request.POST, instance=term)
+        else:
+            form = AcademicTermForm(request.POST)
+            
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Academic Term synchronized successfully.')
+            return redirect('manage_terms')
+    else:
+        form = AcademicTermForm()
+        
+    return render(request, 'admin_dashboard/terms.html', {
+        'terms': terms,
+        'form': form
+    })
+
+@admin_required
+def delete_term(request, pk):
+    from core.models import AcademicTerm
+    term = get_object_or_404(AcademicTerm, pk=pk)
+    if request.method == 'POST':
+        term.delete()
+        messages.warning(request, 'Term deleted permanently.')
+    return redirect('manage_terms')
+

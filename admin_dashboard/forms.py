@@ -229,3 +229,15 @@ class SchoolSettingsForm(forms.ModelForm):
         widgets = {
             'address': forms.Textarea(attrs={'rows': 3}),
         }
+
+from core.models import AcademicTerm
+
+class AcademicTermForm(forms.ModelForm):
+    """Form to establish academic boundaries and holiday structure."""
+    class Meta:
+        model = AcademicTerm
+        fields = ['name', 'session', 'start_date', 'end_date', 'vacation_duration', 'is_current']
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }

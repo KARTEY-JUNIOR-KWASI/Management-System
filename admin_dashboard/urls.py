@@ -28,6 +28,8 @@ urlpatterns = [
     
     # Institutional Settings
     path('settings/', views.system_settings, name='system_settings'),
+    path('settings/terms/', views.manage_terms, name='manage_terms'),
+    path('settings/terms/<int:pk>/delete/', views.delete_term, name='delete_term'),
     
     # Academic Intelligence
     path('academic/diagnostics/', views.academic_diagnostics, name='academic_diagnostics'),

@@ -128,6 +128,7 @@ TEMPLATES = [
                 'core.context_processors.unread_notifications',
                 'core.context_processors.school_config',
                 'core.context_processors.infrastructure_status',
+                'core.context_processors.student_financial_status',
             ],
         },
     },

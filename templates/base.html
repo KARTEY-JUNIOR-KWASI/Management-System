@@ -226,6 +226,10 @@
               <i data-lucide="settings" class="mr-3 h-5 w-5 flex-shrink-0"></i>
               Settings
             </a>
+            <a href="{% url 'manage_terms' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'manage_terms' %}bg-indigo-900/60 text-yellow-400 shadow-sm border border-indigo-800/50{% else %}text-indigo-200 hover:bg-white/5 hover:text-white{% endif %}">
+              <i data-lucide="calendar-days" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              Academic Terms
+            </a>
           {% endif %}
 
         </nav>
@@ -261,6 +265,27 @@
       <main class="flex-1 pb-32 lg:pb-8 overflow-x-hidden">
         <div class="py-6 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto overflow-hidden">
           
+          <!-- Financial Prompts -->
+          {% if has_unpaid_fees and request.resolver_match.url_name != 'student_finance_hub' %}
+            <div class="mb-6 p-5 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center gap-4 animate-card shadow-lg shadow-red-500/10 border border-red-200 bg-red-50 text-red-900 relative overflow-hidden">
+              <div class="absolute top-0 right-0 p-4 opacity-10">
+                <i data-lucide="shield-alert" class="w-24 h-24"></i>
+              </div>
+              <div class="p-3 bg-red-100 rounded-2xl relative z-10">
+                <i data-lucide="triangle-alert" class="w-6 h-6 text-red-600 animate-pulse"></i>
+              </div>
+              <div class="flex-1 relative z-10">
+                <h4 class="font-display font-bold text-lg mb-0.5 text-red-800">Financial Hold Imposed</h4>
+                <p class="text-sm font-medium text-red-700/80 mb-3 sm:mb-0 leading-snug">Access to Report Cards & Analytics restricted due to an uncleared balance of <strong>{{ school_config.currency_symbol|default:"&#8373;" }}{{ unpaid_fees_amount }}</strong>.</p>
+              </div>
+              <div class="relative z-10 shrink-0 w-full sm:w-auto">
+                <a href="{% url 'finance:student_finance_hub' %}" class="flex items-center justify-center gap-2 px-6 py-2.5 bg-red-600 border-b-2 border-red-800 hover:bg-red-700 hover:border-red-900 text-white text-xs font-card tracking-wider font-bold rounded-xl transition shadow-sm w-full">
+                  <i data-lucide="wallet" class="w-4 h-4"></i> SETTLE BALANCE
+                </a>
+              </div>
+            </div>
+          {% endif %}
+
           <!-- Flash Messages -->
           {% if messages %}
             <div class="space-y-3 mb-6">

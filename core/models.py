@@ -21,6 +21,7 @@ class AcademicTerm(models.Model):
     session = models.CharField(max_length=20, help_text="e.g. 2024/2025")
     start_date = models.DateField()
     end_date = models.DateField()
+    vacation_duration = models.CharField(max_length=100, default="3 Weeks", help_text="e.g. '3 Weeks', '1 Month'")
     is_current = models.BooleanField(default=False)
 
     class Meta:

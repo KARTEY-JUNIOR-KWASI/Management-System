@@ -16,6 +16,21 @@ def unread_notifications(request):
         }
     return {}
 
+def student_financial_status(request):
+    """Injects a global debt marker for students to trigger the intelligent prompt."""
+    if request.user.is_authenticated and request.user.role == 'student':
+        from finance.models import Invoice
+        from django.db.models import Sum
+        debt = Invoice.objects.filter(
+            student__user=request.user, 
+            status__in=['unpaid', 'partial']
+        ).aggregate(Sum('balance_due'))['balance_due__sum'] or 0
+        return {
+            'has_unpaid_fees': float(debt) > 0,
+            'unpaid_fees_amount': debt
+        }
+    return {}
+
 def infrastructure_status(request):
     """Identifies the active institutional infrastructure for the dashboard."""
     from django.conf import settings
