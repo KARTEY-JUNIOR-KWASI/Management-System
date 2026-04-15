@@ -114,6 +114,11 @@ def generate_class_invoices(request):
         class_id = request.POST.get('class_id')
         term_id = request.POST.get('term_id')
         
+        # Security Guard: Block empty term submissions
+        if not term_id:
+            messages.error(request, 'SECURITY LOCK: You must configure an Active Academic Term before generating institutional bills.')
+            return redirect('finance:finance_hub')
+            
         target_class = get_object_or_404(Class, id=class_id)
         target_term = get_object_or_404(AcademicTerm, id=term_id)
         

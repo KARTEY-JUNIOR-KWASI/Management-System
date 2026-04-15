@@ -16,7 +16,7 @@
 {% block content %}
 <div class="row layout-top-spacing animate-fade-up">
     <!-- Institutional Finance Command Header -->
-    <div class="col-12 mb-5 d-flex justify-content-between align-items-end">
+    <div class="col-12 mb-5 d-flex flex-column flex-xl-row justify-content-between align-items-start align-items-xl-end gap-3">
         <div>
             <div class="d-flex align-items-center gap-3 mb-2">
                 <div class="p-avatar shadow-none" style="background: var(--p-nexus-primary); width: 50px; height: 50px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; border-radius: 15px;">
@@ -31,7 +31,7 @@
                 <span class="text-primary">{{ active_term.name|default:"Institutional Protocol" }}</span>
             </div>
         </div>
-        <div class="d-flex gap-3 pb-1">
+        <div class="d-flex flex-wrap gap-3 pb-1 mt-3 mt-xl-0">
             <ul class="nav nav-pills nexus-nav-pills p-1 bg-light rounded-pill border shadow-sm me-3" id="financeTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active rounded-pill px-4 fw-800 extra-small text-uppercase" id="ledger-tab" data-bs-toggle="tab" data-bs-target="#ledger-pane" type="button" role="tab" aria-selected="true">
@@ -44,9 +44,15 @@
                     </button>
                 </li>
             </ul>
+            {% if active_term %}
             <button class="btn btn-primary rounded-pill px-4 fw-800 shadow-lg border-0" data-bs-toggle="modal" data-bs-target="#bulkBillingModal" style="background: var(--p-nexus-primary);">
                 <i data-lucide="zap" class="me-2 w-4 h-4 inline"></i> DISTRIBUTE FEES TO CLASS
             </button>
+            {% else %}
+            <button class="btn btn-secondary rounded-pill px-4 fw-800 shadow-lg border-0" onclick="alert('⚠️ PROTOCOL LOCKED: You must create an Academic Term (e.g. 1st Term) before you can distribute fees. Go to Settings -> Academic Terms.')" style="background: var(--text-muted);">
+                <i data-lucide="lock" class="me-2 w-4 h-4 inline"></i> TERM REQUIRED FOR BILLING
+            </button>
+            {% endif %}
         </div>
     </div>
 
