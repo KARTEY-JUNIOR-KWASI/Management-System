@@ -670,178 +670,330 @@ def _send_email_notifications(title, message, recipient_ids):
         print(f"Email sending failed: {e}")
 
 def _generate_progress_report(request, start_date, end_date):
-    """Generate student progress report"""
+    """Generate student progress report - clean institutional PDF matching the EduMS design."""
     if request.user.role != 'student':
         return _redirect_wrong_role(request, 'student')
 
     student = _get_or_create_student(request.user)
+    config = get_institutional_metadata()
 
-    # Get data for the period
-    results = Result.objects.filter(
-        student=student,
-        date__range=(start_date, end_date)
-    ).select_related('subject')
+    # Fetch ALL student results (not date-limited so card is always useful)
+    results = Result.objects.filter(student=student).select_related('subject').order_by('subject__name', 'exam_type')
 
-    attendance = Attendance.objects.filter(
-        student=student,
-        date__range=(start_date, end_date)
-    )
+    # Attendance
+    all_attendance = Attendance.objects.filter(student=student)
+    att_total   = all_attendance.count()
+    att_present = all_attendance.filter(status='present').count()
+    att_pct     = round((att_present / att_total * 100), 1) if att_total > 0 else 0.0
 
-    assignments = Assignment.objects.filter(
-        class_assigned=student.class_enrolled,
-        due_date__range=(start_date, end_date)
-    )
+    # Build subject results
+    subject_results = {}
+    for r in results:
+        sn = r.subject.name
+        if sn not in subject_results:
+            subject_results[sn] = {'rows': [], 'avg': 0}
+        pct = round((r.score / r.max_score * 100), 1) if r.max_score else 0.0
+        if pct >= 80:   gl = 'A'
+        elif pct >= 70: gl = 'B'
+        elif pct >= 60: gl = 'C'
+        elif pct >= 50: gl = 'D'
+        else:           gl = 'F'
+        subject_results[sn]['rows'].append({
+            'exam_type': r.get_exam_type_display() if hasattr(r, 'get_exam_type_display') else r.exam_type,
+            'score': r.score,
+            'max_score': r.max_score,
+            'percentage': pct,
+            'grade': gl,
+        })
 
-    submissions = Submission.objects.filter(
-        student=student,
-        assignment__in=assignments
-    )
+    for sn, data in subject_results.items():
+        if data['rows']:
+            data['avg'] = round(sum(x['percentage'] for x in data['rows']) / len(data['rows']), 1)
 
-    # Generate Premium PDF
+    all_pcts = [x['percentage'] for d in subject_results.values() for x in d['rows']]
+    overall_avg = round(sum(all_pcts) / len(all_pcts), 1) if all_pcts else 0.0
+
+    if overall_avg >= 80:   overall_grade = 'A'
+    elif overall_avg >= 70: overall_grade = 'B'
+    elif overall_avg >= 60: overall_grade = 'C'
+    elif overall_avg >= 50: overall_grade = 'D'
+    else:                   overall_grade = 'F'
+
+    # Intelligent remarks based on actual performance
+    if not results.exists():
+        remark = ("This student has not yet submitted any assessments for the current academic period. "
+                  "Early engagement with academic work is strongly encouraged to build a solid foundation for success.")
+    elif overall_avg >= 90:
+        remark = ("Outstanding performance! This student has demonstrated exceptional mastery across all subjects. "
+                  "Their dedication and hard work are truly commendable. We encourage maintaining this excellent standard.")
+    elif overall_avg >= 75:
+        remark = ("Very good performance. This student is performing well above the class average. "
+                  "With continued effort and focus, achieving top distinction is well within reach.")
+    elif overall_avg >= 60:
+        remark = ("Good performance overall. The student shows a satisfactory understanding of core subjects. "
+                  "Targeted revision in lower-scoring areas will help push results to a higher tier.")
+    elif overall_avg >= 50:
+        remark = ("Average performance. The student requires more consistent effort and preparation to improve results. "
+                  "We recommend seeking additional academic support and dedicating more time to studies.")
+    else:
+        remark = ("This student's performance is below the expected standard. Immediate attention and dedicated study are "
+                  "required. We strongly encourage working closely with class teachers to address areas of weakness.")
+
+    # ── Build PDF ──────────────────────────────────────────────────────────────
+    PRIMARY   = colors.HexColor('#1e3a5f')
+    ACCENT    = colors.HexColor('#2563eb')
+    SUCCESS   = colors.HexColor('#10b981')
+    WARNING   = colors.HexColor('#f59e0b')
+    DANGER    = colors.HexColor('#ef4444')
+    MUTED     = colors.HexColor('#64748b')
+    BORDER    = colors.HexColor('#e2e8f0')
+    BG        = colors.HexColor('#f8fafc')
+    WHITE     = colors.white
+
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
-    styles = getSampleStyleSheet()
-    
-    # Custom Premium Styles
-    styles.add(ParagraphStyle(name='PremiumTitle', fontSize=24, fontName='Helvetica-Bold', alignment=1, spaceAfter=2, textColor=colors.HexColor('#0F172A')))
-    styles.add(ParagraphStyle(name='PremiumSub', fontSize=10, fontName='Helvetica-Bold', alignment=1, spaceAfter=20, textColor=colors.HexColor('#64748B')))
-    styles.add(ParagraphStyle(name='SectionHead', fontSize=14, fontName='Helvetica-Bold', spaceBefore=20, spaceAfter=10, textColor=colors.HexColor('#1E293B'), borderPadding=5, leftIndent=0))
-    styles.add(ParagraphStyle(name='MetricLabel', fontSize=9, fontName='Helvetica-Bold', textColor=colors.HexColor('#4361EE')))
-    styles.add(ParagraphStyle(name='MetricVal', fontSize=18, fontName='Helvetica-Bold', textColor=colors.HexColor('#0F172A')))
+    doc = SimpleDocTemplate(
+        buffer, pagesize=letter,
+        rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36
+    )
+
+    # Style helpers (inline — no global registration to avoid KeyError)
+    def _s(size, bold=False, color=None, align=0, italic=False):
+        return ParagraphStyle(
+            name=f'_tmp_{size}_{bold}_{align}',
+            fontSize=size,
+            fontName=('Helvetica-BoldOblique' if bold and italic else
+                      'Helvetica-Bold' if bold else
+                      'Helvetica-Oblique' if italic else 'Helvetica'),
+            alignment=align,
+            textColor=color or colors.black,
+            leading=size * 1.3,
+        )
 
     story = []
+    W = 539  # usable width
 
-    # 1. Institutional Header
-    config = get_institutional_metadata()
-    story.append(Paragraph(config.name.upper(), styles['PremiumTitle']))
-    story.append(Paragraph("OFFICIAL ACADEMIC PROGRESS PROTOCOL", styles['PremiumSub']))
-    story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#4361EE'), spaceAfter=20))
+    # ── 1. HEADER BANNER ────────────────────────────────────────────────────────
+    school_name  = config.name if config and config.name else 'EduMS'
+    acad_year    = config.current_academic_year if config and config.current_academic_year else '2025 / 2026'
 
-    # 2. Identity Matrix
-    id_data = [
-        [Paragraph("STUDENT IDENTITY", styles['MetricLabel']), Paragraph("ACADEMIC CYCLE", styles['MetricLabel'])],
-        [Paragraph(student.user.get_full_name(), styles['MetricVal']), Paragraph(f"{start_date} → {end_date}", styles['MetricVal'])]
+    hdr_left  = [
+        [Paragraph(f'<b><font color="#2563eb">{school_name[:3]}</font>{school_name[3:]}</b>',
+                   _s(22, bold=False, color=WHITE))],
+        [Paragraph('School Management System — Official Report Card',
+                   _s(8, color=colors.HexColor('#aab4c4')))],
     ]
-    id_table = Table(id_data, colWidths=[240, 240])
-    id_table.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'TOP'), ('BOTTOMPADDING', (0,0), (-1,-1), 10)]))
-    story.append(id_table)
-    story.append(Spacer(1, 20))
+    hdr_right = [
+        [Paragraph('Academic Year', _s(7, color=colors.HexColor('#aab4c4')))],
+        [Paragraph(f'<b>{acad_year}</b>', _s(14, bold=True, color=WHITE))],
+    ]
 
-    # 3. Academic Performance Layer
-    story.append(Paragraph("I. CURRICULAR MASTERY INDEX", styles['SectionHead']))
-    if results.exists():
-        data = [['SUBJECT', 'RAW SCORE', 'UNIT MAX', 'MASTERY %', 'EVAL DATE']]
-        for r in results:
-            pct = (r.score / r.max_score * 100) if r.max_score > 0 else 0
-            data.append([
-                r.subject.name.upper(),
-                str(r.score),
-                str(r.max_score),
-                f"{pct:.1f}%",
-                r.date.strftime('%Y-%m-%d')
-            ])
+    hdr_left_t  = Table(hdr_left,  colWidths=[W * 0.65])
+    hdr_right_t = Table(hdr_right, colWidths=[W * 0.35])
+    hdr_right_t.setStyle(TableStyle([
+        ('BACKGROUND', (0,1),(0,1), colors.HexColor('#2a4a75')),
+        ('ROUNDEDCORNERS', [6]*4),
+        ('ALIGN', (0,0),(-1,-1), 'RIGHT'),
+        ('TOPPADDING',(0,1),(0,1),6), ('BOTTOMPADDING',(0,1),(0,1),6),
+        ('LEFTPADDING',(0,1),(0,1),10), ('RIGHTPADDING',(0,1),(0,1),10),
+    ]))
 
-        table = Table(data, colWidths=[150, 80, 80, 80, 90])
-        table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0F172A')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 9),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('TOPPADDING', (0, 0), (-1, 0), 12),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F8FAFC')]),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
-            ('FONTSIZE', (0, 1), (-1, -1), 9),
+    hdr_table = Table([[hdr_left_t, hdr_right_t]], colWidths=[W * 0.65, W * 0.35])
+    hdr_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0),(-1,-1), PRIMARY),
+        ('TOPPADDING',   (0,0),(-1,-1), 18),
+        ('BOTTOMPADDING',(0,0),(-1,-1), 18),
+        ('LEFTPADDING',  (0,0),(-1,-1), 20),
+        ('RIGHTPADDING', (0,0),(-1,-1), 20),
+        ('VALIGN', (0,0),(-1,-1), 'MIDDLE'),
+    ]))
+    story.append(hdr_table)
+
+    # ── 2. STUDENT INFO GRID ─────────────────────────────────────────────────────
+    teacher_name = ('N/A')
+    if student.class_enrolled and student.class_enrolled.class_teacher:
+        teacher_name = student.class_enrolled.class_teacher.get_full_name()
+
+    enrollment = student.date_enrolled.strftime('%B %d, %Y') if hasattr(student, 'date_enrolled') and student.date_enrolled else 'N/A'
+
+    def bio_cell(label, value):
+        return [
+            Paragraph(label, _s(6, bold=True, color=MUTED)),
+            Spacer(1, 3),
+            Paragraph(f'<b>{value}</b>', _s(9, bold=True, color=PRIMARY)),
+        ]
+
+    bio_row1 = [bio_cell('STUDENT NAME', student.user.get_full_name().upper()),
+                bio_cell('STUDENT ID',   student.student_id),
+                bio_cell('CLASS',        student.class_enrolled.name.upper() if student.class_enrolled else 'N/A')]
+    bio_row2 = [bio_cell('ENROLLMENT DATE', enrollment),
+                bio_cell('CLASS TEACHER',   teacher_name.upper()),
+                bio_cell('GENERATED ON',    datetime.now().strftime('%d %b %Y'))]
+
+    bio1 = Table([bio_row1], colWidths=[W/3, W/3, W/3])
+    bio2 = Table([bio_row2], colWidths=[W/3, W/3, W/3])
+
+    for bt in [bio1, bio2]:
+        bt.setStyle(TableStyle([
+            ('VALIGN',  (0,0),(-1,-1), 'TOP'),
+            ('LEFTPADDING',  (0,0),(-1,-1), 16),
+            ('RIGHTPADDING', (0,0),(-1,-1), 16),
+            ('TOPPADDING',   (0,0),(-1,-1), 12),
+            ('BOTTOMPADDING',(0,0),(-1,-1), 12),
+            ('LINEAFTER', (0,0),(1,-1), 0.5, BORDER),
+            ('LINEBELOW', (0,0),(-1,-1), 0.5, BORDER),
         ]))
-        story.append(table)
-    else:
-        story.append(Paragraph("Null performance stream detected for this temporal window.", styles['Normal']))
 
-    story.append(Spacer(1, 25))
-
-    # 4. Critical Metrics Cluster
-    story.append(Paragraph("II. OPERATIONAL ANALYTICS", styles['SectionHead']))
-    
-    total_days = attendance.count()
-    present_days = attendance.filter(status='present').count()
-    att_rate = (present_days / total_days * 100) if total_days > 0 else 0
-    
-    total_assignments = assignments.count()
-    completed_assignments = submissions.count()
-    comp_rate = (completed_assignments / total_assignments * 100) if total_assignments > 0 else 0
-
-    metric_data = [
-        [Paragraph("ATTENDANCE VELOCITY", styles['MetricLabel']), Paragraph("ASSIGNMENT COMPLETION", styles['MetricLabel'])],
-        [Paragraph(f"{att_rate:.1f}%", styles['MetricVal']), Paragraph(f"{comp_rate:.1f}%", styles['MetricVal'])]
-    ]
-    metric_table = Table(metric_data, colWidths=[240, 240])
-    metric_table.setStyle(TableStyle([('ALIGN', (0,0), (-1,-1), 'LEFT'), ('VALIGN', (0,0), (-1,-1), 'TOP')]))
-    story.append(metric_table)
-
-    # 5. Teacher Remarks
-    story.append(Spacer(1, 20))
-    remark_head_style = ParagraphStyle(
-        name='_RemarkHead_tmp',
-        fontSize=10, fontName='Helvetica-Bold',
-        spaceBefore=15, spaceAfter=5,
-        textColor=colors.HexColor('#0F172A')
-    )
-    remark_box_style = ParagraphStyle(
-        name='_RemarkBox_tmp',
-        fontSize=10, fontName='Helvetica-Oblique',
-        leading=14,
-        textColor=colors.HexColor('#475569')
-    )
-    story.append(Paragraph("TEACHER REMARKS", remark_head_style))
-    remark_text = "Good performance. Continue working hard to achieve excellence."
-    story.append(Paragraph(remark_text, remark_box_style))
-
-    story.append(Spacer(1, 40))
-
-    # 6. Dual Signature Protocol (Class Teacher & Principal)
-    teacher_name = student.class_enrolled.class_teacher.get_full_name() if student.class_enrolled and student.class_enrolled.class_teacher else "NOT ASSIGNED"
-    
-    sig_line = "........................................................"
-    
-    f_data = [
-        [Paragraph(sig_line, styles['Normal']), Paragraph(sig_line, styles['Normal'])],
-        [f"Class Teacher: {teacher_name}", "Principal / Head of School"]
-    ]
-    f_table = Table(f_data, colWidths=[240, 240])
-    f_table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('FONTSIZE', (0, 1), (-1, -1), 8),
-        ('TOPPADDING', (0, 1), (-1, 1), 5),
-        ('TEXTCOLOR', (0, 1), (-1, 1), colors.HexColor('#475569'))
-    ]))
-    story.append(f_table)
-
-    story.append(Spacer(1, 40))
-    story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor('#CBD5E1')))
+    story.append(bio1)
+    story.append(bio2)
     story.append(Spacer(1, 10))
-    
-    footer_data = [
-        [draw_institutional_seal(), "CERTIFIED TRANSCRIPT GENERATED VIA NEXUS PROTOCOL"],
-        ["", f"TIMESTAMP: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"]
-    ]
-    footer_table = Table(footer_data, colWidths=[100, 380])
-    footer_table.setStyle(TableStyle([
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('FONTSIZE', (0,1), (-1,1), 7),
-        ('TEXTCOLOR', (0,1), (-1,1), colors.grey)
+
+    # ── 3. SUMMARY CARDS ─────────────────────────────────────────────────────────
+    def summary_card(label, big_val, sub, top_color):
+        card = Table([
+            [Paragraph(label, _s(6, bold=True, color=MUTED))],
+            [Paragraph(f'<b>{big_val}</b>', _s(22, bold=True, color=PRIMARY))],
+            [Paragraph(sub, _s(7, color=MUTED))],
+        ], colWidths=[(W/3) - 12])
+        card.setStyle(TableStyle([
+            ('TOPPADDING',   (0,0),(-1,-1), 10),
+            ('BOTTOMPADDING',(0,0),(-1,-1), 10),
+            ('LEFTPADDING',  (0,0),(-1,-1), 14),
+            ('RIGHTPADDING', (0,0),(-1,-1), 14),
+            ('LINEABOVE', (0,0),(-1,0), 3, top_color),
+            ('BOX', (0,0),(-1,-1), 0.5, BORDER),
+            ('ROUNDEDCORNERS', [6]*4),
+        ]))
+        return card
+
+    card_grade = summary_card('OVERALL GRADE',   overall_grade, f'{overall_avg}% Average', PRIMARY)
+    card_avg   = summary_card('OVERALL AVERAGE', f'{overall_avg}%', 'Across all subjects', WARNING)
+    card_att   = summary_card('ATTENDANCE',      f'{att_pct}%', f'{att_present} / {att_total} days', SUCCESS)
+
+    cards_table = Table([[card_grade, card_avg, card_att]],
+                        colWidths=[(W/3)-4, (W/3)-4, (W/3)-4],
+                        hAlign='LEFT')
+    cards_table.setStyle(TableStyle([
+        ('ALIGN',  (0,0),(-1,-1), 'CENTER'),
+        ('VALIGN', (0,0),(-1,-1), 'TOP'),
+        ('LEFTPADDING',  (0,0),(-1,-1), 4),
+        ('RIGHTPADDING', (0,0),(-1,-1), 4),
     ]))
+    story.append(cards_table)
+    story.append(Spacer(1, 14))
+
+    # ── 4. ACADEMIC RESULTS TABLE ───────────────────────────────────────────────
+    story.append(Paragraph('📚  ACADEMIC RESULTS', _s(8, bold=True, color=PRIMARY)))
+    story.append(Spacer(1, 6))
+
+    if subject_results:
+        tbl_data = [[
+            Paragraph('<b>Subject</b>',   _s(8, bold=True, color=WHITE)),
+            Paragraph('<b>Exam Type</b>', _s(8, bold=True, color=WHITE)),
+            Paragraph('<b>Score</b>',     _s(8, bold=True, color=WHITE)),
+            Paragraph('<b>Max Score</b>', _s(8, bold=True, color=WHITE)),
+            Paragraph('<b>Percentage</b>',_s(8, bold=True, color=WHITE)),
+            Paragraph('<b>Grade</b>',     _s(8, bold=True, color=WHITE)),
+        ]]
+        row_styles = [
+            ('BACKGROUND', (0,0),(-1,0), PRIMARY),
+            ('ALIGN', (0,0),(-1,-1), 'CENTER'),
+            ('VALIGN', (0,0),(-1,-1), 'MIDDLE'),
+            ('FONTSIZE', (0,0),(-1,-1), 8),
+            ('TOPPADDING',   (0,0),(-1,-1), 8),
+            ('BOTTOMPADDING',(0,0),(-1,-1), 8),
+            ('GRID', (0,0),(-1,-1), 0.4, BORDER),
+            ('ROWBACKGROUNDS', (0,1),(-1,-1), [WHITE, BG]),
+        ]
+
+        for sn, data in subject_results.items():
+            first = True
+            for row in data['rows']:
+                subj_cell = Paragraph(f'<b>{sn.upper()}</b>', _s(8, bold=True, color=PRIMARY)) if first else Paragraph('', _s(8))
+                tbl_data.append([
+                    subj_cell,
+                    Paragraph(str(row['exam_type']).capitalize(), _s(8)),
+                    Paragraph(str(row['score']), _s(8, bold=True, color=PRIMARY)),
+                    Paragraph(str(row['max_score']), _s(8, color=MUTED)),
+                    Paragraph(f'{row["percentage"]}%', _s(8, bold=True, color=SUCCESS if row["percentage"]>=70 else (WARNING if row["percentage"]>=50 else DANGER))),
+                    Paragraph(f'<b>{row["grade"]}</b>', _s(9, bold=True, color=SUCCESS if row["grade"]=="A" else (ACCENT if row["grade"]=="B" else (WARNING if row["grade"] in ("C","D") else DANGER)))),
+                ])
+                first = False
+            # Subject average row
+            tbl_data.append([
+                Paragraph('', _s(7)),
+                Paragraph('', _s(7)),
+                Paragraph('', _s(7)),
+                Paragraph('', _s(7)),
+                Paragraph(f'{sn.upper()} Average', _s(7, color=MUTED)),
+                Paragraph(f'<b>{data["avg"]}%</b>', _s(8, bold=True, color=PRIMARY)),
+            ])
+            row_styles.append(('BACKGROUND', (0, len(tbl_data)-1), (-1, len(tbl_data)-1), colors.HexColor('#eef2ff')))
+
+        results_table = Table(tbl_data, colWidths=[130, 75, 55, 65, 120, 60])
+        results_table.setStyle(TableStyle(row_styles))
+        story.append(results_table)
+    else:
+        story.append(Paragraph('No academic results recorded for this student yet.', _s(9, italic=True, color=MUTED)))
+
+    story.append(Spacer(1, 14))
+
+    # ── 5. TEACHER REMARKS ───────────────────────────────────────────────────────
+    story.append(Paragraph('💬  TEACHER REMARKS', _s(8, bold=True, color=PRIMARY)))
+    story.append(Spacer(1, 6))
+
+    remarks_inner = Table(
+        [[Paragraph(remark, _s(9, italic=True, color=MUTED))]],
+        colWidths=[W]
+    )
+    remarks_inner.setStyle(TableStyle([
+        ('BACKGROUND', (0,0),(-1,-1), BG),
+        ('BOX', (0,0),(-1,-1), 0.5, BORDER),
+        ('TOPPADDING',   (0,0),(-1,-1), 12),
+        ('BOTTOMPADDING',(0,0),(-1,-1), 12),
+        ('LEFTPADDING',  (0,0),(-1,-1), 14),
+        ('RIGHTPADDING', (0,0),(-1,-1), 14),
+    ]))
+    story.append(remarks_inner)
+    story.append(Spacer(1, 20))
+
+    # ── 6. SIGNATURES ────────────────────────────────────────────────────────────
+    sig_line = '_' * 42
+    sig_data = [
+        [Paragraph(sig_line, _s(9, color=BORDER)), Paragraph(sig_line, _s(9, color=BORDER))],
+        [Paragraph('Class Teacher', _s(7, bold=True, color=MUTED)),
+         Paragraph('Principal / Head of School', _s(7, bold=True, color=MUTED))],
+        [Paragraph(f'<b>{teacher_name.upper()}</b>', _s(8, bold=True, color=PRIMARY)),
+         Paragraph('', _s(8))],
+    ]
+    sig_table = Table(sig_data, colWidths=[W/2 - 10, W/2 - 10])
+    sig_table.setStyle(TableStyle([
+        ('ALIGN',  (0,0),(-1,-1), 'CENTER'),
+        ('VALIGN', (0,0),(-1,-1), 'TOP'),
+        ('TOPPADDING',   (0,0),(-1,-1), 4),
+        ('BOTTOMPADDING',(0,0),(-1,-1), 4),
+    ]))
+    story.append(sig_table)
+    story.append(Spacer(1, 16))
+    story.append(HRFlowable(width="100%", thickness=0.5, color=BORDER))
+    story.append(Spacer(1, 6))
+
+    # Footer
+    footer_style = _s(7, color=MUTED)
+    footer_data = [[
+        Paragraph(request.build_absolute_uri('/students/report-pdf/'), footer_style),
+        Paragraph(f'{datetime.now().strftime("%d/%m/%Y, %I:%M %p")}', _s(7, color=MUTED, align=2)),
+    ]]
+    footer_table = Table(footer_data, colWidths=[W * 0.6, W * 0.4])
     story.append(footer_table)
 
-    # Build PDF
+    # Build
     doc.build(story)
     buffer.seek(0)
 
-    # Create response
     response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="nexus_progress_{student.user.username}_{start_date}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="EduMS_Report_{student.student_id}.pdf"'
     return response
+
 
 
 def _generate_attendance_report(request, start_date, end_date):
