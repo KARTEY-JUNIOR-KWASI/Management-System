@@ -18,8 +18,13 @@ class Resource(models.Model):
     ]
 
     title        = models.CharField(max_length=200)
+    author       = models.CharField(max_length=200, blank=True, default="Institutional Insight")
     description  = models.TextField(blank=True)
     resource_type = models.CharField(max_length=20, choices=RESOURCE_TYPES, default='document')
+    
+    # 🎨 Visual Branding Node
+    cover_image  = models.ImageField(upload_to='library/covers/', null=True, blank=True, help_text="Highly recommended for a 'Branded' look.")
+
 
     # File OR link (one must be provided)
     file         = models.FileField(upload_to='library/resources/', null=True, blank=True)

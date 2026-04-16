@@ -69,6 +69,7 @@ def upload_resource(request):
         if not errors:
             resource = Resource(
                 title=title,
+                author=request.POST.get('author', 'Institutional Insight').strip(),
                 description=description,
                 resource_type=resource_type,
                 external_url=external_url,
@@ -77,6 +78,8 @@ def upload_resource(request):
             )
             if uploaded_file:
                 resource.file = uploaded_file
+            if request.FILES.get('cover_image'):
+                resource.cover_image = request.FILES['cover_image']
             if subject_id:
                 resource.subject_id = subject_id
             if class_id:
@@ -137,6 +140,7 @@ def edit_resource(request, pk):
 
     if request.method == 'POST':
         resource.title = request.POST.get('title', resource.title).strip()
+        resource.author = request.POST.get('author', resource.author).strip()
         resource.description = request.POST.get('description', '').strip()
         resource.resource_type = request.POST.get('resource_type', resource.resource_type)
         resource.external_url = request.POST.get('external_url', '').strip()
@@ -145,8 +149,12 @@ def edit_resource(request, pk):
         class_id = request.POST.get('class_id') or None
         resource.subject_id = subject_id
         resource.target_class_id = class_id
+        
         if request.FILES.get('file'):
             resource.file = request.FILES['file']
+        if request.FILES.get('cover_image'):
+            resource.cover_image = request.FILES['cover_image']
+            
         resource.save()
         messages.success(request, 'Resource updated successfully!')
         return redirect('teacher_library')

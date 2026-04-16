@@ -81,9 +81,15 @@
         <div class="form-canvas">
             <span class="form-section-title">Identity & Classification</span>
             
-            <div class="mb-4">
-                <label class="premium-label">Resource Title</label>
-                <input type="text" name="title" class="p-form-control w-100" value="{{ resource.title }}" required>
+            <div class="row">
+                <div class="col-md-7 mb-4">
+                    <label class="premium-label">Resource Title</label>
+                    <input type="text" name="title" class="p-form-control w-100" value="{{ resource.title }}" required>
+                </div>
+                <div class="col-md-5 mb-4">
+                    <label class="premium-label">Resource Author / Source</label>
+                    <input type="text" name="author" class="p-form-control w-100" value="{{ resource.author|default:'Institutional Insight' }}">
+                </div>
             </div>
 
             <div class="row">
@@ -108,7 +114,25 @@
 
             <div class="mb-4">
                 <label class="premium-label">Extended Narrative (Description)</label>
-                <textarea name="description" rows="4" class="p-form-control p-textarea w-100">{{ resource.description }}</textarea>
+                <textarea name="description" rows="3" class="p-form-control p-textarea w-100">{{ resource.description }}</textarea>
+            </div>
+
+            <span class="form-section-title">Visual Identity Node</span>
+            <div class="premium-input-group">
+                <label class="premium-label">Update Branded Book Cover (Optional)</label>
+                <div class="row align-items-center">
+                    {% if resource.cover_image %}
+                    <div class="col-md-2">
+                        <img src="{{ resource.cover_image.url }}" class="img-fluid rounded-3 shadow-sm border" style="max-height: 100px;">
+                    </div>
+                    {% endif %}
+                    <div class="col-md-{% if resource.cover_image %}10{% else %}12{% endif %}">
+                        <div class="p-4 border rounded-4 bg-light bg-opacity-50">
+                            <input type="file" name="cover_image" class="form-control border-0 bg-transparent p-0" accept="image/*">
+                            <p class="extra-small text-muted mt-2 mb-0">Recommendation: 800x1200px Vertical. Overwrites current cover.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <span class="form-section-title">Delivery Content</span>

@@ -84,10 +84,23 @@
                         <img src="{{ resource.file.url }}" alt="{{ resource.title }}" class="img-fluid" style="max-height: 600px;">
                     </div>
                 {% else %}
-                    <div class="p-5 text-center bg-light rounded-4 mb-4 border border-dashed">
-                        <i class="fas {{ resource.icon }} fs-1 text-primary mb-3 opacity-25"></i>
-                        <h5 class="text-dark">{{ resource.get_resource_type_display }} Resource</h5>
-                        <p class="text-muted small">This resource is available for download using the button above.</p>
+                    <div class="row align-items-center g-4 p-4 bg-light rounded-4 mb-4 border border-dashed">
+                        <div class="col-md-4">
+                            <!-- Mini 3D Book Preview -->
+                            <div class="nexus-book mx-auto" style="transform: scale(0.8); pointer-events: none;">
+                                <div class="book-inner">
+                                    <div class="book-spine" style="background: {{ resource.color|default:'#4361ee' }};"></div>
+                                    <div class="book-cover" style="background-image: url('{% if resource.cover_image %}{{ resource.cover_image.url }}{% else %}{% if 'Science' in resource.subject.name or 'Math' in resource.subject.name %}{% static 'images/library/academic_cover.png' %}{% else %}{% static 'images/library/default_cover.png' %}{% endif %}{% endif %}');">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8 text-start">
+                            <h4 class="fw-black text-dark mb-1">{{ resource.title }}</h4>
+                            <p class="res-author mb-4">{{ resource.author|default:"Institutional Edition" }}</p>
+                            <div class="p-badge p-badge-medium mb-3">{{ resource.get_resource_type_display }} Resource</div>
+                            <p class="text-muted small">This intelligence asset is ready for synchronized download or external access.</p>
+                        </div>
                     </div>
                 {% endif %}
 

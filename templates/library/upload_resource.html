@@ -96,9 +96,15 @@
         <div class="form-canvas">
             <span class="form-section-title">Identity & Classification</span>
             
-            <div class="premium-input-group">
-                <label class="premium-label">Resource Title</label>
-                <input type="text" name="title" class="p-form-control w-100" placeholder="e.g. Introduction to Quantum Mechanics" required>
+            <div class="row">
+                <div class="col-md-7 mb-4">
+                    <label class="premium-label">Resource Title</label>
+                    <input type="text" name="title" class="p-form-control w-100" placeholder="e.g. Introduction to Quantum Mechanics" required>
+                </div>
+                <div class="col-md-5 mb-4">
+                    <label class="premium-label">Resource Author / Source</label>
+                    <input type="text" name="author" class="p-form-control w-100" placeholder="e.g. Dr. Richard Feynman" value="Institutional Insight">
+                </div>
             </div>
 
             <div class="row">
@@ -123,7 +129,16 @@
 
             <div class="premium-input-group">
                 <label class="premium-label">Extended Narrative (Description)</label>
-                <textarea name="description" rows="4" class="p-form-control p-textarea w-100" placeholder="Briefly articulate what this resource covers..."></textarea>
+                <textarea name="description" rows="3" class="p-form-control p-textarea w-100" placeholder="Briefly articulate what this resource covers..."></textarea>
+            </div>
+
+            <span class="form-section-title">Visual Identity Node</span>
+            <div class="premium-input-group">
+                <label class="premium-label">Branded Book Cover (Optional)</label>
+                <div class="p-4 border rounded-4 bg-light bg-opacity-50">
+                    <p class="extra-small text-muted mb-3"><i class="fas fa-info-circle me-1"></i> Recommended: 800x1200px Vertical. This will replace the generic institutional cover.</p>
+                    <input type="file" name="cover_image" class="form-control border-0 bg-transparent p-0" accept="image/*">
+                </div>
             </div>
 
             <span class="form-section-title">Delivery Method</span>
