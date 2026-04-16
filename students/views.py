@@ -20,14 +20,27 @@ def guardian_dashboard(request):
     guardian = get_object_or_404(Guardian, user=request.user)
     wards = guardian.wards.with_performance_stats().select_related('class_enrolled')
     
-    # Enrich wards with performance metrics
+    # Enrich wards with performance metrics and financial status
     ward_data = []
     for ward in wards:
         perf = _calculate_student_performance(ward)
+        
+        # Financial Status Extraction
+        latest_invoice = ward.invoices.order_by('-created_at').first()
+        finance_status = 'N/A'
+        finance_color = 'gray'
+        if latest_invoice:
+            finance_status = latest_invoice.get_status_display()
+            if latest_invoice.status == 'paid': finance_color = 'emerald'
+            elif latest_invoice.status == 'partial': finance_color = 'amber'
+            else: finance_color = 'red'
+
         ward_data.append({
             'student': ward,
             'attendance': perf.get('attendance_rate', 0),
             'gpa': perf.get('gpa', 0),
+            'finance_status': finance_status,
+            'finance_color': finance_color,
             'recent_results': Result.objects.filter(student=ward).order_by('-date')[:3],
             'upcoming_assignments': Assignment.objects.filter(class_assigned=ward.class_enrolled, due_date__gte=date.today()).order_by('due_date')[:3]
         })
@@ -43,6 +56,27 @@ def guardian_dashboard(request):
         'notices': notices,
     }
     return render(request, 'students/guardian_dashboard.html', context)
+
+@parent_required
+def guardian_ward_detail(request, student_id):
+    """Deep-dive intelligence report for a specific ward."""
+    guardian = get_object_or_404(Guardian, user=request.user)
+    student = get_object_or_404(Student, id=student_id, guardian=guardian)
+    
+    performance = _calculate_student_performance(student)
+    results = Result.objects.filter(student=student).select_related('subject').order_by('-date')
+    attendance = Attendance.objects.filter(student=student).order_by('-date')[:10]
+    invoices = student.invoices.all()
+    
+    context = {
+        'guardian': guardian,
+        'student': student,
+        'performance': performance,
+        'results': results,
+        'attendance': attendance,
+        'invoices': invoices,
+    }
+    return render(request, 'students/ward_detail.html', context)
 
 def _get_or_create_student(user):
     student, created = Student.objects.get_or_create(

@@ -11,4 +11,5 @@ urlpatterns = [
     path('house-alliance/', views.house_alliance_hub, name='house_alliance_hub'),
     path('report-pdf/', views.download_report_card_pdf, name='download_report_card_pdf'),
     path('guardian/dashboard/', views.guardian_dashboard, name='guardian_dashboard'),
+    path('guardian/ward/<int:student_id>/', views.guardian_ward_detail, name='guardian_ward_detail'),
 ]
