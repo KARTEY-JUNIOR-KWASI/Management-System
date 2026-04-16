@@ -10,4 +10,5 @@ urlpatterns = [
     path('timetable/', views.student_timetable, name='student_timetable'),
     path('house-alliance/', views.house_alliance_hub, name='house_alliance_hub'),
     path('report-pdf/', views.download_report_card_pdf, name='download_report_card_pdf'),
+    path('guardian/dashboard/', views.guardian_dashboard, name='guardian_dashboard'),
 ]

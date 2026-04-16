@@ -29,6 +29,15 @@ def student_required(view_func):
         raise PermissionDenied
     return _wrapped_view
 
+def parent_required(view_func):
+    @wraps(view_func)
+    @login_required
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.role == 'parent':
+            return view_func(request, *args, **kwargs)
+        raise PermissionDenied
+    return _wrapped_view
+
 def role_required(*roles):
     """
     Pass multiple roles if multiple types of users can access this view.

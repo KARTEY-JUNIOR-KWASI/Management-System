@@ -1,8 +1,18 @@
 from django.db import models
 from django.db.models import Avg, Count, Q, F, ExpressionWrapper, FloatField, Case, When
 from django.db.models.functions import Coalesce, Cast
+from django.conf import settings
 
 
+class Guardian(models.Model):
+    """Authenticated parent/guardian overseeing students."""
+    user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, related_name='guardian_profile')
+    phone = models.CharField(max_length=20, blank=True)
+    address = models.TextField(blank=True)
+    relationship_to_student = models.CharField(max_length=50, blank=True, help_text="Default relation if not specific per child")
+
+    def __str__(self):
+        return f"Guardian: {self.user.get_full_name()}"
 class StudentQuerySet(models.QuerySet):
     def with_performance_stats(self):
         """
@@ -67,6 +77,7 @@ class Student(models.Model):
     student_id = models.CharField(max_length=20, unique=True)
     class_enrolled = models.ForeignKey('core.Class', on_delete=models.SET_NULL, null=True, blank=True)
     house = models.ForeignKey('core.House', on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
+    guardian = models.ForeignKey(Guardian, on_delete=models.SET_NULL, null=True, blank=True, related_name='wards')
     enrollment_date = models.DateField(null=True, blank=True, help_text="Date the student was admitted to the school")
 
     # Personal Info

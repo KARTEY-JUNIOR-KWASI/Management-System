@@ -146,8 +146,16 @@ def student_create(request):
         if form.is_valid():
             student = form.save()
             msg = f'Student {student.user.get_full_name()} created successfully.'
-            if hasattr(form, 'generated_password'):
-                msg += f' [User ID: {form.generated_username}] [Password: {form.generated_password}]'
+            if hasattr(form.instance, '_generated_password'):
+                username = getattr(form.instance, '_generated_username', 'N/A')
+                password = getattr(form.instance, '_generated_password', 'N/A')
+                msg += f' [Student ID: {username}] [Password: {password}]'
+            
+            if hasattr(form.instance, '_parent_generated_password'):
+                p_username = getattr(form.instance, '_parent_generated_username', 'N/A')
+                p_password = getattr(form.instance, '_parent_generated_password', 'N/A')
+                msg += f' | [Guardian ID: {p_username}] [Password: {p_password}]'
+                
             messages.success(request, msg)
             return redirect('student_list')
     else:

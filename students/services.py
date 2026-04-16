@@ -69,11 +69,43 @@ class StudentService:
         student.emergency_contact_phone = data.get('emergency_contact_phone', '')
         student.emergency_contact_relationship = data.get('emergency_contact_relationship', '')
         
-        student.save()
-        
-        # Store auto-generated credentials for UI feedback
-        student._generated_password = password
-        student._generated_username = username
+
+        # 5. Guardian Hub Activation (NEW)
+        parent_email = data.get('parent_email')
+        if parent_email:
+            # Check if a guardian with this email already exists
+            parent_user = User.objects.filter(email=parent_email, role='parent').first()
+            
+            if not parent_user:
+                # Create a new Guardian Identity
+                p_username = generate_user_id('parent')
+                p_password = generate_random_password(12)
+                
+                parent_user = User.objects.create_user(
+                    username=p_username,
+                    email=parent_email,
+                    first_name=data.get('parent_name', 'Guardian'),
+                    password=p_password,
+                    role='parent'
+                )
+                
+                guardian_profile = Guardian.objects.create(
+                    user=parent_user,
+                    phone=data.get('parent_phone', ''),
+                    relationship_to_student=data.get('parent_relationship', '')
+                )
+                
+                # Store credentials for UI feedback
+                student._parent_generated_username = p_username
+                student._parent_generated_password = p_password
+            else:
+                guardian_profile = getattr(parent_user, 'guardian_profile', None)
+                if not guardian_profile:
+                    guardian_profile = Guardian.objects.create(user=parent_user)
+
+            # Link student to this guardian
+            student.guardian = guardian_profile
+            student.save()
         
         return student
 

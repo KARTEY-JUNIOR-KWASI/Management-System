@@ -2,12 +2,47 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
 from datetime import date, timedelta
-from accounts.decorators import student_required
+from accounts.decorators import student_required, parent_required
 from core.models import Result, Subject, Attendance, Assignment, Submission, House, HousePointLog
-from .models import Student
+from .models import Student, Guardian
 from analytics.analytics_engine import (
     _calculate_student_performance, _generate_grade_predictions
 )
+
+@parent_required
+def guardian_dashboard(request):
+    """Premium oversight portal for parents/guardians to track multiple students."""
+    from analytics.analytics_engine import _calculate_student_performance
+    from core.models import NoticeBoard
+    from django.utils import timezone
+    from django.db.models import Q
+    
+    guardian = get_object_or_404(Guardian, user=request.user)
+    wards = guardian.wards.with_performance_stats().select_related('class_enrolled')
+    
+    # Enrich wards with performance metrics
+    ward_data = []
+    for ward in wards:
+        perf = _calculate_student_performance(ward)
+        ward_data.append({
+            'student': ward,
+            'attendance': perf.get('attendance_rate', 0),
+            'gpa': perf.get('gpa', 0),
+            'recent_results': Result.objects.filter(student=ward).order_by('-date')[:3],
+            'upcoming_assignments': Assignment.objects.filter(class_assigned=ward.class_enrolled, due_date__gte=date.today()).order_by('due_date')[:3]
+        })
+
+    # Institutional Notices for Parents
+    notices = list(NoticeBoard.objects.filter(
+        Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
+    ).order_by('-is_pinned', '-created_at')[:5])
+    
+    context = {
+        'guardian': guardian,
+        'ward_data': ward_data,
+        'notices': notices,
+    }
+    return render(request, 'students/guardian_dashboard.html', context)
 
 def _get_or_create_student(user):
     student, created = Student.objects.get_or_create(

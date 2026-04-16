@@ -17,6 +17,7 @@ class User(AbstractUser):
         ('admin', 'Admin'),
         ('teacher', 'Teacher'),
         ('student', 'Student'),
+        ('parent', 'Parent'),
     )
     GENDER_CHOICES = (
         ('male', 'Male'),
