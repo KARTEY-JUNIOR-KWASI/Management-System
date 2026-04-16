@@ -119,7 +119,7 @@ def create_notice(request):
             
             # Dispatch notifications to ALL users for institutional awareness
             from accounts.models import User
-            from analytics.models import Notification
+            from core.models import Notification
             
             users = User.objects.all()
             notifications = [

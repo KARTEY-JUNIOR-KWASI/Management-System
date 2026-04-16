@@ -37,11 +37,14 @@
                 </div>
             </div>
             {% if ward.student.house %}
-            <div class="text-right">
-                <span class="text-[9px] font-black uppercase tracking-widest text-gray-300 block mb-1">House Alliance</span>
-                <span class="bg-gray-50 px-3 py-1 rounded-full text-[10px] font-bold border border-gray-100" style="color: {{ ward.student.house.color_code }};">
-                    {{ ward.student.house.name }}
-                </span>
+            <div class="text-right group">
+                <span class="text-[9px] font-black uppercase tracking-widest text-gray-300 block mb-1 group-hover:text-indigo-400 transition-colors">Unified Alliance</span>
+                <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-md">
+                    <div class="w-2 h-2 rounded-full animate-pulse shadow-[0_0_8px_rgba(0,0,0,0.2)]" style="background-color: {{ ward.student.house.color_code }};"></div>
+                    <span class="text-[10px] font-black text-gray-800 uppercase tracking-tight">
+                        {{ ward.student.house.name }}
+                    </span>
+                </div>
             </div>
             {% endif %}
         </div>

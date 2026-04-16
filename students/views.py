@@ -99,6 +99,9 @@ def student_dashboard(request):
         {'url': reverse('download_report_card_pdf'), 'icon': 'file-text', 'label': 'Report Card', 'desc': 'Download transcript', 'icon_bg': 'rgba(239, 68, 68, 0.1)', 'icon_color': '#ef4444'},
     ]
 
+    # House Leaderboard for Dashboard Pulse
+    house_leaderboard = House.objects.all().order_by('-points')
+    
     context = {
         'student': student,
         'attendance_percentage': performance_data.get('attendance_rate', 0),
@@ -110,6 +113,7 @@ def student_dashboard(request):
         'upcoming_assignments': upcoming_assignments,
         'actions_data': actions_data,
         'notices': notices,
+        'house_leaderboard': house_leaderboard,
     }
     return render(request, 'students/dashboard.html', context)
 
