@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib import messages
 from datetime import date, timedelta
 from accounts.decorators import student_required
-from core.models import Result, Subject, Attendance, Assignment, Submission
+from core.models import Result, Subject, Attendance, Assignment, Submission, House, HousePointLog
 from .models import Student
 from analytics.analytics_engine import (
     _calculate_student_performance, _generate_grade_predictions
@@ -59,6 +59,7 @@ def student_dashboard(request):
         {'url': reverse('view_assignments'), 'icon': 'clipboard-list', 'label': 'Assignments', 'desc': 'Active objectives', 'icon_bg': 'rgba(245, 158, 11, 0.1)', 'icon_color': '#f59e0b'},
         {'url': reverse('student_timetable'), 'icon': 'calendar', 'label': 'Timetable', 'desc': 'Schedule overview', 'icon_bg': 'rgba(14, 165, 233, 0.1)', 'icon_color': '#0ea5e9'},
         {'url': reverse('student_library'), 'icon': 'library', 'label': 'Library Vault', 'desc': 'Digital resources', 'icon_bg': 'rgba(59, 130, 246, 0.1)', 'icon_color': '#3b82f6'},
+        {'url': reverse('house_alliance_hub'), 'icon': 'shield', 'label': 'House Alliance', 'desc': 'Points & Companions', 'icon_bg': 'rgba(234, 179, 8, 0.1)', 'icon_color': '#eab308'},
         {'url': reverse('finance:student_finance_hub'), 'icon': 'wallet', 'label': 'Treasury', 'desc': 'Financial records', 'icon_bg': 'rgba(168, 85, 247, 0.1)', 'icon_color': '#a855f7'},
         {'url': reverse('download_report_card_pdf'), 'icon': 'file-text', 'label': 'Report Card', 'desc': 'Download transcript', 'icon_bg': 'rgba(239, 68, 68, 0.1)', 'icon_color': '#ef4444'},
     ]
@@ -256,3 +257,30 @@ def download_report_card_pdf(request):
     
     from analytics.views import _generate_progress_report
     return _generate_progress_report(request, start_date, end_date)
+
+@student_required
+def house_alliance_hub(request):
+    student = _get_or_create_student(request.user)
+    house = student.house
+    
+    if not house:
+        messages.warning(request, "Institutional Identity Hub: No House affiliation detected.")
+        return redirect('student_dashboard')
+
+    # Get Housemates (Companions)
+    companions = Student.objects.filter(house=house).select_related('user').exclude(id=student.id)[:20]
+    
+    # Get Global Leaderboard
+    leaderboard = House.objects.all().order_by('-points')
+    
+    # Get Recent Point Logs
+    recent_logs = HousePointLog.objects.filter(house=house).order_by('-created_at')[:10]
+    
+    context = {
+        'student': student,
+        'house': house,
+        'companions': companions,
+        'leaderboard': leaderboard,
+        'recent_logs': recent_logs,
+    }
+    return render(request, 'students/house_hub.html', context)

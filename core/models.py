@@ -5,7 +5,10 @@ from django.utils import timezone
 class House(models.Model):
     """Institutional house system for student identification and competition."""
     name = models.CharField(max_length=100, unique=True)
-    color_code = models.CharField(max_length=20, default="#4361ee", help_text="Hex color code for identification (e.g. #FF0000)")
+    color_code = models.CharField(max_length=20, default="#4361ee", help_text="Hex color code (e.g. Red=#FF0000)")
+    motto = models.CharField(max_length=200, blank=True, help_text="The house's guiding philosophy.")
+    points = models.IntegerField(default=0, help_text="Cumulative point tally for the house.")
+    patron = models.CharField(max_length=100, blank=True, help_text="The staff member or patron overseeing the house.")
     description = models.TextField(blank=True)
 
     class Meta:
@@ -13,7 +16,34 @@ class House(models.Model):
         verbose_name_plural = "Institutional Houses"
 
     def __str__(self):
-        return self.name
+        return f"{self.name} House"
+
+class HousePointLog(models.Model):
+    """Ledger tracking house point acquisitions and deductions."""
+    CATEGORIES = [
+        ('academic', 'Academic Excellence'),
+        ('sports', 'Sports & Athletics'),
+        ('discipline', 'Disciplinary Action'),
+        ('event', 'Institutional Event'),
+        ('other', 'Other'),
+    ]
+    house = models.ForeignKey(House, on_delete=models.CASCADE, related_name='point_logs')
+    points = models.IntegerField(help_text="Positive for awards, negative for deductions.")
+    category = models.CharField(max_length=20, choices=CATEGORIES, default='academic')
+    reason = models.TextField()
+    awarded_by = models.ForeignKey('accounts.User', on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # Synchronize House total points automatically
+        if not self.pk:
+            self.house.points += self.points
+            self.house.save()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-created_at']
+
 
 class AcademicTerm(models.Model):
     """Naming and duration for institutional periods (e.g. First Term 2024)."""

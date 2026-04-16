@@ -142,7 +142,11 @@
               <i data-lucide="calendar" class="mr-3 h-5 w-5 flex-shrink-0"></i>
               Timetable
             </a>
-          {% elif user.role == 'teacher' %}
+            <a href="{% url 'manage_houses' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'manage_houses' %}bg-indigo-900/60 text-yellow-400 shadow-sm border border-indigo-800/50{% else %}text-indigo-200 hover:bg-white/5 hover:text-white{% endif %}">
+              <i data-lucide="shield" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              House Alliances
+            </a>
+{% elif user.role == 'teacher' %}
             <a href="{% url 'mark_attendance' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'mark_attendance' %}bg-indigo-900/60 text-yellow-400 shadow-sm border border-indigo-800/50{% else %}text-indigo-200 hover:bg-white/5 hover:text-white{% endif %}">
               <i data-lucide="scan-line" class="mr-3 h-5 w-5 flex-shrink-0"></i>
               Mark Attendance
@@ -176,7 +180,11 @@
               <i data-lucide="calendar" class="mr-3 h-5 w-5 flex-shrink-0"></i>
               Timetable
             </a>
-          {% endif %}
+            <a href="{% url 'house_alliance_hub' %}" class="group flex items-center px-4 py-2.5 text-sm font-bold rounded-2xl transition-all {% if request.resolver_match.url_name == 'house_alliance_hub' %}bg-indigo-900/60 text-yellow-400 shadow-sm border border-indigo-800/50{% else %}text-indigo-200 hover:bg-white/5 hover:text-white{% endif %}">
+              <i data-lucide="shield" class="mr-3 h-5 w-5 flex-shrink-0"></i>
+              House Alliance
+            </a>
+{% endif %}
 
           <!-- ── Section: Intelligence ── -->
           <p class="px-4 pt-5 pb-1 text-[9px] font-extrabold text-indigo-400 uppercase tracking-[0.2em]">Intelligence</p>

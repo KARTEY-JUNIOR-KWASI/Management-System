@@ -4,6 +4,25 @@
 {% block content %}
 <div class="space-y-6">
 
+  <!-- ── Institutional Identity Header ────────────────── -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2 animate-fade-up">
+    <div>
+        <h1 class="text-3xl font-black text-gray-800 tracking-tighter">Academic Nexus</h1>
+        <p class="text-gray-500 font-medium text-sm">Synchronized with Institutional Directives.</p>
+    </div>
+    {% if student.house %}
+    <a href="{% url 'house_alliance_hub' %}" class="flex items-center gap-3 bg-white border border-gray-100 p-2 pr-5 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg" style="background-color: {{ student.house.color_code|default:'#4361ee' }};">
+            <i data-lucide="shield" class="w-5 h-5"></i>
+        </div>
+        <div>
+            <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 group-hover:text-indigo-600 transition-colors">House Alliance</p>
+            <h4 class="font-bold text-gray-800 leading-tight">{{ student.house.name }}</h4>
+        </div>
+    </a>
+    {% endif %}
+  </div>
+
   <!-- ── Global Academic Diagnostics (Stats) ────────────────────────── -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 animate-card">
     <div class="bg-indigo-600 rounded-3xl p-5 text-white shadow-xl shadow-indigo-100 relative overflow-hidden">

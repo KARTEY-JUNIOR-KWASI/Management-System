@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from functools import wraps
 from students.models import Student
 from teachers.models import Teacher
-from core.models import Class, Subject, Attendance, Result, Assignment, Submission, AuditLog, NoticeBoard
+from core.models import Class, Subject, Attendance, Result, Assignment, Submission, AuditLog, NoticeBoard, House, HousePointLog
 from .forms import StudentForm, TeacherForm, SubjectForm, ClassForm
 from django.core.paginator import Paginator
 
@@ -659,3 +659,34 @@ def delete_term(request, pk):
         messages.warning(request, 'Term deleted permanently.')
     return redirect('manage_terms')
 
+
+@admin_required
+def manage_houses(request):
+    houses = House.objects.all().order_by('-points')
+    logs = HousePointLog.objects.select_related('house', 'awarded_by').all()[:20]
+    
+    if request.method == 'POST':
+        house_id = request.POST.get('house_id')
+        pts = int(request.POST.get('points', 0))
+        category = request.POST.get('category', 'other')
+        reason = request.POST.get('reason', 'Institutional Merit')
+        
+        house = get_object_or_404(House, id=house_id)
+        
+        HousePointLog.objects.create(
+            house=house,
+            points=pts,
+            category=category,
+            reason=reason,
+            awarded_by=request.user
+        )
+        
+        messages.success(request, f"Successfully adjusted points for {house.name} House!")
+        return redirect('manage_houses')
+        
+    context = {
+        'houses': houses,
+        'logs': logs,
+        'categories': HousePointLog.CATEGORIES,
+    }
+    return render(request, 'admin_dashboard/manage_houses.html', context)
