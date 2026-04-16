@@ -84,7 +84,7 @@
     margin-bottom: 1.5rem;
 }
 
-.nexus-input-group i {
+.nexus-input-group i, .nexus-input-group svg, .nexus-input-group [data-lucide] {
     position: absolute;
     left: 1.25rem;
     top: 50%;
@@ -92,6 +92,10 @@
     color: var(--nexus-gold);
     opacity: 0.7;
     transition: all 0.3s ease;
+    width: 1.2rem;
+    height: 1.2rem;
+    pointer-events: none;
+    z-index: 20;
 }
 
 .nexus-input {
@@ -114,7 +118,7 @@
     transform: scale(1.02);
 }
 
-.nexus-input:focus + i {
+.nexus-input:focus + i, .nexus-input:focus + svg, .nexus-input:focus + [data-lucide] {
     opacity: 1;
     color: #fff;
 }

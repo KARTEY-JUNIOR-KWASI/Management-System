@@ -7,6 +7,81 @@
   <title>{% block title %}EduMS Intelligence{% endblock %}</title>
   
   <!-- Fonts: Outfit for titles, Inter for body -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <style>
+    /* 🛰️ Intelligence CMD Styles */
+    #intel-cmd-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(10, 14, 26, 0.8);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+    }
+    #intel-cmd-palette {
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 600px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(40px);
+        -webkit-backdrop-filter: blur(40px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+        overflow: hidden;
+    }
+    .cmd-search-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 1.5rem 2rem 1.5rem 4rem;
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 700;
+        outline: none;
+    }
+    .cmd-results-container {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .cmd-result-item {
+        padding: 1rem 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        text-decoration: none !important;
+    }
+    .cmd-result-item:hover, .cmd-result-item.active {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .cmd-result-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffb000;
+    }
+    .cmd-empty-state {
+        padding: 3rem;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.2);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.75rem;
+    }
+  </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">

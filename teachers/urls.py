@@ -12,4 +12,5 @@ urlpatterns = [
     path('assignments/<int:assignment_id>/grade/', views.grade_submissions, name='grade_submissions'),
     path('students/<int:student_id>/report-card/', views.student_report_card, name='student_report_card'),
     path('timetable/', views.teacher_timetable, name='teacher_timetable'),
+    path('merit/award/', views.award_merit, name='award_merit'),
 ]

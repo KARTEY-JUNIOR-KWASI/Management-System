@@ -5,13 +5,52 @@
 <div class="space-y-6">
 
   <!-- ── Dynamic Action Grid (Fintech Style) ────────────────────────── -->
-  <section class="animate-card">
-    <div class="flex items-center justify-between mb-2 px-1">
-      <h2 class="text-gray-900 font-display font-extrabold text-xl tracking-tight">Financial & Ops Hub</h2>
-      <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Protocol Active</span>
+  <section class="animate-card grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div class="lg:col-span-3">
+        <div class="flex items-center justify-between mb-2 px-1">
+            <h2 class="text-gray-900 font-display font-extrabold text-xl tracking-tight">Financial & Ops Hub</h2>
+            <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Protocol Active</span>
+        </div>
+        {% include 'components/action_grid.html' with actions=actions_data %}
     </div>
-    
-    {% include 'components/action_grid.html' with actions=actions_data %}
+
+    <!-- 📡 Institutional Pulse Card -->
+    <div class="lg:col-span-1">
+        <div class="flex items-center justify-between mb-2 px-1">
+            <h2 class="text-gray-900 font-display font-extrabold text-xl tracking-tight">Institutional Pulse</h2>
+        </div>
+        <div class="bg-indigo-600 rounded-3xl p-6 text-white relative overflow-hidden shadow-xl shadow-indigo-200">
+            <!-- Pulse Animation Overlay -->
+            <div class="absolute inset-0 bg-white/5 animate-pulse"></div>
+            
+            <div class="relative z-10 space-y-6">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black uppercase tracking-widest opacity-60">Presence Sync</span>
+                        <span id="att-pulse-val" class="text-xs font-black">--%</span>
+                    </div>
+                    <div class="h-2 bg-black/20 rounded-full overflow-hidden">
+                        <div id="att-pulse-bar" class="h-full bg-white transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black uppercase tracking-widest opacity-60">Revenue Velocity</span>
+                        <span id="rev-pulse-val" class="text-xs font-black">--%</span>
+                    </div>
+                    <div class="h-2 bg-black/20 rounded-full overflow-hidden">
+                        <div id="rev-pulse-bar" class="h-full bg-yellow-400 transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="pt-2 border-t border-white/10 flex items-center justify-between">
+                    <span id="pulse-status" class="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">Initializing...</span>
+                    <i data-lucide="activity" class="w-4 h-4 text-green-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
   </section>
 
   <!-- ── Intelligence Feed & Summary ─────────────────────────────── -->
@@ -162,6 +201,23 @@
                 }
             });
         }
+
+        // --- Institutional Pulse Fetching ---
+        function updatePulse() {
+            fetch('/api/pulse/')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('att-pulse-val').innerText = data.attendance_pulse + '%';
+                    document.getElementById('att-pulse-bar').style.width = data.attendance_pulse + '%';
+                    
+                    document.getElementById('rev-pulse-val').innerText = data.revenue_pulse + '%';
+                    document.getElementById('rev-pulse-bar').style.width = data.revenue_pulse + '%';
+                    
+                    document.getElementById('pulse-status').innerText = data.status;
+                });
+        }
+        updatePulse();
+        setInterval(updatePulse, 30000); // 30s re-sync
     });
 </script>
 {% endblock %}

@@ -5,13 +5,66 @@
 <div class="space-y-6">
 
   <!-- ── Operational Suite (Action Grid) ────────────────────────── -->
-  <section class="animate-card">
-    <div class="flex items-center justify-between mb-2 px-1">
-      <h2 class="text-gray-900 font-display font-extrabold text-xl tracking-tight">Operational Suite</h2>
-      <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Mastery Sync Active</span>
+  <section class="animate-card grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div class="lg:col-span-3">
+        <div class="flex items-center justify-between mb-2 px-1">
+            <h2 class="text-gray-900 font-display font-extrabold text-xl tracking-tight">Operational Suite</h2>
+            <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-full uppercase tracking-widest">Mastery Sync Active</span>
+        </div>
+        {% include 'components/action_grid.html' with actions=actions_data %}
     </div>
-    
-    {% include 'components/action_grid.html' with actions=actions_data %}
+
+    <!-- 🛡️ Institutional Merit Hub -->
+    <div class="lg:col-span-1">
+        <div class="flex items-center justify-between mb-2 px-1">
+            <h2 class="text-gray-900 font-display font-extrabold text-xl tracking-tight">Merit Synchronizer</h2>
+        </div>
+        <div class="bg-indigo-900 rounded-3xl p-6 text-white shadow-xl shadow-indigo-100 overflow-hidden relative border border-indigo-800">
+            <div class="absolute -right-4 -top-4 opacity-10">
+                <i data-lucide="shield-check" class="w-24 h-24"></i>
+            </div>
+            
+            <form action="{% url 'award_merit' %}" method="POST" class="relative z-10 space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 mb-1.5 block">Select Entity</label>
+                    <select name="student_id" class="w-full bg-indigo-800/50 border border-indigo-700 rounded-xl px-3 py-2 text-xs font-bold text-white outline-none focus:ring-2 focus:ring-amber-500 transition-all cursor-pointer shadow-sm" required>
+                        <option value="" disabled selected>Identify Entity...</option>
+                        {% for cls in classes %}
+                            <optgroup label="{{ cls.name }}-{{ cls.section }}">
+                                {% for s in cls.student_set.all %}
+                                    <option value="{{ s.id }}">{{ s.user.get_full_name }}</option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 mb-1.5 block">Protocol</label>
+                        <select name="category" class="w-full bg-indigo-800/50 border border-indigo-700 rounded-xl px-3 py-2 text-xs font-bold text-white outline-none cursor-pointer">
+                            <option value="academic">Academic</option>
+                            <option value="sports">Sports</option>
+                            <option value="discipline">Merit</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 mb-1.5 block">Magnitude</label>
+                        <select name="points" class="w-full bg-indigo-800/50 border border-indigo-700 rounded-xl px-3 py-2 text-xs font-bold text-white outline-none cursor-pointer">
+                            <option value="5">+5 Index</option>
+                            <option value="10">+10 Index</option>
+                            <option value="20">+20 Major</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-indigo-950 font-black text-[10px] uppercase tracking-widest py-3 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+                    Award Merit <i data-lucide="zap" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+    </div>
   </section>
 
   <!-- ── Diagnostics, Analytics & Notices ─────────────────────────────── -->

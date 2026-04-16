@@ -674,3 +674,27 @@ def teacher_timetable(request):
         'schedule_list': schedule_list,
     }
     return render(request, 'teachers/timetable.html', context)
+@teacher_required
+def award_merit(request):
+    """Teachers can award points to student houses for academic/sports merit."""
+    from core.models import HousePointLog, House
+    if request.method == 'POST':
+        student_id = request.POST.get('student_id')
+        points_val = int(request.POST.get('points', 5))
+        category = request.POST.get('category', 'academic')
+        reason = request.POST.get('reason', 'Academic Excellence')
+        
+        student = get_object_or_404(Student, id=student_id)
+        if student.house:
+            HousePointLog.objects.create(
+                house=student.house,
+                points=points_val,
+                category=category,
+                reason=f"{reason} (Awarded by: {request.user.get_full_name()})",
+                awarded_by=request.user
+            )
+            messages.success(request, f"Successfully awarded {points_val} points to {student.house.name} House via {student.user.get_full_name()}!")
+        else:
+            messages.error(request, f"{student.user.get_full_name()} is not currently assigned to an Institutional House.")
+            
+    return redirect('teacher_dashboard')
