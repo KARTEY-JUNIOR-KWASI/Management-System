@@ -551,7 +551,8 @@
 
                     <div class="text-start mb-4">
                         <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Payment Value ({{ school_config.currency_symbol|default:"&#8373;" }})</label>
-                        <input type="number" name="amount" step="0.01" max="{{ invoice.balance_due }}" min="0.01" class="form-control nexus-input-terminal px-3 fw-800 text-success text-center" style="height: 65px; font-size: 1.8rem; border-radius: 16px;" value="{{ invoice.balance_due }}" required>
+                        <div class="extra-small text-muted fw-bold mb-2 ml-1"><i data-lucide="info" class="w-3 h-3 inline"></i> Enter full or partial amount received</div>
+                        <input type="number" name="amount" step="0.01" max="{{ invoice.balance_due }}" min="0.01" class="form-control nexus-input-terminal px-3 fw-800 text-success text-center" style="height: 65px; font-size: 1.8rem; border-radius: 16px;" value="{{ invoice.balance_due }}" placeholder="Partial payment allowed..." required>
                     </div>
                     <div class="text-start mb-3">
                         <label class="form-label nexus-label-terminal extra-small text-uppercase opa-7">Method Protocol</label>
