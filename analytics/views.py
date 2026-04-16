@@ -680,11 +680,13 @@ def _generate_progress_report(request, start_date, end_date):
     student = _get_or_create_student(request.user)
     
     # 🔒 Institutional Finance Guard: Block PDF generation if student has unpaid fees
-    from finance.models import Invoice
-    has_unpaid = Invoice.objects.filter(student=student, status__in=['unpaid', 'partial']).exists()
-    if has_unpaid:
-        messages.error(request, 'SECURITY LOCK: Academic Report Cards are restricted until outstanding fees are cleared.')
-        return redirect('finance:student_finance_hub')
+    # Whitelist Check: Lift ban manually for special cases
+    if not getattr(student, 'financial_block_override', False):
+        from finance.models import Invoice
+        has_unpaid = Invoice.objects.filter(student=student, status__in=['unpaid', 'partial']).exists()
+        if has_unpaid:
+            messages.error(request, 'SECURITY LOCK: Academic Report Cards are restricted until outstanding fees are cleared.')
+            return redirect('finance:student_finance_hub')
         
     config = get_institutional_metadata()
 
