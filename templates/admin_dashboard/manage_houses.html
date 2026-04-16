@@ -9,6 +9,14 @@
         <div>
             <h1 class="text-3xl font-black text-gray-800 tracking-tighter text-balance">House Alliances</h1>
             <p class="text-gray-500 font-medium text-sm">Institutional Merit & Competitive Logic Management.</p>
+        <div class="flex flex-col sm:flex-row items-center gap-3">
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" name="sync_protocol" class="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-5 py-2.5 rounded-2xl transition-all shadow-sm active:scale-95 text-sm">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    Synchronize All Students
+                </button>
+            </form>
         </div>
     </div>
 

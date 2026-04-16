@@ -674,6 +674,11 @@ def manage_houses(request):
     logs = HousePointLog.objects.select_related('house', 'awarded_by').all()[:20]
     
     if request.method == 'POST':
+        if 'sync_protocol' in request.POST:
+            count = StudentService.sync_all_unassigned_students()
+            messages.success(request, f'Institutional Protocol Active: {count} student(s) successfully aligned with their Houses.')
+            return redirect('manage_houses')
+            
         house_id = request.POST.get('house_id')
         pts = int(request.POST.get('points', 0))
         category = request.POST.get('category', 'other')

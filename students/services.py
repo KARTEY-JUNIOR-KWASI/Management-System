@@ -2,8 +2,8 @@ from django.db import transaction
 from django.db.models import Count
 from accounts.models import User
 from accounts.utils import generate_user_id, generate_random_password
-from core.models import House
-from .models import Student
+from core.models import House, HousePointLog
+from .models import Student, Guardian
 
 class StudentService:
     @staticmethod
@@ -23,6 +23,18 @@ class StudentService:
                 student.save()
                 return student.house
         return student.house
+
+    @staticmethod
+    def sync_all_unassigned_students():
+        """
+        Repair Tool: Identifies and aligns all students who are currently 
+        orphaned from the Institutional House system.
+        """
+        unassigned = Student.objects.filter(house__isnull=True)
+        count = unassigned.count()
+        for student in unassigned:
+            StudentService.assign_automated_house(student)
+        return count
 
     @staticmethod
     @transaction.atomic
