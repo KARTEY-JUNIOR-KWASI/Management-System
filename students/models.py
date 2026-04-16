@@ -73,6 +73,7 @@ class Student(models.Model):
     age = models.PositiveIntegerField(null=True, blank=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    financial_block_override = models.BooleanField(default=False, help_text="If True, the student will have access even with unpaid fees.")
     hobbies = models.TextField(blank=True, help_text="Student's hobbies and interests")
 
     # Parent / Guardian Info

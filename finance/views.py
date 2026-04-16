@@ -161,6 +161,17 @@ def record_payment(request, invoice_id):
     return redirect('finance:finance_hub')
 
 @admin_required
+def toggle_financial_block_override(request, student_id):
+    """Lifts or imposes academic blocks manually for specific students."""
+    student = get_object_or_404(Student, id=student_id)
+    student.financial_block_override = not student.financial_block_override
+    student.save(update_fields=['financial_block_override'])
+    
+    status = "LIFTED" if student.financial_block_override else "RESTORED"
+    messages.success(request, f'Institutional Protocol: Financial ban for {student.user.get_full_name()} has been {status}.')
+    return redirect('finance:finance_hub')
+
+@admin_required
 def generate_payment_receipt(request, payment_id):
     """Generate a professional, print-ready PDF receipt for a transaction."""
     payment = get_object_or_404(Payment, id=payment_id)

@@ -20,7 +20,13 @@ def student_financial_status(request):
     """Injects a global debt marker for students to trigger the intelligent prompt."""
     if request.user.is_authenticated and request.user.role == 'student':
         from finance.models import Invoice
+        from students.models import Student
         from django.db.models import Sum
+        
+        student = Student.objects.filter(user=request.user).first()
+        if student and student.financial_block_override:
+            return {'has_unpaid_fees': False, 'unpaid_fees_amount': 0}
+            
         debt = Invoice.objects.filter(
             student__user=request.user, 
             status__in=['unpaid', 'partial']

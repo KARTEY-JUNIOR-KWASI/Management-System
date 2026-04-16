@@ -15,4 +15,5 @@ urlpatterns = [
     path('structure/add/', views.manage_fee_structure, name='add_structure'),
     path('structure/<int:pk>/edit/', views.manage_fee_structure, name='edit_structure'),
     path('student/', views.student_finance_hub, name='student_finance_hub'),
+    path('student/<int:student_id>/toggle-block-override/', views.toggle_financial_block_override, name='toggle_block_override'),
 ]
