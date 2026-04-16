@@ -2,280 +2,94 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{% block title %}Authorized Access — EduMS Intelligence{% endblock %}
+{% block title %}Neural Sync — Authorized Access{% endblock %}
 
 {% block extra_head %}
-<!-- Google Fonts: Inter & Outfit -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
-
-<style>
-    :root {
-        --glass-bg: rgba(255, 255, 255, 0.05);
-        --glass-border: rgba(255, 255, 255, 0.1);
-        --amber-glow: rgba(255, 176, 0, 0.4);
-    }
-
-    body, html {
-        height: 100%;
-        margin: 0;
-        font-family: 'Inter', sans-serif;
-        background: #000;
-        overflow: hidden;
-    }
-
-    .nexus-wrapper {
-        position: relative;
-        width: 100%;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: url("{% static 'images/portal_nexus_bg.png' %}") no-repeat center center;
-        background-size: cover;
-    }
-
-    .nexus-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: radial-gradient(circle at center, transparent 0%, rgba(0, 28, 48, 0.85) 100%);
-        backdrop-filter: blur(2px);
-        z-index: 1;
-    }
-
-    .login-portal-card {
-        position: relative;
-        z-index: 10;
-        width: 100%;
-        max-width: 460px;
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(40px);
-        -webkit-backdrop-filter: blur(40px);
-        border: 1px solid var(--glass-border);
-        border-radius: 40px;
-        padding: 4rem 3.5rem;
-        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
-        overflow: hidden;
-    }
-
-    .login-portal-card::before {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: -2px;
-        right: -2px;
-        bottom: -2px;
-        background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent, rgba(255,176,0,0.1));
-        border-radius: 42px;
-        z-index: -1;
-    }
-
-    .portal-branding {
-        text-align: center;
-        margin-bottom: 3.5rem;
-    }
-
-    .portal-branding h1 {
-        font-family: 'Outfit', sans-serif;
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: #fff;
-        margin: 0;
-        letter-spacing: -1.5px;
-        text-transform: uppercase;
-    }
-
-    .portal-tagline {
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 0.9rem;
-        margin-top: 0.5rem;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        font-weight: 500;
-    }
-
-    .auth-input-group {
-        position: relative;
-        margin-bottom: 1.75rem;
-    }
-
-    .auth-input-group i {
-        position: absolute;
-        left: 1.25rem;
-        top: 1.1rem;
-        color: #FFB000;
-        font-size: 1.1rem;
-        opacity: 0.8;
-    }
-
-    .portal-field {
-        width: 100%;
-        height: 58px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 0 1.5rem 0 3.5rem;
-        color: #fff;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .portal-field:focus {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: #FFB000;
-        box-shadow: 0 0 20px rgba(255, 176, 0, 0.2);
-        outline: none;
-    }
-
-    .portal-btn {
-        width: 100%;
-        height: 58px;
-        background: linear-gradient(135deg, #FFB000, #E69D00);
-        color: #001C30;
-        border: none;
-        border-radius: 16px;
-        font-weight: 800;
-        font-size: 1.1rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.75rem;
-        margin-top: 1rem;
-    }
-
-    .portal-btn:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(255, 176, 0, 0.4);
-    }
-
-    .portal-footer {
-        margin-top: 3rem;
-        text-align: center;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        padding-top: 2rem;
-    }
-
-    .portal-link {
-        color: rgba(255, 255, 255, 0.5);
-        text-decoration: none;
-        font-size: 0.85rem;
-        font-weight: 600;
-        transition: color 0.3s ease;
-    }
-
-    .portal-link:hover {
-        color: #FFB000;
-    }
-
-    .security-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: rgba(0, 0, 0, 0.3);
-        padding: 0.4rem 1rem;
-        border-radius: 100px;
-        color: rgba(255, 255, 255, 0.4);
-        font-size: 0.75rem;
-        margin-top: 1.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    /* Animations */
-    .fade-in { animation: fadeIn 1s ease forwards; opacity: 0; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    @keyframes slideUp {
-        from { transform: translateY(40px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-    .animate-portal { animation: slideUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
-
-</style>
+<link rel="stylesheet" href="{% static 'css/entrance_premium.css' %}">
 {% endblock %}
 
 {% block noauth_content %}
-<div class="nexus-wrapper">
-    <div class="nexus-overlay"></div>
-    
-    <div class="login-portal-card animate-portal">
-        <div class="portal-branding">
-            <h1 class="fade-in">EduMS</h1>
-            <div class="portal-tagline">Intelligence Nexus</div>
+<div class="entrance-body">
+    <div class="entrance-card">
+        <!-- 🛰️ Branding Header -->
+        <div class="text-center mb-10">
+            <h1 class="glow-title glow-logo mb-0">EduMS</h1>
+            <div class="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 opacity-80">Institutional Intelligence Nexus</div>
+            <div class="text-white/30 text-xs mt-2 font-medium">Neural Session Synchronization</div>
         </div>
 
-        <form method="post" class="auth-form">
+        <form method="post" class="space-y-6">
             {% csrf_token %}
 
-            <!-- Unlock Login -->
-            <div class="auth-input-group">
-                <i class="fas fa-fingerprint"></i>
-                {% render_field form.login class="portal-field" placeholder="AUTHORIZED IDENTITY" %}
-                {% if form.login.errors %}
-                    {% for error in form.login.errors %}
-                        <div class="text-danger extra-small mt-2 px-1 fw-bold"><i class="fas fa-circle-exclamation me-1"></i> {{ error }}</div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-
-            <!-- Unlock Password -->
-            <div class="auth-input-group">
-                <i class="fas fa-shield-halved"></i>
-                {% render_field form.password class="portal-field" placeholder="SECURITY KEY" %}
-                {% if form.password.errors %}
-                    {% for error in form.password.errors %}
-                        <div class="text-danger extra-small mt-2 px-1 fw-bold"><i class="fas fa-circle-exclamation me-1"></i> {{ error }}</div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-
             {% if form.non_field_errors %}
-                <div class="p-3 bg-danger-soft text-danger small rounded-4 mb-4 border border-danger opacity-75">
-                    <i class="fas fa-ghost me-2"></i> {{ form.non_field_errors|join:", " }}
+                <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-xs font-bold flex items-center gap-3 animate-pulse">
+                    <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                    {{ form.non_field_errors|join:", " }}
                 </div>
             {% endif %}
 
-            <div class="d-flex justify-content-between align-items-center mb-4 px-1">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="remember" id="remember" style="background-color: transparent; border-color: rgba(255,255,255,0.2);">
-                    <label class="form-check-label text-muted small" for="remember">Preserve Neural Session</label>
-                </div>
-                <a href="{% url 'account_reset_password' %}" class="portal-link">Credential Recovery</a>
+            <!-- 🔑 Identity Terminal -->
+            <div class="nexus-input-group">
+                {% render_field form.login class="nexus-input" placeholder="AUTHORIZED IDENTITY" %}
+                <i data-lucide="fingerprint"></i>
+                {% if form.login.errors %}
+                <p class="text-[10px] text-red-500 font-bold mt-2 ml-1 uppercase tracking-wider">{{ form.login.errors|first }}</p>
+                {% endif %}
             </div>
 
-            <button type="submit" class="portal-btn">
+            <!-- 🛡️ Security Key -->
+            <div class="nexus-input-group">
+                {% render_field form.password class="nexus-input" placeholder="SECURITY KEY" %}
+                <i data-lucide="key-round"></i>
+                {% if form.password.errors %}
+                <p class="text-[10px] text-red-500 font-bold mt-2 ml-1 uppercase tracking-wider">{{ form.password.errors|first }}</p>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center justify-between px-1">
+                <label class="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" name="remember" id="remember" class="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-indigo-500 transition-all">
+                    <span class="text-[10px] font-bold text-white/40 group-hover:text-white/70 transition-colors uppercase tracking-widest">Preserve Neural Session</span>
+                </label>
+                <a href="{% url 'account_reset_password' %}" class="text-[10px] font-bold text-indigo-400 hover:text-white transition-colors uppercase tracking-widest">Credential Recovery</a>
+            </div>
+
+            <button type="submit" class="nexus-btn group">
                 <span>Unlock Terminal</span>
-                <i class="fas fa-chevron-right"></i>
+                <i data-lucide="chevron-right" class="w-5 h-5 transform group-hover:translate-x-1 transition-transform"></i>
             </button>
         </form>
 
-        <div class="portal-footer">
-            <div class="d-flex justify-content-center gap-4">
-                <a href="{% url 'student_signup' %}" class="portal-link">Student Hub</a>
-                <span style="color: rgba(255,255,255,0.1)">|</span>
-                <a href="{% url 'teacher_signup' %}" class="portal-link">Faculty Hub</a>
+        <!-- 🔗 Directives Footer -->
+        <div class="mt-12 pt-8 border-t border-white/5 text-center">
+            <div class="flex items-center justify-center gap-6 mb-8">
+                <a href="{% url 'student_signup' %}" class="text-[10px] font-black text-white/40 hover:text-indigo-400 transition-all uppercase tracking-[0.2em] flex items-center gap-2">
+                    <i data-lucide="graduation-cap" class="w-4 h-4"></i> Student Hub
+                </a>
+                <span class="w-1 h-1 bg-white/10 rounded-full"></span>
+                <a href="{% url 'teacher_signup' %}" class="text-[10px] font-black text-white/40 hover:text-indigo-400 transition-all uppercase tracking-[0.2em] flex items-center gap-2">
+                    <i data-lucide="briefcase" class="w-4 h-4"></i> Faculty Hub
+                </a>
             </div>
             
-            <div class="security-badge">
-                <i class="fas fa-lock" style="color: #FFB000; font-size: 0.6rem;"></i>
-                <span>Quantum-Encrypted Secure Terminal</span>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/40 border border-white/5 text-[9px] font-bold text-white/30 uppercase tracking-[0.3em]">
+                <i data-lucide="lock" class="w-3 h-3 text-yellow-500"></i>
+                AES-256 Encrypted Sync
             </div>
         </div>
     </div>
 </div>
 
-<!-- Background Particles / Ambience -->
 <script>
-    // Subtle mouse parallax effect
+    // Initialize Lucide Icons for the Terminal
+    lucide.createIcons();
+
+    // Cinematic Parallax
     document.addEventListener('mousemove', (e) => {
-        const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
-        const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
-        document.querySelector('.nexus-wrapper').style.backgroundPosition = `calc(50% + ${moveX}px) calc(50% + ${moveY}px)`;
+        const amount = 10;
+        const x = (e.clientX / window.innerWidth - 0.5) * amount;
+        const y = (e.clientY / window.innerHeight - 0.5) * amount;
+        document.querySelector('.entrance-card').style.transform = `perspective(1000px) rotateY(${x}deg) rotateX(${-y}deg)`;
     });
 </script>
 {% endblock noauth_content %}

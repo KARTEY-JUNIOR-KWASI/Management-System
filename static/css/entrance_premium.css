@@ -1,0 +1,183 @@
+/* 🛡️ Institutional Entrance: Premium Visual Logic */
+
+:root {
+    --nexus-indigo: #0a0e1a;
+    --nexus-blue: #4361ee;
+    --nexus-gold: #ffb000;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+.entrance-body {
+    background-color: var(--nexus-indigo);
+    background-image: url('../images/login_bg_premium.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    color: white;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 💠 Cinematic Overlay Matrix */
+.entrance-body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 0%, rgba(10, 14, 26, 0.8) 100%);
+    z-index: 1;
+}
+
+.entrance-body::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.3;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* 🧊 Holographic Glassmorphism Card */
+.entrance-card {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 480px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid var(--glass-border);
+    border-radius: 40px;
+    padding: 3rem;
+    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
+    animation: entranceFadeIn 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+/* ✨ Glowing Typography */
+.glow-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    letter-spacing: -2px;
+    background: linear-gradient(to bottom, #ffffff 30%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.glow-logo {
+    font-size: 3.5rem;
+    margin-bottom: 0.5rem;
+    filter: drop-shadow(0 0 15px rgba(255, 176, 0, 0.3));
+}
+
+/* ⚙️ Form Input Refinement */
+.nexus-input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.nexus-input-group i {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--nexus-gold);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.nexus-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.2rem 1.2rem 1.2rem 3.5rem;
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nexus-input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--nexus-gold);
+    box-shadow: 0 0 25px rgba(255, 176, 0, 0.15);
+    outline: none;
+    transform: scale(1.02);
+}
+
+.nexus-input:focus + i {
+    opacity: 1;
+    color: #fff;
+}
+
+/* ⚡ Action Button */
+.nexus-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--nexus-gold), #e69d00);
+    color: #0a0e1a;
+    border: none;
+    border-radius: 16px;
+    padding: 1.2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    box-shadow: 0 10px 30px rgba(255, 176, 0, 0.2);
+}
+
+.nexus-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(255, 176, 0, 0.4);
+    filter: brightness(1.1);
+}
+
+/* 🛸 Futuristic Animations */
+@keyframes entranceFadeIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 🏷️ Role Selection Tiles */
+.role-tile {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+}
+
+.role-tile:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--nexus-blue);
+    transform: translateY(-10px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+}
+
+.role-tile i {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.role-tile:hover i {
+    transform: scale(1.1) rotate(5deg);
+}
