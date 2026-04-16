@@ -1,126 +1,225 @@
 {% extends 'base.html' %}
-{% block title %}EduSystem — School Management Platform{% endblock %}
+{% load static %}
+
+{% block title %}EduMS — Institutional Intelligence Nexus{% endblock %}
+
+{% block extra_head %}
+<!-- Google Fonts: Outfit for titles -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/entrance_premium.css' %}">
+<style>
+    .landing-wrapper {
+        background-color: #0a0e1a;
+        background-image: 
+            radial-gradient(circle at 20% 20%, rgba(67, 97, 238, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 80% 80%, rgba(255, 176, 0, 0.1) 0%, transparent 40%);
+        min-height: 100vh;
+        position: relative;
+    }
+    .landing-content {
+        position: relative;
+        z-index: 10;
+        padding: 4rem 1.5rem;
+    }
+    .hero-nexus {
+        padding: 8rem 0 6rem 0;
+        text-align: center;
+    }
+    .hero-gradient-text {
+        background: linear-gradient(to bottom, #ffffff 40%, rgba(255,255,255,0.5) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1;
+    }
+    .glass-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(10, 14, 26, 0.5);
+    }
+</style>
+{% endblock %}
 
 {% block noauth_content %}
-<div class="landing-page">
-
-  <!-- Hero -->
-  <section class="landing-hero">
-    <div class="hero-logo">Edu<span>MS</span></div>
-    <h1>The Complete School<br>Management Platform</h1>
-    <p>Manage students, teachers, grades, attendance and analytics — all in one powerful and easy-to-use system.</p>
-
-    {% if not user.is_authenticated %}
-    <div class="hero-btns">
-      <a href="{% url 'account_login' %}" class="hero-btn-primary">
-        <i class="fas fa-sign-in-alt"></i> Log In to Your Portal
-      </a>
-    </div>
-    {% else %}
-    <div class="hero-btns">
-      {% if user.role == 'admin' %}
-        <a href="{% url 'admin_dashboard' %}" class="hero-btn-primary"><i class="fas fa-th-large"></i> Go to Dashboard</a>
-      {% elif user.role == 'teacher' %}
-        <a href="{% url 'teacher_dashboard' %}" class="hero-btn-primary"><i class="fas fa-th-large"></i> Go to Dashboard</a>
-      {% elif user.role == 'student' %}
-        <a href="{% url 'student_dashboard' %}" class="hero-btn-primary"><i class="fas fa-th-large"></i> Go to Dashboard</a>
-      {% endif %}
-    </div>
-    {% endif %}
-  </section>
-
-  <!-- Stats strip -->
-  <div class="stats-strip">
-    <div class="stats-strip-inner">
-      <div>
-        <div class="strip-stat-num">500+</div>
-        <div class="strip-stat-label">Students Enrolled</div>
-      </div>
-      <div>
-        <div class="strip-stat-num">50+</div>
-        <div class="strip-stat-label">Teachers</div>
-      </div>
-      <div>
-        <div class="strip-stat-num">30+</div>
-        <div class="strip-stat-label">Subjects</div>
-      </div>
-      <div>
-        <div class="strip-stat-num">98%</div>
-        <div class="strip-stat-label">Uptime</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Portal Access Info (replaces role signup cards) -->
-  {% if not user.is_authenticated %}
-  <section class="landing-section">
-    <h2>Access Your Portal</h2>
-    <p style="text-align:center; color:var(--text-muted); margin-bottom:2rem; font-size:0.95rem;">
-      All accounts are created by the school administrator. Contact your school admin to receive your login credentials.
-    </p>
-    <div class="landing-cards">
-
-      <div class="landing-card student-card">
-        <div class="card-icon"><i class="fas fa-user-graduate"></i></div>
-        <h3>Student Portal</h3>
-        <p>Access your grades, attendance, assignments, and personal analytics in one place.</p>
-        <ul>
-          <li>View grades &amp; GPA</li>
-          <li>Track attendance records</li>
-          <li>Submit assignments</li>
-          <li>Personal analytics</li>
-        </ul>
-        <a href="{% url 'account_login' %}" class="btn-akkhor btn-success-akkhor" style="width:100%; justify-content:center;">
-          <i class="fas fa-sign-in-alt"></i> Student Login
+<div class="landing-wrapper entrance-body !block !justify-start overflow-y-auto">
+    
+    <!-- 🧭 Strategic Navigation -->
+    <nav class="glass-nav py-4 px-6 md:px-12 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                 <i data-lucide="shield" class="w-4 h-4 text-yellow-500"></i>
+            </div>
+            <span class="text-xl font-black text-white tracking-tighter">Edu<span class="text-yellow-500">MS</span></span>
+        </div>
+        {% if not user.is_authenticated %}
+        <a href="{% url 'account_login' %}" class="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] hover:text-white transition-colors">
+            Portal Access <i data-lucide="arrow-right" class="inline w-3 h-3 ml-1"></i>
         </a>
-        <p style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin-top:0.75rem;">
-          Use your <strong>Student ID</strong> and password provided by admin
-        </p>
-      </div>
+        {% endif %}
+    </nav>
 
-      <div class="landing-card teacher-card">
-        <div class="card-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-        <h3>Teacher Portal</h3>
-        <p>Manage your classes, grade students, track attendance, and create assignments.</p>
-        <ul>
-          <li>Manage class assignments</li>
-          <li>Mark &amp; report attendance</li>
-          <li>Grade submissions</li>
-          <li>Monitor student progress</li>
-        </ul>
-        <a href="{% url 'account_login' %}" class="btn-akkhor btn-primary-akkhor" style="width:100%; justify-content:center;">
-          <i class="fas fa-sign-in-alt"></i> Teacher Login
-        </a>
-        <p style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin-top:0.75rem;">
-          Use your <strong>Teacher ID</strong> and password provided by admin
-        </p>
-      </div>
+    <div class="landing-content max-w-7xl mx-auto">
+        
+        <!-- 🛰️ Cinematic Hero Section -->
+        <section class="hero-nexus animate-fade-up">
+            <div class="flex flex-col items-center justify-center mb-8">
+                <div class="relative group mb-10">
+                    <div class="absolute -inset-10 bg-indigo-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+                    <div class="w-24 h-24 rounded-[2.5rem] bg-white/5 backdrop-blur-3xl border border-white/10 flex items-center justify-center shadow-2xl relative z-10 overflow-hidden">
+                        <i data-lucide="shield" class="w-12 h-12 text-yellow-500 animate-pulse"></i>
+                        <div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent"></div>
+                    </div>
+                </div>
+                
+                <h1 class="glow-title text-7xl md:text-9xl font-black mb-6 hero-gradient-text tracking-tighter">EduMS</h1>
+                <div class="text-[10px] md:text-[12px] font-black uppercase tracking-[0.8em] text-indigo-400 opacity-60 mb-10 flex items-center gap-4">
+                    <span class="w-8 h-[1px] bg-indigo-500/30"></span>
+                    Intelligence Nexus Platform
+                    <span class="w-8 h-[1px] bg-indigo-500/30"></span>
+                </div>
+                <p class="text-white/30 max-w-2xl mx-auto text-lg md:text-xl font-medium leading-tight tracking-tight">
+                    Orchestrating academic excellence through high-fidelity analytics, 
+                    synchronized resource management, and competitive house alliances.
+                </p>
+            </div>
 
-      <div class="landing-card admin-card">
-        <div class="card-icon"><i class="fas fa-shield-halved"></i></div>
-        <h3>Admin Panel</h3>
-        <p>Full control over your school — users, classes, subjects, and analytics.</p>
-        <ul>
-          <li>Manage all users &amp; roles</li>
-          <li>Oversee classes &amp; subjects</li>
-          <li>School-wide analytics</li>
-          <li>Complete system control</li>
-        </ul>
-        <a href="{% url 'account_login' %}" class="btn-akkhor btn-outline-akkhor" style="width:100%; justify-content:center;">
-          <i class="fas fa-sign-in-alt"></i> Admin Login
-        </a>
-        <p style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin-top:0.75rem;">
-          Use your admin <strong>email</strong> and password
-        </p>
-      </div>
+            {% if not user.is_authenticated %}
+            <div class="flex flex-col md:flex-row items-center justify-center mt-12 gap-6 animate-fade-up delay-1">
+                <a href="{% url 'account_login' %}" class="nexus-btn !w-auto px-16 py-6 group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                    <span class="relative z-10 flex items-center gap-3">
+                        Unlock Portal Entry 
+                        <i data-lucide="fingerprint" class="w-6 h-6"></i>
+                    </span>
+                </a>
+                <p class="text-[9px] font-black text-white/20 uppercase tracking-[0.4em] max-w-[200px] text-left leading-relaxed">
+                    Institutional credentials required for terminal access.
+                </p>
+            </div>
+            {% else %}
+            <div class="flex justify-center mt-12 animate-fade-up">
+                <a href="{% if user.role == 'admin' %}{% url 'admin_dashboard' %}{% elif user.role == 'teacher' %}{% url 'teacher_dashboard' %}{% else %}{% url 'student_dashboard' %}{% endif %}" class="nexus-btn !w-auto px-16 py-6 group">
+                    <span class="flex items-center gap-3">
+                        Return to Hub 
+                        <i data-lucide="layout-grid" class="w-6 h-6"></i>
+                    </span>
+                </a>
+            </div>
+            {% endif %}
+        </section>
 
+        <!-- 🧊 Institutional Pulse (Stats Grid) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-32 animate-fade-up delay-2">
+            <div class="glass-stat">
+                <i data-lucide="users" class="w-4 h-4 text-emerald-500 mb-3 opacity-40"></i>
+                <h3 class="text-4xl font-black text-white glow-title tracking-tighter">500+</h3>
+                <p class="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mt-2 leading-none">Intelligence Nodes</p>
+            </div>
+            <div class="glass-stat">
+                <i data-lucide="briefcase" class="w-4 h-4 text-indigo-500 mb-3 opacity-40"></i>
+                <h3 class="text-4xl font-black text-white glow-title tracking-tighter">50+</h3>
+                <p class="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mt-2 leading-none">Faculty Mentors</p>
+            </div>
+            <div class="glass-stat">
+                <i data-lucide="book-open" class="w-4 h-4 text-yellow-500 mb-3 opacity-40"></i>
+                <h3 class="text-4xl font-black text-white glow-title tracking-tighter">30+</h3>
+                <p class="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mt-2 leading-none">Active Domains</p>
+            </div>
+            <div class="glass-stat">
+                <i data-lucide="activity" class="w-4 h-4 text-rose-500 mb-3 opacity-40"></i>
+                <h3 class="text-4xl font-black text-white glow-title tracking-tighter">98%</h3>
+                <p class="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mt-2 leading-none">Operational Sync</p>
+            </div>
+        </div>
+
+        <!-- 🏢 Operational Sectors -->
+        {% if not user.is_authenticated %}
+        <section class="max-w-6xl mx-auto pb-32 animate-fade-up delay-3">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+                <div>
+                    <h2 class="text-4xl font-black text-white tracking-tighter uppercase mb-4">Operational Sectors</h2>
+                    <p class="text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">Access restricted by role authorization</p>
+                </div>
+                <div class="flex items-center gap-2 px-6 py-2 rounded-full border border-white/5 text-[9px] font-black text-emerald-500 uppercase tracking-widest">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Terminal Sync Active
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Student Card -->
+                <div class="landing-card-nexus group relative">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                         <i data-lucide="graduation-cap" class="w-32 h-32"></i>
+                    </div>
+                    <div class="w-20 h-20 rounded-3xl bg-emerald-500/5 text-emerald-500/40 flex items-center justify-center mb-8 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500">
+                        <i data-lucide="graduation-cap" class="w-10 h-10"></i>
+                    </div>
+                    <h4 class="text-2xl font-black text-white mb-3 tracking-tighter uppercase">Student Hub</h4>
+                    <p class="text-sm text-white/20 mb-10 leading-relaxed font-medium">Real-time grades, attendance, and personalized growth trajectories.</p>
+                    <a href="{% url 'account_login' %}" class="inline-flex items-center gap-4 text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em] group-hover:gap-6 transition-all duration-500">
+                        Authenticate <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Teacher Card -->
+                <div class="landing-card-nexus group relative">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                         <i data-lucide="presentation" class="w-32 h-32"></i>
+                    </div>
+                    <div class="w-20 h-20 rounded-3xl bg-indigo-500/5 text-indigo-500/40 flex items-center justify-center mb-8 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-500">
+                        <i data-lucide="presentation" class="w-10 h-10"></i>
+                    </div>
+                    <h4 class="text-2xl font-black text-white mb-3 tracking-tighter uppercase">Faculty Hub</h4>
+                    <p class="text-sm text-white/20 mb-10 leading-relaxed font-medium">Advanced class orchestration, merit awarding, and at-risk detection.</p>
+                    <a href="{% url 'account_login' %}" class="inline-flex items-center gap-4 text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] group-hover:gap-6 transition-all duration-500">
+                        Authenticate <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Admin Card -->
+                <div class="landing-card-nexus group relative">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                         <i data-lucide="shield-check" class="w-32 h-32"></i>
+                    </div>
+                    <div class="w-20 h-20 rounded-3xl bg-yellow-500/5 text-yellow-500/40 flex items-center justify-center mb-8 group-hover:bg-yellow-500 group-hover:text-white transition-all duration-500">
+                        <i data-lucide="shield-check" class="w-10 h-10"></i>
+                    </div>
+                    <h4 class="text-2xl font-black text-white mb-3 tracking-tighter uppercase">Institutional Hub</h4>
+                    <p class="text-sm text-white/20 mb-10 leading-relaxed font-medium">Full system governance, financial oversight, and global analytics.</p>
+                    <a href="{% url 'account_login' %}" class="inline-flex items-center gap-4 text-[10px] font-black text-yellow-500 uppercase tracking-[0.3em] group-hover:gap-6 transition-all duration-500">
+                        Authenticate <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <footer class="pt-20 border-t border-white/5 text-center text-white/10 text-[9px] font-black uppercase tracking-[0.6em] pb-20">
+            © 2026 EduMS Institutional Intelligence. Orchestrated by Apex Protocol.
+        </footer>
     </div>
-  </section>
-  {% endif %}
-
-  <footer class="landing-footer">
-    © 2026 EduSystem School Management Platform. All rights reserved.
-  </footer>
-
 </div>
+
+<script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+    
+    // Smooth scroll for glass nav appearance
+    window.addEventListener('scroll', () => {
+        const nav = document.querySelector('.glass-nav');
+        if (window.scrollY > 50) {
+            nav.classList.add('py-2');
+            nav.classList.remove('py-4');
+        } else {
+            nav.classList.add('py-4');
+            nav.classList.remove('py-2');
+        }
+    });
+</script>
 {% endblock noauth_content %}
