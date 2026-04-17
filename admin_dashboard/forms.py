@@ -75,6 +75,10 @@ class StudentForm(forms.ModelForm):
             # Capture generated credentials for UI feedback (from service metadata)
             self.generated_password = getattr(student, '_generated_password', None)
             self.generated_username = getattr(student, '_generated_username', None)
+            
+            # redundantly set on student for view-level fallback
+            student._generated_password = self.generated_password
+            student._generated_username = self.generated_username
 
         return student
 

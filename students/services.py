@@ -128,6 +128,10 @@ class StudentService:
         # 5. Guardian Hub Activation
         StudentService._sync_guardian_link(student, data.get('parent_email'))
         
+        # 6. Success Metadata Injection
+        student._generated_password = password
+        student._generated_username = username
+        
         return student
 
     @staticmethod

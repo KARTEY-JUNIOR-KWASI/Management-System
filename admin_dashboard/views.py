@@ -146,9 +146,11 @@ def student_create(request):
         if form.is_valid():
             student = form.save()
             msg = f'Student {student.user.get_full_name()} created successfully.'
-            if hasattr(form.instance, '_generated_password'):
-                username = getattr(form.instance, '_generated_username', 'N/A')
-                password = getattr(form.instance, '_generated_password', 'N/A')
+            # Logic to extract credentials from form OR instance
+            username = getattr(form, 'generated_username', getattr(student, '_generated_username', None))
+            password = getattr(form, 'generated_password', getattr(student, '_generated_password', None))
+            
+            if username and password:
                 msg += f' [Student ID: {username}] [Password: {password}]'
             
             if hasattr(form.instance, '_parent_generated_password'):
@@ -328,8 +330,12 @@ def teacher_create(request):
         if form.is_valid():
             teacher = form.save()
             msg = f'Teacher {teacher.user.get_full_name()} created successfully.'
-            if hasattr(form, 'generated_password'):
-                msg += f' [User ID: {form.generated_username}] [Password: {form.generated_password}]'
+            # Logic to extract credentials from form OR instance
+            username = getattr(form, 'generated_username', getattr(teacher, '_generated_username', None))
+            password = getattr(form, 'generated_password', getattr(teacher, '_generated_password', None))
+            
+            if username and password:
+                msg += f' [User ID: {username}] [Password: {password}]'
             messages.success(request, msg)
             return redirect('teacher_list')
     else:

@@ -93,6 +93,9 @@
                                     <a href="{% url 'student_update' student.pk %}" class="btn btn-sm p-btn-icon shadow-sm" style="width: 38px; height: 38px;" title="Modify Record">
                                         <i class="fas fa-key text-warning" style="font-size: 0.9rem;"></i>
                                     </a>
+                                    <a href="{% url 'student_delete' student.pk %}" class="btn btn-sm p-btn-icon shadow-sm" style="width: 38px; height: 38px;" title="Delete Record">
+                                        <i class="fas fa-trash-alt text-danger" style="font-size: 0.9rem;"></i>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
