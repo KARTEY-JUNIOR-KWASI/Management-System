@@ -6,72 +6,98 @@
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/dashboard-premium.css' %}">
 <style>
-    /* ── Nexus 3D Vault Engine ────────────────── */
-    .wood-shelf-wrapper {
+    /* ── Realistic Natural Oak Vault Engine ────────────────── */
+    :root {
+        --oak-main: #e8d5b5;
+        --oak-grain: #d2b48c;
+        --oak-shadow: #8b7355;
+        --oak-highlight: #f5ecd1;
+    }
+
+    .realistic-shelf-container {
         position: relative;
+        padding: 60px 0;
+        perspective: 2000px;
+        background: #fdfbf7;
+        border-radius: 40px;
         margin-bottom: 3rem;
-        background: #1a1a1a;
-        background-image: 
-            linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.2) 80%, rgba(0,0,0,0.8) 100%),
-            url('https://www.transparenttextures.com/patterns/dark-wood.png');
-        box-shadow: 
-            inset 0 40px 60px rgba(0,0,0,0.9), 
-            inset 0 -20px 30px rgba(0,0,0,0.8);
-        border: 12px solid #2c1e14;
-        border-bottom: none;
-        border-radius: 8px 8px 0 0;
-        padding-top: 4rem;
         overflow: hidden;
     }
 
-    .books-slider {
-        display: flex;
-        align-items: flex-end;
-        gap: 3.5rem;
-        overflow-x: auto;
-        padding: 0 5rem 25px 5rem;
-        scroll-behavior: smooth;
+    .shelf-unit {
         position: relative;
-        z-index: 2;
-        -ms-overflow-style: none; scrollbar-width: none;  
+        width: 90%;
+        margin: 0 auto;
+        transform-style: preserve-3d;
+        display: none; /* Controlled by JS Pagination */
     }
-    .books-slider::-webkit-scrollbar { display: none; }
+    .shelf-unit.active { display: block; animation: shelfIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) both; }
 
-    .wood-ledge {
+    @keyframes shelfIn {
+        from { opacity: 0; transform: translateY(30px) rotateX(-10deg); }
+        to { opacity: 1; transform: translateY(0) rotateX(0); }
+    }
+
+    .shelf-back {
+        position: absolute;
+        inset: -20px -40px 0 -40px;
+        background: var(--oak-main);
+        background-image: repeating-linear-gradient(90deg, transparent, transparent 100px, rgba(0,0,0,0.03) 100px, rgba(0,0,0,0.03) 101px);
+        border: 15px solid #c4a484;
+        border-bottom: none;
+        box-shadow: inset 0 20px 50px rgba(0,0,0,0.1);
+        z-index: 1;
+    }
+
+    .shelf-plank {
         position: relative;
-        height: 45px;
-        background: #2c1e14;
-        background-image: linear-gradient(to bottom, #3d2b1d 0%, #1a110a 100%);
-        border-top: 6px solid #4a3324;
+        height: 50px;
+        background: var(--oak-main);
+        background-image: 
+            linear-gradient(to bottom, var(--oak-highlight) 0%, var(--oak-main) 20%, var(--oak-shadow) 100%);
+        border-top: 2px solid rgba(255,255,255,0.5);
         box-shadow: 
-            0 25px 40px rgba(0,0,0,0.8),
-            inset 0 1px 0 rgba(255,255,255,0.1);
-        z-index: 3;
-        margin-bottom: 5rem;
+            0 20px 40px rgba(0,0,0,0.15),
+            0 40px 80px rgba(0,0,0,0.1);
+        z-index: 10;
+        transform: translateZ(20px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    /* 🧠 The Nexus 3D Book Object */
-    .nexus-book {
-        flex: 0 0 180px;
-        height: 270px;
+    .shelf-books-area {
         position: relative;
-        perspective: 1500px;
+        min-height: 320px;
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-end;
+        padding-bottom: 5px;
+        z-index: 5;
+    }
+
+    /* 🧠 Synthesized 3D Book Object */
+    .nexus-book {
+        width: 160px;
+        height: 240px;
+        position: relative;
+        perspective: 1000px;
         cursor: pointer;
-        text-decoration: none !important;
-        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        transition: all 0.4s ease;
+        margin-bottom: -10px;
     }
 
     .book-inner {
         position: relative;
         width: 100%;
         height: 100%;
-        transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        transition: transform 0.5s cubic-bezier(0.2, 0, 0, 1);
         transform-style: preserve-3d;
-        box-shadow: 15px 15px 30px rgba(0,0,0,0.5);
+        box-shadow: 5px 10px 20px rgba(0,0,0,0.2);
     }
 
     .nexus-book:hover .book-inner {
-        transform: rotateY(-25deg) scale(1.05);
+        transform: rotateY(-30deg) translateZ(30px);
     }
 
     .book-cover {
@@ -80,93 +106,63 @@
         height: 100%;
         background-size: cover;
         background-position: center;
-        border-radius: 3px 6px 6px 3px;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        padding: 2rem 1.2rem;
-        backface-visibility: hidden;
+        border-radius: 2px 5px 5px 2px;
+        overflow: hidden;
         z-index: 2;
-        border-left: 2px solid rgba(255,255,255,0.2);
     }
 
-    /* Glossy Plastic Feel */
-    .book-cover::after {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: linear-gradient(125deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 100%);
-        pointer-events: none;
-        border-radius: inherit;
+    /* Synthesized Layer (When no actual cover exists) */
+    .synthesized-cover {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: white;
+        border: 1px solid rgba(255,255,255,0.1);
     }
+    .synthesized-logo { opacity: 0.1; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; }
+    .synthesized-title { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; line-height: 1.3; }
+    .synthesized-subject { font-size: 8px; font-weight: 700; opacity: 0.6; }
 
     .book-spine {
         position: absolute;
-        width: 45px;
+        width: 40px;
         height: 100%;
-        background: #1e293b;
-        left: -43px;
+        background: #111;
+        left: -40px;
         transform: rotateY(-90deg);
         transform-origin: right;
-        box-shadow: inset -5px 0 10px rgba(0,0,0,0.5);
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 4px 0 0 4px;
     }
+    .spine-text { transform: rotate(90deg); color: white; font-size: 8px; font-weight: 800; white-space: nowrap; opacity: 0.3; }
 
-    .spine-text {
-        transform: rotate(90deg);
-        white-space: nowrap;
-        color: rgba(255,255,255,0.4);
-        font-size: 10px;
+    /* Pagination Controls */
+    .shelf-navigation {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    .nav-btn {
+        background: white;
+        border: 1px solid #c4a484;
+        color: #8b7355;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
         font-weight: 800;
+        font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 2px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
-
-    .book-meta {
-        position: relative; z-index: 3;
-        background: rgba(0,0,0,0.6);
-        backdrop-filter: blur(8px);
-        padding: 10px;
-        border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.1);
-        transform: translateY(10px);
-        opacity: 0;
-        transition: all 0.4s ease;
-    }
-
-    .nexus-book:hover .book-meta {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    .book-title-main {
-        font-size: 14px;
-        font-weight: 900;
-        color: white;
-        margin-bottom: 2px;
-        line-height: 1.2;
-    }
-
-    .book-author-sub {
-        font-size: 9px;
-        color: #fbbf24;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .scroll-arrow {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 60px;
-        background: linear-gradient(to right, rgba(0,0,0,0.8), transparent);
-    .scroll-arrow:hover { background: rgba(0,0,0,0.8); color: white; }
-    .scroll-left { left: 0; border-radius: 0 40px 40px 0; border-left: none; }
-    .scroll-right { right: 0; border-radius: 40px 0 0 40px; border-right: none; }
+    .nav-btn:hover:not(:disabled) { background: #8b7355; color: white; transform: translateY(-2px); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
     /* ── Standard Resource Cards ─────────────── */
     .resource-card {
@@ -209,38 +205,54 @@
     </div>
 
     <!-- ── Realistic Bookshelf Widget ────────────────── -->
-    <div class="mb-4">
+    <div class="mb-5">
         <div class="section-label">Global Knowledge Archives</div>
         
-        <div style="position: relative;">
-            <div class="wood-shelf-wrapper">
-                <button class="scroll-arrow scroll-left" onclick="document.getElementById('books-container').scrollBy(-350, 0)">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                
-                <div class="books-slider" id="books-container">
-                    {% for r in resources %}
-                        <a href="{% url 'view_resource' r.pk %}" class="nexus-book group">
-                            <div class="book-inner">
-                                <div class="book-spine" style="background: {{ r.color|default:'#4361ee' }};">
-                                    <span class="spine-text">{{ r.get_resource_type_display|truncatechars:15 }}</span>
-                                </div>
-                                <div class="book-cover" style="background-image: url('{% if r.cover_image %}{{ r.cover_image.url }}{% else %}{% if 'Science' in r.subject.name or 'Math' in r.subject.name %}{% static 'images/library/academic_cover.png' %}{% else %}{% static 'images/library/default_cover.png' %}{% endif %}{% endif %}');">
-                                    <div class="book-meta">
-                                        <div class="book-title-main">{{ r.title|truncatechars:35 }}</div>
-                                        <div class="book-author-sub">{{ r.author|default:"Institutional Edition" }}</div>
-                                    </div>
-                                </div>
+        <div class="realistic-shelf-container">
+            <div id="shelf-system">
+                {% for r in resources %}
+                    {% if forloop.counter0|divisibleby:6 %}
+                        <div class="shelf-unit {% if forloop.first %}active{% endif %}" data-shelf-index="{{ forloop.counter0 }}">
+                            <div class="shelf-back"></div>
+                            <div class="shelf-books-area">
+                    {% endif %}
+                    
+                    <a href="{% url 'view_resource' r.pk %}" class="nexus-book group">
+                        <div class="book-inner">
+                            <div class="book-spine" style="background: {{ r.color|default:'#4361ee' }};">
+                                <span class="spine-text">{{ r.get_resource_type_display }}</span>
                             </div>
-                        </a>
-                    {% endfor %}
-                </div>
-                
-                <button class="scroll-arrow scroll-right" onclick="document.getElementById('books-container').scrollBy(350, 0)">
-                    <i class="fas fa-chevron-right"></i>
+                            <div class="book-cover">
+                                {% if r.cover_image %}
+                                    <div class="w-full h-full" style="background-image: url('{{ r.cover_image.url }}'); background-size: cover;"></div>
+                                {% else %}
+                                    <div class="synthesized-cover">
+                                        <img src="{% static 'images/logo.png' %}" class="synthesized-logo" alt="EduMS">
+                                        <div class="synthesized-subject">{{ r.subject.name|default:"General Study" }}</div>
+                                        <div class="synthesized-title">{{ r.title|truncatechars:40 }}</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+
+                    {% if forloop.counter|divisibleby:6 or forloop.last %}
+                            </div>
+                            <div class="shelf-plank"></div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- Shelf Controls -->
+            <div class="shelf-navigation">
+                <button id="prev-shelf" class="nav-btn" disabled onclick="changeShelf(-1)">
+                    <i class="fas fa-chevron-left me-2"></i> Previous Shelf
+                </button>
+                <button id="next-shelf" class="nav-btn" onclick="changeShelf(1)">
+                    Next Shelf <i class="fas fa-chevron-right ms-2"></i>
                 </button>
             </div>
-            <div class="wood-ledge"></div>
         </div>
     </div>
 
@@ -317,8 +329,31 @@
 </div>
 
 <script>
+    let currentShelf = 0;
+    const shelves = document.querySelectorAll('.shelf-unit');
+    const prevBtn = document.getElementById('prev-shelf');
+    const nextBtn = document.getElementById('next-shelf');
+
+    function updateShelfControls() {
+        if (shelves.length <= 1) {
+            nextBtn.disabled = true;
+            prevBtn.disabled = true;
+            return;
+        }
+        prevBtn.disabled = currentShelf === 0;
+        nextBtn.disabled = currentShelf === shelves.length - 1;
+    }
+
+    function changeShelf(direction) {
+        shelves[currentShelf].classList.remove('active');
+        currentShelf += direction;
+        shelves[currentShelf].classList.add('active');
+        updateShelfControls();
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
+        updateShelfControls();
     });
 </script>
 {% endblock %}
