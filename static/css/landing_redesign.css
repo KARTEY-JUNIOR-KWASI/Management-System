@@ -1,0 +1,176 @@
+/* 🎨 EduMS Modern Landing Redesign */
+
+:root {
+    --brand-dark: #0f172a;
+    --brand-mint: #2dd4bf;
+    --brand-amber: #fbbf24;
+    --brand-gray: #64748b;
+    --bg-light: #f8fafc;
+    --transition-premium: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.landing-new-body {
+    background-color: var(--bg-light);
+    font-family: 'Inter', sans-serif;
+    color: var(--brand-dark);
+}
+
+/* 🧊 Modern Hero Layout */
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    padding: 8rem 0;
+}
+
+@media (max-width: 992px) {
+    .hero-grid {
+        grid-template-columns: 1fr;
+        padding: 4rem 1.5rem;
+        text-align: center;
+    }
+}
+
+.hero-text-content h1 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    font-size: 5.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.hero-text-content .tagline {
+    font-[Outfit] font-black uppercase tracking-[0.4em] text-indigo-600 opacity-60 mb-6 block extra-small;
+}
+
+/* 🖼️ Organic Image Gallery */
+.hero-visual-nexus {
+    position: relative;
+    height: 450px;
+}
+
+.blob-container {
+    position: absolute;
+    overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.1);
+    transition: var(--transition-premium);
+}
+
+.blob-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Main Portrait Mask (Blob) */
+.main-student-blob {
+    width: 320px;
+    height: 420px;
+    left: 10%;
+    top: 0;
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    z-index: 5;
+    background: #fff;
+    border: 8px solid #fff;
+}
+
+/* Secondary Group Mask */
+.secondary-student-blob {
+    width: 250px;
+    height: 250px;
+    right: 5%;
+    bottom: -10%;
+    border-radius: 20px;
+    z-index: 4;
+}
+
+/* 💠 Decorative Geometric Accents */
+.accent-element {
+    position: absolute;
+    pointer-events: none;
+}
+
+.amber-circle-arrow {
+    width: 80px;
+    height: 80px;
+    background: var(--brand-amber);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: -20px;
+    left: 0;
+    z-index: 10;
+    box-shadow: 0 10px 20px rgba(251, 191, 36, 0.3);
+}
+
+.mint-chip-stat {
+    position: absolute;
+    top: 50px;
+    right: -20px;
+    background: var(--brand-mint);
+    padding: 1rem 2rem;
+    border-radius: 100px;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    z-index: 10;
+    box-shadow: 0 15px 30px rgba(45, 212, 191, 0.2);
+}
+
+.mint-chip-stat .count {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.mint-chip-stat .label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.2;
+}
+
+/* 🚀 Sector Cards Refresh */
+.sector-card-new {
+    background: #fff;
+    border-radius: 32px;
+    padding: 3rem;
+    transition: var(--transition-premium);
+    border: 1px solid rgba(0,0,0,0.03);
+    height: 100%;
+}
+
+.sector-card-new:hover {
+    transform: translateY(-20px);
+    box-shadow: 0 40px 80px rgba(15, 23, 42, 0.08);
+}
+
+.sector-icon-box {
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+/* 🧭 Glass Nav Updates */
+.new-glass-nav {
+    background: rgba(248, 250, 252, 0.8) !important;
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+/* 🌀 Hover Animations */
+.hero-visual-nexus:hover .main-student-blob {
+    transform: rotate(-2deg) scale(1.02);
+}
+
+.hero-visual-nexus:hover .secondary-student-blob {
+    transform: rotate(2deg) scale(1.05);
+}
