@@ -88,6 +88,12 @@ class Payment(models.Model):
     def save(self, *args, **kwargs):
         from django.db import transaction
         from django.db.models import F
+        import uuid
+        import hashlib
+
+        if not self.transaction_id:
+            # Generate a unique tracking hash for the transaction
+            self.transaction_id = f"TRX-{hashlib.md5(str(uuid.uuid4()).encode()).hexdigest()[:8].upper()}"
 
         is_new = self.pk is None
         with transaction.atomic():

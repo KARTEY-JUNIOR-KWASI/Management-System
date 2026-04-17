@@ -55,9 +55,10 @@ class FinanceService:
     @transaction.atomic
     def record_payment(invoice, amount, method, transaction_id=None, notes=''):
         """
-        Records a transaction against an invoice with Bank-Grade atomicity.
+        Records a transaction against an invoice. 
+        Balance adjustment and status synchronization are handled 
+        atomically by the Payment model's save protocol.
         """
-        # 1. Create the Payment record
         payment = Payment.objects.create(
             invoice=invoice,
             amount_paid=amount,
@@ -65,21 +66,4 @@ class FinanceService:
             transaction_id=transaction_id,
             notes=notes
         )
-        
-        # 2. Atomic Balance Adjustment
-        # This occurs at the DB level, preventing race conditions.
-        Invoice.objects.filter(id=invoice.id).update(
-            balance_due=F('balance_due') - amount
-        )
-        
-        # 3. Synchronize status
-        invoice.refresh_from_db()
-        if invoice.balance_due <= 0:
-            invoice.balance_due = 0
-            invoice.status = 'paid'
-        elif invoice.balance_due < invoice.total_amount:
-            invoice.status = 'partial'
-        
-        invoice.save(update_fields=['balance_due', 'status', 'updated_at'])
-        
         return payment
