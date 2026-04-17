@@ -40,12 +40,12 @@
                 </p>
 
                 {% if not user.is_authenticated %}
-                <div class="flex items-center gap-6">
+                <div class="flex flex-row items-center justify-center lg:justify-start gap-6 login-btn-group">
                     <a href="{% url 'account_login' %}" class="bg-indigo-600 text-white px-10 py-5 rounded-box font-bold text-lg hover:bg-slate-900 transition-all shadow-xl shadow-indigo-100 flex items-center gap-3">
                         Unlock Portal Entry <i data-lucide="arrow-right" class="w-5 h-5"></i>
                     </a>
-                    <div class="w-px h-12 bg-gray-200"></div>
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest max-w-[150px] leading-tight">
+                    <div class="hidden md:block w-px h-12 bg-gray-200"></div>
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest max-w-[150px] leading-tight text-center lg:text-left">
                         Institutional credentials required for terminal access.
                     </p>
                 </div>
