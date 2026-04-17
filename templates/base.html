@@ -160,7 +160,7 @@
           {% if school_config.logo %}
             <img src="{{ school_config.logo.url }}" class="w-10 h-10 rounded-xl shadow-md border border-indigo-800" alt="Logo">
           {% else %}
-            <img src="https://i.ibb.co/kVqZ4rt5/Edu-MS-logo-with-educational-symbols.png" class="w-10 h-10 rounded-xl shadow-lg" alt="EduMS Logo">
+            <img src="{% static 'images/logo.png' %}" class="w-10 h-10 rounded-xl shadow-lg" alt="EduMS Logo">
           {% endif %}
           <div class="min-w-0">
             <span class="font-display font-bold text-lg tracking-tight block truncate text-yellow-400">{{ school_config.name|truncatechars:14 }}</span>

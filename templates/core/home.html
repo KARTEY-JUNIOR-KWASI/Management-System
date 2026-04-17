@@ -14,9 +14,7 @@
     <!-- 🧭 Strategic Navigation -->
     <nav class="new-glass-nav py-5 px-6 md:px-12 flex items-center justify-between fixed top-0 w-full z-[100]">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg">
-                 <i data-lucide="shield" class="w-5 h-5 text-white"></i>
-            </div>
+            <img src="{% static 'images/logo.png' %}" class="w-10 h-10 rounded-xl shadow-lg" alt="EduMS Logo">
             <span class="text-2xl font-black text-gray-900 tracking-tighter">Edu<span class="text-indigo-600">MS</span></span>
         </div>
         {% if not user.is_authenticated %}
@@ -31,8 +29,10 @@
         <!-- 🚀 Hero Section -->
         <section class="hero-grid animate-fade-up">
             <div class="hero-text-content">
-                <span class="tagline">Institutional Excellence</span>
-                <h1 class="text-gray-900">EduMS</h1>
+                <div class="flex items-center gap-4 mb-2">
+                    <img src="{% static 'images/logo.png' %}" class="w-16 h-16 rounded-2xl shadow-xl" alt="EduMS Logo">
+                    <h1 class="text-gray-900 leading-none">Edu<span class="text-indigo-600">MS</span></h1>
+                </div>
                 
                 <p class="text-gray-500 text-xl font-medium leading-relaxed max-w-lg mb-10">
                     Orchestrating academic brilliance through high-fidelity analytics 
@@ -148,8 +148,12 @@
             </div>
         </section>
 
-        <footer class="pt-20 border-t border-gray-100 text-center text-gray-400 text-[10px] font-black uppercase tracking-[0.6em] pb-20">
-            © 2026 EduMS Institutional Intelligence. Focused on Academic Stewardship.
+        <footer class="pt-20 border-t border-gray-100 flex flex-col items-center gap-4 pb-20">
+            <div class="flex items-center gap-2 opacity-50 grayscale hover:grayscale-0 transition-all">
+                <img src="{% static 'images/logo.png' %}" class="w-6 h-6 rounded-md" alt="EduMS Logo">
+                <span class="text-[10px] font-black uppercase tracking-[0.4em]">EduMS Institutional Intelligence</span>
+            </div>
+            <p class="text-gray-400 text-[10px] font-black uppercase tracking-[0.4em]">Focused on Academic Stewardship.</p>
         </footer>
     </div>
 </div>

@@ -1,4 +1,5 @@
 <!-- templates/components/header.html -->
+{% load static %}
 <!-- Mobile Header: Full branded bar -->
 <header class="bg-indigo-600 text-white sticky top-0 z-50 rounded-b-3xl shadow-lg lg:hidden">
   <div class="px-5 py-4 flex justify-between items-center">
@@ -6,7 +7,7 @@
       {% if school_config.logo %}
         <img src="{{ school_config.logo.url }}" class="w-10 h-10 rounded-xl" alt="Logo">
       {% else %}
-        <img src="https://i.ibb.co/kVqZ4rt5/Edu-MS-logo-with-educational-symbols.png" class="w-10 h-10 rounded-xl" alt="EduMS Logo">
+        <img src="{% static 'images/logo.png' %}" class="w-10 h-10 rounded-xl" alt="EduMS Logo">
       {% endif %}
       <div class="min-w-0">
         <h1 class="font-bold text-lg leading-tight tracking-tight truncate">{{ title|default:school_config.name }}</h1>
