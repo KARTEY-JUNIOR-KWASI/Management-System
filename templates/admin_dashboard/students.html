@@ -51,20 +51,56 @@
         </div>
 
     <div class="col-12 animate-fade-up delay-1">
-        <div class="nexus-glass-card overflow-hidden border-0 shadow-sm">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 nexus-premium-table">
-                    <thead>
-                        <tr class="bg-light bg-opacity-50">
-                            <th class="ps-4 py-4 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Entity Identification</th>
-                            <th class="py-4 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Sector Assignment</th>
-                            <th class="pe-4 py-4 text-end extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Operational Commands</th>
-                        </tr>
-                    </thead>
+        <form id="bulkActionForm" method="post" action="{% url 'bulk_student_delete' %}">
+            {% csrf_token %}
+            <!-- ⚡ Bulk Operations Bar -->
+            <div id="bulkActionBar" class="nexus-glass-card mb-4 p-3 animate-fade-in d-none shadow-lg" style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-avatar-sm bg-danger shadow-sm">
+                            <i class="fas fa-trash-alt text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-white mb-0 fw-800 extra-small text-uppercase tracking-wider">Bulk Purge Protocol</h6>
+                            <p class="text-white text-opacity-50 mb-0 extra-small fw-bold"><span id="selectedCount">0</span> entities identified for removal</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-grow-1 mx-md-4" style="max-width: 400px;">
+                        <input type="text" name="bulk_reason" class="form-control form-control-sm bg-white bg-opacity-10 border-0 text-white extra-small fw-bold px-3 py-2" style="border-radius: 8px;" placeholder="Purge Justification (e.g. Wrong Registration)...">
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="button" onclick="cancelSelection()" class="btn btn-sm btn-link text-white text-opacity-50 text-decoration-none extra-small fw-800 uppercase">Cancel</button>
+                        <button type="submit" class="btn btn-sm btn-danger rounded-pill px-4 extra-small fw-800 uppercase shadow-sm border-0" style="background: #ef4444;">Execute Purge</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nexus-glass-card overflow-hidden border-0 shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 nexus-premium-table">
+                        <thead>
+                            <tr class="bg-light bg-opacity-50">
+                                <th class="ps-4 py-4" style="width: 40px;">
+                                    <div class="form-check custom-nexus-check">
+                                        <input class="form-check-input" type="checkbox" id="selectAll">
+                                    </div>
+                                </th>
+                                <th class="py-4 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Entity Identification</th>
+                                <th class="py-4 extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Sector Assignment</th>
+                                <th class="pe-4 py-4 text-end extra-small text-uppercase text-muted fw-800 opa-7" style="letter-spacing: 1.5px;">Operational Commands</th>
+                            </tr>
+                        </thead>
                     <tbody>
                         {% for student in students %}
                         <tr class="animate-fade-in" style="border-bottom: 1px solid rgba(0,0,0,0.03) !important;">
-                            <td class="ps-4 py-3" data-label="Entity Identification">
+                            <td class="ps-4 py-3">
+                                <div class="form-check custom-nexus-check">
+                                    <input class="form-check-input student-check" type="checkbox" name="student_ids" value="{{ student.pk }}">
+                                </div>
+                            </td>
+                            <td class="py-3" data-label="Entity Identification">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="p-avatar shadow-sm" style="background: var(--p-nexus-primary); width: 42px; height: 42px; font-size: 0.85rem;">
                                         {{ student.user.first_name|slice:":1" }}{{ student.user.last_name|slice:":1" }}
@@ -129,9 +165,73 @@
                 </div>
                 {% endwith %}
             </div>
-            {% endif %}
         </div>
+        </form>
     </div>
+
+<style>
+.custom-nexus-check .form-check-input {
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 6px;
+    border: 2px solid rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.custom-nexus-check .form-check-input:checked {
+    background-color: var(--p-nexus-primary);
+    border-color: var(--p-nexus-primary);
+}
+#bulkActionBar {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(-10px);
+}
+#bulkActionBar:not(.d-none) {
+    animation: slideInDown 0.3s forwards;
+}
+@keyframes slideInDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const studentChecks = document.querySelectorAll('.student-check');
+    const bulkBar = document.getElementById('bulkActionBar');
+    const selectedCount = document.getElementById('selectedCount');
+
+    function updateBulkBar() {
+        const checkedCount = document.querySelectorAll('.student-check:checked').length;
+        if (checkedCount > 0) {
+            bulkBar.classList.remove('d-none');
+            selectedCount.textContent = checkedCount;
+        } else {
+            bulkBar.classList.add('d-none');
+        }
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            studentChecks.forEach(check => {
+                check.checked = selectAll.checked;
+            });
+            updateBulkBar();
+        });
+    }
+
+    studentChecks.forEach(check => {
+        check.addEventListener('change', updateBulkBar);
+    });
+});
+
+function cancelSelection() {
+    document.querySelectorAll('.student-check').forEach(c => c.checked = false);
+    document.getElementById('selectAll').checked = false;
+    document.getElementById('bulkActionBar').classList.add('d-none');
+}
+</script>
             </div>
         </div>
     </div>

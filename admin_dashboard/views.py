@@ -181,10 +181,53 @@ def student_update(request, pk):
 def student_delete(request, pk):
     student = get_object_or_404(Student, pk=pk)
     if request.method == 'POST':
+        reason = request.POST.get('reason', 'No specific reason provided.')
+        student_name = student.user.get_full_name()
+        student_id = student.student_id
+        
+        # Log the operation before purging the record
+        AuditLog.objects.create(
+            user=request.user,
+            action='DELETE',
+            resource_type='Student',
+            resource_id=student_id,
+            description=f"Purged student visibility: {student_name} ({student_id}). Reason: {reason}"
+        )
+        
         student.user.delete()
-        messages.success(request, 'Student deleted successfully')
+        messages.success(request, f'Student {student_name} expunged from institutional registry.')
         return redirect('student_list')
     return render(request, 'admin_dashboard/student_confirm_delete.html', {'student': student})
+
+@admin_required
+def bulk_student_delete(request):
+    """Purge multiple institutional entities based on selection protocol."""
+    if request.method == 'POST':
+        student_ids = request.POST.getlist('student_ids')
+        reason = request.POST.get('bulk_reason', 'Bulk correction of registration records.')
+        
+        if not student_ids:
+            messages.warning(request, "No entities selected for purge sequence.")
+            return redirect('student_list')
+            
+        students = Student.objects.filter(pk__in=student_ids).select_related('user')
+        count = students.count()
+        
+        # Log the bulk operation summary
+        AuditLog.objects.create(
+            user=request.user,
+            action='DELETE',
+            resource_type='Student (Bulk)',
+            description=f"Executed bulk purge of {count} students. Reason: {reason}"
+        )
+        
+        # Manually delete each user to trigger cascades and potential signals
+        for student in students:
+            student.user.delete()
+            
+        messages.success(request, f"Successfully purged {count} student records from the database.")
+        
+    return redirect('student_list')
 
 @admin_required
 def student_detail(request, pk):
