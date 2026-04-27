@@ -124,8 +124,13 @@
                                                     {% endif %}
                                                 </td>
                                                 <td>
-                                                    <span class="badge bg-secondary">Stable</span>
-                                                    <!-- TODO: Calculate actual trend -->
+                                                    {% if subject.trend == 'up' %}
+                                                        <span class="badge bg-success"><i class="fas fa-arrow-up"></i> Trending Up</span>
+                                                    {% elif subject.trend == 'down' %}
+                                                        <span class="badge bg-danger"><i class="fas fa-arrow-down"></i> Trending Down</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary"><i class="fas fa-minus"></i> Stable</span>
+                                                    {% endif %}
                                                 </td>
                                             </tr>
                                             {% endfor %}
@@ -155,7 +160,7 @@
                                 </div>
                                 <div class="progress">
                                     <div class="progress-bar bg-success" role="progressbar"
-                                         style="width: {{ performance_data.overall_percentage }}%"
+                                         data-width="{{ performance_data.overall_percentage }}"
                                          aria-valuenow="{{ performance_data.overall_percentage }}"
                                          aria-valuemin="0" aria-valuemax="100">
                                     </div>
@@ -214,9 +219,9 @@
                                                 </div>
                                                 <div class="mb-2">
                                                     <small class="text-muted">AI Confidence: {{ prediction.confidence|floatformat:"1%" }}</small>
-                                                    <div class="progress" style="height: 6px;">
+                                                    <div class="progress progress-sm">
                                                         <div class="progress-bar bg-info" role="progressbar"
-                                                             style="width: {% widthratio prediction.confidence 1 100 %}%"
+                                                             data-width="{% widthratio prediction.confidence 1 100 %}"
                                                              aria-valuenow="{% widthratio prediction.confidence 1 100 %}"
                                                              aria-valuemin="0" aria-valuemax="100"></div>
                                                     </div>
@@ -302,10 +307,11 @@
     </div>
 </div>
 
+{{ performance_data.subject_performance|json_script:"subject-performance-data" }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const ctx = document.getElementById('performanceChart').getContext('2d');
-const subjectData = {{ performance_data.subject_performance|safe }};
+const subjectData = JSON.parse(document.getElementById('subject-performance-data').textContent);
 
 const labels = subjectData.map(item => item.subject.name.substring(0, 10) + '...');
 const scores = subjectData.map(item => item.average_score);
@@ -370,5 +376,15 @@ function generateReport() {
     document.body.appendChild(form);
     form.submit();
 }
+
+// Apply data-width values as CSS widths for progress bars
+document.querySelectorAll('.progress-bar[data-width]').forEach(function(bar) {
+    bar.style.width = bar.getAttribute('data-width') + '%';
+});
 </script>
+
+<style>
+.progress-sm { height: 6px; }
+</style>
+
 {% endblock %}

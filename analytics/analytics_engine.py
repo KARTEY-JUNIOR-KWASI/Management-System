@@ -28,6 +28,19 @@ def _calculate_student_performance(student):
         subject_results = [r for r in results if r.subject_id == subject.id]
         if subject_results:
             subject_avg = sum(r.score for r in subject_results) / len(subject_results)
+            
+            # Trend calculation: compare latest result vs average of previous results
+            trend = 'stable'
+            if len(subject_results) >= 2:
+                sorted_results = sorted(subject_results, key=lambda r: getattr(r, 'date', r.id))
+                latest_score = sorted_results[-1].score
+                previous_avg = sum(r.score for r in sorted_results[:-1]) / (len(sorted_results) - 1)
+                
+                if latest_score > previous_avg + 2:
+                    trend = 'up'
+                elif latest_score < previous_avg - 2:
+                    trend = 'down'
+
             subject_performance.append({
                 'subject': {
                     'id': subject.id,
@@ -36,6 +49,7 @@ def _calculate_student_performance(student):
                 'subject_obj': subject, # Include actual model instance
                 'average_score': float(subject_avg),
                 'grade_points': float(min(4.0, subject_avg / 25)),
+                'trend': trend,
             })
 
     # Attendance analysis
